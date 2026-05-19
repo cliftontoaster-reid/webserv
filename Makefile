@@ -134,7 +134,6 @@ MON_CGI_INC_DIR		= $(MON_CGI_DEPO)/include
 LIBS_ARCHIVES += $(MON_CGI_ARCHIVE)
 INC += -I$(MON_CGI_INC_DIR)
 
-
 mon-cgi: $(MON_CGI_ARCHIVE)
 $(MON_CGI_ARCHIVE):
 	@printf "$(BOLD)Building mon-cgi library...$(RESET)"
