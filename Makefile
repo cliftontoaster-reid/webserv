@@ -111,11 +111,11 @@ INC += -I$(TOML98_INC_DIR)
 
 toml98: $(TOML98_ARCHIVE)
 $(TOML98_ARCHIVE):
-	@printf "$(BOLD)Building toml98 library...$(RESET)"
+	@printf "$(BOLD)Building toml98 library...$(RESET)\n"
 	@$(MAKE) -C $(TOML98_DEPO) all \
 		CCX=$(CCX) CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) \
 		TARGET_DIR=$(TOML98_TARGET_DIR) MODE=$(MODE)
-	@printf "$(BOLD)Built toml98:$(RESET) $(GREEN)$(TOML98_ARCHIVE)$(RESET)"
+	@printf "$(BOLD)Built toml98:$(RESET) $(GREEN)$(TOML98_ARCHIVE)$(RESET)\n"
 
 # --------
 # MON-CGI
@@ -136,11 +136,11 @@ INC += -I$(MON_CGI_INC_DIR)
 
 mon-cgi: $(MON_CGI_ARCHIVE)
 $(MON_CGI_ARCHIVE):
-	@printf "$(BOLD)Building mon-cgi library...$(RESET)"
+	@printf "$(BOLD)Building mon-cgi library...$(RESET)\n"
 	@$(MAKE) -C $(MON_CGI_DEPO) all \
 		CCX=$(CCX) CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) \
 		TARGET_DIR=$(MON_CGI_TARGET_DIR) MODE=$(MODE)
-	@printf "$(BOLD)Built mon-cgi:$(RESET) $(GREEN)$(MON_CGI_ARCHIVE)$(RESET)"
+	@printf "$(BOLD)Built mon-cgi:$(RESET) $(GREEN)$(MON_CGI_ARCHIVE)$(RESET)\n"
 
 # ---------
 # MON-HTTP
@@ -161,11 +161,11 @@ INC += -I$(MON_HTTP_INC_DIR)
 
 mon-http: $(MON_HTTP_ARCHIVE)
 $(MON_HTTP_ARCHIVE):
-	@printf "$(BOLD)Building mon-http library...$(RESET)"
+	@printf "$(BOLD)Building mon-http library...$(RESET)\n"
 	@$(MAKE) -C $(MON_HTTP_DEPO) all \
 		CCX=$(CCX) CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) \
 		TARGET_DIR=$(MON_HTTP_TARGET_DIR) MODE=$(MODE)
-	@printf "$(BOLD)Built mon-http:$(RESET) $(GREEN)$(MON_HTTP_ARCHIVE)$(RESET)"
+	@printf "$(BOLD)Built mon-http:$(RESET) $(GREEN)$(MON_HTTP_ARCHIVE)$(RESET)\n"
 
 # -------
 # MON-NET
@@ -186,11 +186,11 @@ INC += -I$(MON_NET_INC_DIR)
 
 mon-net: $(MON_NET_ARCHIVE)
 $(MON_NET_ARCHIVE):
-	@printf "$(BOLD)Building mon-net library...$(RESET)"
+	@printf "$(BOLD)Building mon-net library...$(RESET)\n"
 	@$(MAKE) -C $(MON_NET_DEPO) all \
 		CCX=$(CCX) CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) \
 		TARGET_DIR=$(MON_NET_TARGET_DIR) MODE=$(MODE)
-	@printf "$(BOLD)Built mon-net:$(RESET) $(GREEN)$(MON_NET_ARCHIVE)$(RESET)"
+	@printf "$(BOLD)Built mon-net:$(RESET) $(GREEN)$(MON_NET_ARCHIVE)$(RESET)\n"
 
 # -----------
 # MON-ROUTER
@@ -211,11 +211,11 @@ INC += -I$(MON_ROUTER_INC_DIR)
 
 mon-router: $(MON_ROUTER_ARCHIVE)
 $(MON_ROUTER_ARCHIVE):
-	@printf "$(BOLD)Building mon-router library...$(RESET)"
+	@printf "$(BOLD)Building mon-router library...$(RESET)\n"
 	@$(MAKE) -C $(MON_ROUTER_DEPO) all \
 		CCX=$(CCX) CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) \
 		TARGET_DIR=$(MON_ROUTER_TARGET_DIR) MODE=$(MODE)
-	@printf "$(BOLD)Built mon-router:$(RESET) $(GREEN)$(MON_ROUTER_ARCHIVE)$(RESET)"
+	@printf "$(BOLD)Built mon-router:$(RESET) $(GREEN)$(MON_ROUTER_ARCHIVE)$(RESET)\n"
 
 # TODO: tests
 
@@ -233,16 +233,16 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D) $(dir $(DEP_DIR)/$*.d)
 	@$(CCX) $(CCX_FLAGS) $(CFLAGS) \
 		-MF $(DEP_DIR)/$*.d -c $< -o $@ $(INC)
-	@printf "$(BOLD)Compiled$(RESET) $(YELLOW)test$(RESET) $(BLUE)$<$(RESET) -> $(GREEN)$@$(RESET) $(BOLD)$(RED)$(DEP_DIR)/$*.d$(RESET)"
+	@printf "$(BOLD)Compiled$(RESET) $(YELLOW)test$(RESET) $(BLUE)$<$(RESET) -> $(GREEN)$@$(RESET) $(BOLD)$(RED)$(DEP_DIR)/$*.d$(RESET)\n"
 
 $(BIN_DIR)/$(NAME): $(OBJ) $(LIBS_ARCHIVES)
 	@$(CCX) -o "$@" $(LDX_FLAGS) $(LDFLAGS) \
 		$(OBJ) $(LIBS_ARCHIVES)
-	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME)$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)"
+	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME)$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
 $(NAME): .linkflag_$(MODE) $(BIN_DIR)/$(NAME)
 	@cp $(BIN_DIR)/$(NAME) ./$(NAME)
-	@printf "$(BOLD)Copied$(RESET) $(GREEN)$(NAME)$(RESET) $(GREEN)to project root.$(RESET)"
+	@printf " $(BOLD)Copied$(RESET) $(GREEN)$(NAME)$(RESET) $(GREEN)to project root.$(RESET)\n"
 
 clean:
 	@for lib in toml98 mon-cgi mon-http mon-net mon-router; do \
@@ -252,8 +252,8 @@ clean:
 	@$(RM) -rfv "$(OBJ_DIR)" "$(TOBJ_DIR)"
 
 fclean:
-	@$(RM) -rfv "$(ORIGIN_DIR)"
-	@$(RM) -fv "./$(NAME)"
+	@$(RM) -rf "$(ORIGIN_DIR)"
+	@$(RM) -f "./$(NAME)"
 	@$(RM) -f .linkflag_*
 
 re: fclean all

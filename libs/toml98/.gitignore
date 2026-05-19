@@ -4,4 +4,5 @@
 /.linkflag_*
 .cache
 
-/webserv
+/toml98.a
+/toml98.so
