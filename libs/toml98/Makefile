@@ -12,7 +12,7 @@
 
 CCX = clang++
 
-CCX_FLAGS ?= -Wall -Wextra -Werror -std=c++98 -pipe -MMD -MP
+CCX_FLAGS ?= -Wall -Wextra -Werror -std=c++98 -pipe -fPIC -MMD -MP
 LDX_FLAGS ?= 
 
 DEBUG_CFLAGS	 = -g3 -O0 -fno-omit-frame-pointer -D_GLIBCXX_DEBUG \
@@ -80,9 +80,10 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
+       $(SRC_DIR)/Value.cpp \
 
-OBJ := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
-DEP := $(patsubst $(SRC_DIR)/%.c,$(DEP_DIR)/%.d,$(SRCS))
+OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
+DEP := $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(SRCS))
 INC := -I$(INC_DIR)
 DIRS = $(OBJ_DIR) $(TOBJ_DIR) $(DEP_DIR) $(BIN_DIR)
 
@@ -95,7 +96,7 @@ LIBS_ARCHIVES :=
 # TODO: tests
 
 # TODO: make a script for that
-compile_commands.json: Makefile $(SRC) $(INC)
+compile_commands.json: Makefile $(SRC)
 	@echo "Generating compile_commands.json ..."
 	@bear -- $(MAKE) fclean all CC=clang++ VERBOSE=1
 	@echo "compile_commands.json generated."
@@ -108,37 +109,39 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D) $(dir $(DEP_DIR)/$*.d)
 	@$(CCX) $(CCX_FLAGS) $(CFLAGS) \
 		-MF $(DEP_DIR)/$*.d -c $< -o $@ $(INC)
-	@printf "$(BOLD)Compiled$(RESET) $(YELLOW)test$(RESET) $(BLUE)$<$(RESET) -> $(GREEN)$@$(RESET) $(BOLD)$(RED)$(DEP_DIR)/$*.d$(RESET)"
+	@printf "$(BOLD)Compiled$(RESET) $(YELLOW)test$(RESET) $(BLUE)$<$(RESET) -> $(GREEN)$@$(RESET) $(BOLD)$(RED)$(DEP_DIR)/$*.d$(RESET)\n"
 
 $(BIN_DIR)/$(NAME).a: $(OBJ) $(LIBS_ARCHIVES)
+	@mkdir -p $(BIN_DIR)
 	@ar rcs "$@" $(OBJ) $(LIBS_ARCHIVES)
-	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME).a$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)"
+	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME).a$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
 $(BIN_DIR)/$(NAME).so: $(OBJ) $(LIBS_ARCHIVES)
+	@mkdir -p $(BIN_DIR)
 	@$(CCX) -shared $(LDFLAGS) -o "$@" $(OBJ) $(LIBS_ARCHIVES)
-	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME).so$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)"
+	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME).so$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
 $(NAME).a: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).a
-	@cp $(BIN_DIR)/$(NAME) ./$(NAME).a
-	@printf "$(BOLD)Copied$(RESET) $(GREEN)$(NAME)$(RESET) $(GREEN)to project root.$(RESET)"
+	@cp $(BIN_DIR)/$(NAME).a ./$(NAME).a
+	@printf " $(BOLD)Copied$(RESET) $(GREEN)$(NAME).a$(RESET) $(BOLD)to project root.$(RESET)\n"
 
-$(NAME).a: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).so
-	@cp $(BIN_DIR)/$(NAME) ./$(NAME).so
-	@printf "$(BOLD)Copied$(RESET) $(GREEN)$(NAME)$(RESET) $(GREEN)to project root.$(RESET)"
+$(NAME).so: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).so
+	@cp $(BIN_DIR)/$(NAME).so ./$(NAME).so
+	@printf " $(BOLD)Copied$(RESET) $(GREEN)$(NAME).so$(RESET) $(BOLD)to project root.$(RESET)\n"
 
 clean:
 	@for lib in toml98 mon-cgi mon-http mon-net mon-router; do \
 		$(MAKE) -C $(LIBS_DIR)/$$lib clean \
 			TARGET_DIR="$(OFFICE_DIR)/$$lib"; \
 	done
-	@$(RM) -rfv "$(OBJ_DIR)" "$(TOBJ_DIR)"
+	@$(RM) -rf "$(OBJ_DIR)" "$(TOBJ_DIR)"
 
 fclean:
-	@$(RM) -rfv "$(ORIGIN_DIR)"
-	@$(RM) -fv "./$(NAME).a" "./$(NAME).so"
+	@$(RM) -rf "$(ORIGIN_DIR)"
+	@$(RM) -f "./$(NAME).a" "./$(NAME).so"
 	@$(RM) -f .linkflag_*
 
 re: fclean all
 
-.PHONY: all clean fclean re dirs
+.PHONY: all clean fclean re dirs compile_commands.json
 -include $(DEP)
