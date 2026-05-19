@@ -229,19 +229,29 @@ test:
 	@printf "$(BOLD)Built tests$(RESET)\n"
 
 toml98-test:
-	@$(MAKE) -C $(LIBS_DIR)/toml98 test --silent
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
+	TARGET_DIR="$(CURDIR)/target/$(MODE)/toml98" MODE="$(MODE)" \
+	$(MAKE) -C $(LIBS_DIR)/toml98 test --silent
 
 mon-cgi-test:
-	@$(MAKE) -C $(LIBS_DIR)/mon-cgi test --silent
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
+	TARGET_DIR="$(CURDIR)/target/$(MODE)/mon-cgi" MODE="$(MODE)" \
+	$(MAKE) -C $(LIBS_DIR)/mon-cgi test --silent
 
 mon-http-test:
-	@$(MAKE) -C $(LIBS_DIR)/mon-http test --silent
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
+	TARGET_DIR="$(CURDIR)/target/$(MODE)/mon-http" MODE="$(MODE)" \
+	$(MAKE) -C $(LIBS_DIR)/mon-http test --silent
 
 mon-net-test:
-	@$(MAKE) -C $(LIBS_DIR)/mon-net test --silent
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
+	TARGET_DIR="$(CURDIR)/target/$(MODE)/mon-net" MODE="$(MODE)" \
+	$(MAKE) -C $(LIBS_DIR)/mon-net test --silent
 
 mon-router-test:
-	@$(MAKE) -C $(LIBS_DIR)/mon-router test --silent
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
+	TARGET_DIR="$(CURDIR)/target/$(MODE)/mon-router" MODE="$(MODE)" \
+	$(MAKE) -C $(LIBS_DIR)/mon-router test --silent
 
 test-all: test toml98-test mon-cgi-test mon-http-test mon-net-test mon-router-test
 	@printf "$(BOLD)$(GREEN)All tests built successfully!$(RESET)\n"
@@ -274,11 +284,15 @@ $(NAME): .linkflag_$(MODE) $(BIN_DIR)/$(NAME)
 clean:
 	@for lib in toml98 mon-cgi mon-http mon-net mon-router; do \
 		TARGET_DIR="$(OFFICE_DIR)/$$lib" MODE="$(MODE)" \
-		$(MAKE) -C $(LIBS_DIR)/$$lib clean; \
+		$(MAKE) -C $(LIBS_DIR)/$$lib clean --silent; \
 	done
 	@$(RM) -rfv "$(OBJ_DIR)" "$(TOBJ_DIR)"
 
 fclean:
+	@for lib in toml98 mon-cgi mon-http mon-net mon-router; do \
+		TARGET_DIR="$(OFFICE_DIR)/$$lib" MODE="$(MODE)" \
+		$(MAKE) -C $(LIBS_DIR)/$$lib fclean --silent; \
+	done
 	@$(RM) -rf "$(ORIGIN_DIR)"
 	@$(RM) -f "./$(NAME)"
 	@$(RM) -f .linkflag_*
