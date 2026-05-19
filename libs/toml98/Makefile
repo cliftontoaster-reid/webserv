@@ -61,7 +61,7 @@ endif
 # Project
 # -------
 NAME = toml98
-all: $(NAME).a $(NAME).so
+all: lib$(NAME).a lib$(NAME).so
 
 LIBS_DIR	 =	./libs
 ORIGIN_DIR =	./target
@@ -121,27 +121,34 @@ $(BIN_DIR)/$(NAME).so: $(OBJ) $(LIBS_ARCHIVES)
 	@$(CCX) -shared $(LDFLAGS) -o "$@" $(OBJ) $(LIBS_ARCHIVES)
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME).so$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
-$(NAME).a: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).a
-	@cp $(BIN_DIR)/$(NAME).a ./$(NAME).a
+lib$(NAME).a: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).a
+	@cp $(BIN_DIR)/$(NAME).a ./lib$(NAME).a
 	@printf " $(BOLD)Copied$(RESET) $(GREEN)$(NAME).a$(RESET) $(BOLD)to project root.$(RESET)\n"
 
-$(NAME).so: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).so
-	@cp $(BIN_DIR)/$(NAME).so ./$(NAME).so
+lib$(NAME).so: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).so
+	@cp $(BIN_DIR)/$(NAME).so ./lib$(NAME).so
 	@printf " $(BOLD)Copied$(RESET) $(GREEN)$(NAME).so$(RESET) $(BOLD)to project root.$(RESET)\n"
 
+# -----
+# Tests
+# -----
+test:
+	@printf "$(BOLD)Building tests...$(RESET)\n"
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
+	TARGET_DIR="$(TARGET_DIR)" MODE="$(MODE)" \
+	BOBJ="$(OBJ)" BINC="$(INC)" LIBS_ARCHIVES="$(LIBS_ARCHIVES)" \
+	$(MAKE) -C $(TEST_DIR) all --silent
+	@printf "$(BOLD)Built tests$(RESET)\n"
+
 clean:
-	@for lib in toml98 mon-cgi mon-http mon-net mon-router; do \
-		$(MAKE) -C $(LIBS_DIR)/$$lib clean \
-			TARGET_DIR="$(OFFICE_DIR)/$$lib"; \
-	done
 	@$(RM) -rf "$(OBJ_DIR)" "$(TOBJ_DIR)"
 
 fclean:
 	@$(RM) -rf "$(ORIGIN_DIR)"
-	@$(RM) -f "./$(NAME).a" "./$(NAME).so"
+	@$(RM) -f "./lib$(NAME).a" "./lib$(NAME).so"
 	@$(RM) -f .linkflag_*
 
 re: fclean all
 
-.PHONY: all clean fclean re dirs compile_commands.json
+.PHONY: all clean fclean re dirs compile_commands.json test
 -include $(DEP)

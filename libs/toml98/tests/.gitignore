@@ -4,5 +4,4 @@
 /.linkflag_*
 .cache
 
-/*.a
-/*.so
+/toml98_test

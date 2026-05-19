@@ -112,9 +112,9 @@ INC += -I$(TOML98_INC_DIR)
 toml98: $(TOML98_ARCHIVE)
 $(TOML98_ARCHIVE):
 	@printf "$(BOLD)Building toml98 library...$(RESET)\n"
-	@$(MAKE) -C $(TOML98_DEPO) all \
-		CCX=$(CCX) CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) \
-		TARGET_DIR=$(TOML98_TARGET_DIR) MODE=$(MODE)
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	TARGET_DIR="$(TOML98_TARGET_DIR)" MODE="$(MODE)" \
+	$(MAKE) -C $(TOML98_DEPO) all
 	@printf "$(BOLD)Built toml98:$(RESET) $(GREEN)$(TOML98_ARCHIVE)$(RESET)\n"
 
 # --------
@@ -137,9 +137,9 @@ INC += -I$(MON_CGI_INC_DIR)
 mon-cgi: $(MON_CGI_ARCHIVE)
 $(MON_CGI_ARCHIVE):
 	@printf "$(BOLD)Building mon-cgi library...$(RESET)\n"
-	@$(MAKE) -C $(MON_CGI_DEPO) all \
-		CCX=$(CCX) CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) \
-		TARGET_DIR=$(MON_CGI_TARGET_DIR) MODE=$(MODE)
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	TARGET_DIR="$(MON_CGI_TARGET_DIR)" MODE="$(MODE)" \
+	$(MAKE) -C $(MON_CGI_DEPO) all
 	@printf "$(BOLD)Built mon-cgi:$(RESET) $(GREEN)$(MON_CGI_ARCHIVE)$(RESET)\n"
 
 # ---------
@@ -162,9 +162,9 @@ INC += -I$(MON_HTTP_INC_DIR)
 mon-http: $(MON_HTTP_ARCHIVE)
 $(MON_HTTP_ARCHIVE):
 	@printf "$(BOLD)Building mon-http library...$(RESET)\n"
-	@$(MAKE) -C $(MON_HTTP_DEPO) all \
-		CCX=$(CCX) CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) \
-		TARGET_DIR=$(MON_HTTP_TARGET_DIR) MODE=$(MODE)
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	TARGET_DIR="$(MON_HTTP_TARGET_DIR)" MODE="$(MODE)" \
+	$(MAKE) -C $(MON_HTTP_DEPO) all
 	@printf "$(BOLD)Built mon-http:$(RESET) $(GREEN)$(MON_HTTP_ARCHIVE)$(RESET)\n"
 
 # -------
@@ -187,9 +187,9 @@ INC += -I$(MON_NET_INC_DIR)
 mon-net: $(MON_NET_ARCHIVE)
 $(MON_NET_ARCHIVE):
 	@printf "$(BOLD)Building mon-net library...$(RESET)\n"
-	@$(MAKE) -C $(MON_NET_DEPO) all \
-		CCX=$(CCX) CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) \
-		TARGET_DIR=$(MON_NET_TARGET_DIR) MODE=$(MODE)
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	TARGET_DIR="$(MON_NET_TARGET_DIR)" MODE="$(MODE)" \
+	$(MAKE) -C $(MON_NET_DEPO) all
 	@printf "$(BOLD)Built mon-net:$(RESET) $(GREEN)$(MON_NET_ARCHIVE)$(RESET)\n"
 
 # -----------
@@ -212,15 +212,42 @@ INC += -I$(MON_ROUTER_INC_DIR)
 mon-router: $(MON_ROUTER_ARCHIVE)
 $(MON_ROUTER_ARCHIVE):
 	@printf "$(BOLD)Building mon-router library...$(RESET)\n"
-	@$(MAKE) -C $(MON_ROUTER_DEPO) all \
-		CCX=$(CCX) CFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) \
-		TARGET_DIR=$(MON_ROUTER_TARGET_DIR) MODE=$(MODE)
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	TARGET_DIR="$(MON_ROUTER_TARGET_DIR)" MODE="$(MODE)" \
+	$(MAKE) -C $(MON_ROUTER_DEPO) all
 	@printf "$(BOLD)Built mon-router:$(RESET) $(GREEN)$(MON_ROUTER_ARCHIVE)$(RESET)\n"
 
-# TODO: tests
+# -----
+# Tests
+# -----
+test:
+	@printf "$(BOLD)Building tests...$(RESET)\n"
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
+	TARGET_DIR="$(TARGET_DIR)" MODE="$(MODE)" \
+	BOBJ="$(OBJ)" BINC="$(INC)" LIBS_ARCHIVES="$(LIBS_ARCHIVES)" \
+	$(MAKE) -C $(TEST_DIR) all --silent
+	@printf "$(BOLD)Built tests$(RESET)\n"
+
+toml98-test:
+	@$(MAKE) -C $(LIBS_DIR)/toml98 test --silent
+
+mon-cgi-test:
+	@$(MAKE) -C $(LIBS_DIR)/mon-cgi test --silent
+
+mon-http-test:
+	@$(MAKE) -C $(LIBS_DIR)/mon-http test --silent
+
+mon-net-test:
+	@$(MAKE) -C $(LIBS_DIR)/mon-net test --silent
+
+mon-router-test:
+	@$(MAKE) -C $(LIBS_DIR)/mon-router test --silent
+
+test-all: test toml98-test mon-cgi-test mon-http-test mon-net-test mon-router-test
+	@printf "$(BOLD)$(GREEN)All tests built successfully!$(RESET)\n"
 
 # TODO: make a script for that
-compile_commands.json: Makefile $(SRC) $(INC)
+compile_commands.json: Makefile $(SRC)
 	@echo "Generating compile_commands.json ..."
 	@bear -- $(MAKE) fclean all CC=clang++ VERBOSE=1
 	@echo "compile_commands.json generated."
@@ -246,8 +273,8 @@ $(NAME): .linkflag_$(MODE) $(BIN_DIR)/$(NAME)
 
 clean:
 	@for lib in toml98 mon-cgi mon-http mon-net mon-router; do \
-		$(MAKE) -C $(LIBS_DIR)/$$lib clean \
-			TARGET_DIR="$(OFFICE_DIR)/$$lib"; \
+		TARGET_DIR="$(OFFICE_DIR)/$$lib" MODE="$(MODE)" \
+		$(MAKE) -C $(LIBS_DIR)/$$lib clean; \
 	done
 	@$(RM) -rfv "$(OBJ_DIR)" "$(TOBJ_DIR)"
 
@@ -258,5 +285,5 @@ fclean:
 
 re: fclean all
 
-.PHONY: all clean fclean re dirs
+.PHONY: all clean fclean re dirs test toml98-test mon-cgi-test mon-http-test mon-net-test mon-router-test test-all
 -include $(DEP)

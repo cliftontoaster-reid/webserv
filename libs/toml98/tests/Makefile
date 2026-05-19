@@ -5,14 +5,14 @@
 #                                                     +:+ +:+         +:+      #
 #    By: jfranc <jfranc@student.42nice.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2026/05/19 11:30:46 by jfranc            #+#    #+#              #
-#    Updated: 2026/05/19 11:30:48 by jfranc           ###   ########.fr        #
+#    Created: 2026/05/19 11:27:55 by jfranc            #+#    #+#              #
+#    Updated: 2026/05/19 11:27:58 by jfranc           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CCX = clang++
 
-CCX_FLAGS ?= -Wall -Wextra -Werror -std=c++98 -pipe -fPIC -MMD -MP
+CCX_FLAGS ?= -Wall -Wextra -Werror -std=c++11 -pipe -MMD -MP
 LDX_FLAGS ?= 
 
 DEBUG_CFLAGS	 = -g3 -O0 -fno-omit-frame-pointer -D_GLIBCXX_DEBUG \
@@ -60,8 +60,8 @@ endif
 # -------
 # Project
 # -------
-NAME = mon-net
-all: lib$(NAME).a lib$(NAME).so
+NAME = toml98_test
+all: $(NAME)
 
 LIBS_DIR	 =	./libs
 ORIGIN_DIR =	./target
@@ -80,19 +80,45 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
+	$(SRC_DIR)/example.cpp \
 
-OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
-DEP := $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(SRCS))
-INC := -I$(INC_DIR)
+BOBJ ?=
+OBJ  := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
+DEP  := $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(SRCS))
+BINC ?= .
+INC  := -I$(INC_DIR) -I$(BINC)
 DIRS = $(OBJ_DIR) $(TOBJ_DIR) $(DEP_DIR) $(BIN_DIR)
 
 dirs:
 	@$(foreach d, $(DIRS), mkdir -p "$(d)";)
 
-LIBRARIES :=
+LIBRARIES := criterion
 LIBS_ARCHIVES :=
 
-# TODO: tests
+# -------
+# Criterion
+# -------
+CRITERION_DEPO       = $(LIBS_DIR)/toml98
+CRITERION_TARGET_DIR = $(OFFICE_DIR)/toml98
+CRITERION_DOWN_DIR   = $(CRITERION_TARGET_DIR)/down
+CRITERION_BIN_DIR    = $(CRITERION_TARGET_DIR)/bin
+CRITERION_DIRS       = $(CRITERION_OBJ_DIR) $(CRITERION_TOBJ_DIR) \
+                       $(CRITERION_DEP_DIR) $(CRITERION_BIN_DIR)
+CRITERION_ARCHIVE    = $(CRITERION_BIN_DIR)/lib/libcriterion.so
+CRITERION_INC_DIR    = $(CRITERION_BIN_DIR)/include
+
+LIBS_ARCHIVES += $(CRITERION_ARCHIVE)
+INC += -isystem $(CRITERION_INC_DIR)
+
+criterion: $(CRITERION_ARCHIVE)
+$(CRITERION_ARCHIVE):
+	@printf "$(BOLD)Downloading criterion library...$(RESET)\n"
+	@mkdir -p "$(CRITERION_DOWN_DIR)" "$(CRITERION_BIN_DIR)"
+	@curl -L -o "$(CRITERION_DOWN_DIR)/criterion.tar.xz" \
+	  https://github.com/Snaipe/Criterion/releases/download/v2.4.3/criterion-2.4.3-linux-x86_64.tar.xz
+	@tar -xf "$(CRITERION_DOWN_DIR)/criterion.tar.xz" \
+	  -C "$(CRITERION_BIN_DIR)/" --strip-components=1
+	@printf "$(BOLD)Downloaded criterion:$(RESET) $(GREEN)$(CRITERION_ARCHIVE)$(RESET)\n"
 
 # TODO: make a script for that
 compile_commands.json: Makefile $(SRC)
@@ -110,44 +136,26 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 		-MF $(DEP_DIR)/$*.d -c $< -o $@ $(INC)
 	@printf "$(BOLD)Compiled$(RESET) $(YELLOW)test$(RESET) $(BLUE)$<$(RESET) -> $(GREEN)$@$(RESET) $(BOLD)$(RED)$(DEP_DIR)/$*.d$(RESET)\n"
 
-$(BIN_DIR)/$(NAME).a: $(OBJ) $(LIBS_ARCHIVES)
-	@mkdir -p $(BIN_DIR)
-	@ar rcs "$@" $(OBJ) $(LIBS_ARCHIVES)
-	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME).a$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
+$(BIN_DIR)/$(NAME): $(LIBS_ARCHIVES) $(OBJ)
+	@mkdir -p "$(@D)"
+	@$(CCX) -o "$@" $(LDX_FLAGS) $(LDFLAGS) \
+		-Wl,-rpath,'$$ORIGIN/$(CRITERION_BIN_DIR)/lib' \
+		$(OBJ) $(LIBS_ARCHIVES)
+	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME)$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
-$(BIN_DIR)/$(NAME).so: $(OBJ) $(LIBS_ARCHIVES)
-	@mkdir -p $(BIN_DIR)
-	@$(CCX) -shared $(LDFLAGS) -o "$@" $(OBJ) $(LIBS_ARCHIVES)
-	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME).so$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
-
-lib$(NAME).a: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).a
-	@cp $(BIN_DIR)/$(NAME).a ./lib$(NAME).a
-	@printf " $(BOLD)Copied$(RESET) $(GREEN)lib$(NAME).a$(RESET) $(BOLD)to project root.$(RESET)\n"
-
-lib$(NAME).so: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).so
-	@cp $(BIN_DIR)/$(NAME).so ./lib$(NAME).so
-	@printf " $(BOLD)Copied$(RESET) $(GREEN)lib$(NAME).so$(RESET) $(BOLD)to project root.$(RESET)\n"
-
-# -----
-# Tests
-# -----
-test:
-	@printf "$(BOLD)Building tests...$(RESET)\n"
-	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(TARGET_DIR)" MODE="$(MODE)" \
-	BOBJ="$(OBJ)" BINC="$(INC)" LIBS_ARCHIVES="$(LIBS_ARCHIVES)" \
-	$(MAKE) -C $(TEST_DIR) all --silent
-	@printf "$(BOLD)Built tests$(RESET)\n"
+$(NAME): .linkflag_$(MODE) $(BIN_DIR)/$(NAME)
+	@cp $(BIN_DIR)/$(NAME) ./$(NAME)
+	@printf " $(BOLD)Copied$(RESET) $(GREEN)$(NAME)$(RESET) $(GREEN)to project root.$(RESET)\n"
 
 clean:
-	@$(RM) -rf "$(OBJ_DIR)" "$(TOBJ_DIR)"
+	@$(RM) -rfv "$(OBJ_DIR)" "$(TOBJ_DIR)"
 
 fclean:
 	@$(RM) -rf "$(ORIGIN_DIR)"
-	@$(RM) -f "./lib$(NAME).a" "./lib$(NAME).so"
+	@$(RM) -f "./$(NAME)"
 	@$(RM) -f .linkflag_*
 
 re: fclean all
 
-.PHONY: all clean fclean re dirs compile_commands.json test
+.PHONY: all clean fclean re dirs
 -include $(DEP)

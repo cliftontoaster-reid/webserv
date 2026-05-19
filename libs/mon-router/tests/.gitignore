@@ -4,5 +4,4 @@
 /.linkflag_*
 .cache
 
-/*.a
-/*.so
+/mon_router_test
