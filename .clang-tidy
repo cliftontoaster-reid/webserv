@@ -1,0 +1,18 @@
+# .clang-tidy
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  performance-*,
+  readability-*,
+  google-*,
+  cppcoreguidelines-*,
+  -modernize-*,
+  -cppcoreguidelines-use-default-member-init,
+  -cppcoreguidelines-no-malloc
+
+# Only analyze your own headers, ignore system headers
+HeaderFilterRegex: '^(include|src)/.*'
+
+# Optional: Treat warnings as errors if you want to enforce clean code in CI
+WarningsAsErrors: ''

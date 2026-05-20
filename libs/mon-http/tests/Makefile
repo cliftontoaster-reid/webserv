@@ -147,6 +147,9 @@ $(NAME): .linkflag_$(MODE) $(BIN_DIR)/$(NAME)
 	@cp $(BIN_DIR)/$(NAME) ./$(NAME)
 	@printf " $(BOLD)Copied$(RESET) $(GREEN)$(NAME)$(RESET) $(GREEN)to project root.$(RESET)\n"
 
+clang-tidy:
+	clang-tidy $(SRCS) -- $(CCX_FLAGS) $(INC)
+
 clean:
 	@$(RM) -rfv "$(OBJ_DIR)" "$(TOBJ_DIR)"
 
@@ -157,5 +160,5 @@ fclean:
 
 re: fclean all
 
-.PHONY: all clean fclean re dirs
+.PHONY: all clean fclean re dirs clang-tidy
 -include $(DEP)

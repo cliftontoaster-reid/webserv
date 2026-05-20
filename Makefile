@@ -281,6 +281,13 @@ $(NAME): .linkflag_$(MODE) $(BIN_DIR)/$(NAME)
 	@cp $(BIN_DIR)/$(NAME) ./$(NAME)
 	@printf " $(BOLD)Copied$(RESET) $(GREEN)$(NAME)$(RESET) $(GREEN)to project root.$(RESET)\n"
 
+clang-tidy:
+	@printf "$(BOLD)Running clang-tidy on all projects...$(RESET)\n"
+	clang-tidy $(SRCS) -- $(CCX_FLAGS) $(INC)
+	@for dir in $$(find . -name Makefile -not -path './Makefile' -exec dirname {} \; | sort -u); do \
+		$(MAKE) -C "$$dir" clang-tidy --silent; \
+	done
+
 clean:
 	@for lib in toml98 mon-cgi mon-http mon-net mon-router; do \
 		TARGET_DIR="$(OFFICE_DIR)/$$lib" MODE="$(MODE)" \
@@ -299,5 +306,5 @@ fclean:
 
 re: fclean all
 
-.PHONY: all clean fclean re dirs test toml98-test mon-cgi-test mon-http-test mon-net-test mon-router-test test-all
+.PHONY: all clean fclean re dirs test toml98-test mon-cgi-test mon-http-test mon-net-test mon-router-test test-all clang-tidy
 -include $(DEP)

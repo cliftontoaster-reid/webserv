@@ -142,6 +142,9 @@ test: lib$(NAME).a
 	$(MAKE) -C $(TEST_DIR) all --silent
 	@printf "$(BOLD)Built tests$(RESET)\n"
 
+clang-tidy:
+	clang-tidy $(SRCS) -- $(CCX_FLAGS) $(INC)
+
 clean:
 	@$(RM) -rf "$(OBJ_DIR)" "$(TOBJ_DIR)"
 
@@ -152,5 +155,5 @@ fclean:
 
 re: fclean all
 
-.PHONY: all clean fclean re dirs compile_commands.json test
+.PHONY: all clean fclean re dirs compile_commands.json test clang-tidy
 -include $(DEP)
