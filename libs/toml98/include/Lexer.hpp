@@ -98,7 +98,7 @@ class Lexer {
   std::string _source;
   std::string _buffer;
   u_int64_t _pos;
-  bool _inspection;
+  bool _isLastEqual;
 
   Token* handle_normal(); //TODO
   Token* handle_word();

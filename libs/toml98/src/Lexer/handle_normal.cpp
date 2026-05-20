@@ -47,18 +47,29 @@ Token* Lexer::handle_normal()
             
             pop();
             if (peek() != '\'') {
-                _stack.push(LexerStringDouble);
+                _stack.push(LexerString);
             } else {
                 pop();
                 if (pop() == '\'') {
-                    _stack.push(LexerStringDoubleMultiLine);
+                    _stack.push(LexerStringMultiLine);
                 } else {
                     throw std::runtime_error("Cannot use two quotes together");
                 }
             }
             break;
         }
-
+        case('['): {
+            pop();
+            if (peek() != '[') {
+                _stack.push(LexerTableKey);
+            }    
+            pop();
+            if (_isLastEqual) {
+                _stack.push(LexerInlineArray);
+            } else {
+                _stack.push(LexerTableKey);
+            }
+        }
 
     }
 }

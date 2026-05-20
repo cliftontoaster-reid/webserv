@@ -13,14 +13,14 @@
 
 namespace toml98 {
 
-Lexer::Lexer() : _pos(0), _inspection(false) {}
+Lexer::Lexer() : _pos(0), _isLastEqual(false) {}
 Lexer::Lexer(const std::string& str)
-    : _source(str), _pos(0), _inspection(false) {}
+    : _source(str), _pos(0), _isLastEqual(false) {}
 Lexer::Lexer(const Lexer& other)
     : _source(other._source),
       _buffer(other._buffer),
       _pos(other._pos),
-      _inspection(other._inspection) {
+      _isLastEqual(other._isLastEqual) {
   std::stack<LexerState> temp_stack = other._stack;
   std::stack<LexerState> reversed;
 
@@ -56,7 +56,7 @@ Lexer& Lexer::operator=(const Lexer& other) {
     _source = other._source;
     _buffer = other._buffer;
     _pos = other._pos;
-    _inspection = other._inspection;
+    _isLastEqual = other._isLastEqual;
   }
   return *this;
 }
@@ -116,9 +116,9 @@ Token* Lexer::run() {
   }
 
   if (ret->type == TokenEqual) {
-    _inspection = true;
+    _isLastEqual = true;
   } else if (ret->type != TokenDelimiter) {
-    _inspection = false;
+    _isLastEqual = false;
   }
   return ret;
 }
