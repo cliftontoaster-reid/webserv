@@ -281,6 +281,10 @@ $(NAME): .linkflag_$(MODE) $(BIN_DIR)/$(NAME)
 	@cp $(BIN_DIR)/$(NAME) ./$(NAME)
 	@printf " $(BOLD)Copied$(RESET) $(GREEN)$(NAME)$(RESET) $(GREEN)to project root.$(RESET)\n"
 
+format:
+	@printf "$(BOLD)Formatting all source files...$(RESET)\n"
+	@find . -type f \( -name '*.cpp' -o -name '*.hpp' -o -name '*.tpp' \) -exec clang-format -i {} + 2>/dev/null; true
+
 clang-tidy:
 	@printf "$(BOLD)Running clang-tidy on all projects...$(RESET)\n"
 	clang-tidy $(SRCS) -- $(CCX_FLAGS) $(INC)
@@ -306,5 +310,5 @@ fclean:
 
 re: fclean all
 
-.PHONY: all clean fclean re dirs test toml98-test mon-cgi-test mon-http-test mon-net-test mon-router-test test-all clang-tidy
+.PHONY: all clean fclean re dirs test toml98-test mon-cgi-test mon-http-test mon-net-test mon-router-test test-all format clang-tidy
 -include $(DEP)

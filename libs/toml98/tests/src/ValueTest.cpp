@@ -1,8 +1,8 @@
 #include <criterion/criterion.h>
 #include <criterion/internal/assert.h>
 #include <criterion/internal/test.h>
-
 #include <stdint.h>
+
 #include <stdexcept>
 
 #include "Value.hpp"
@@ -89,8 +89,8 @@ Test(value, roundtrip_table) {
   std::map<std::string, toml98::Value> table;
   table.insert(std::make_pair(std::string("name"),
                               toml98::Value::createString("toml98")));
-  table.insert(std::make_pair(std::string("version"),
-                              toml98::Value::createInteger(1)));
+  table.insert(
+      std::make_pair(std::string("version"), toml98::Value::createInteger(1)));
 
   toml98::Value val = toml98::Value::createTable(table);
   const std::map<std::string, toml98::Value>* table2 = val.getTable();
@@ -102,8 +102,8 @@ Test(value, roundtrip_table) {
 
 Test(value, roundtrip_nested) {
   std::map<std::string, toml98::Value> inner;
-  inner.insert(std::make_pair(std::string("x"),
-                              toml98::Value::createFloat(1.5)));
+  inner.insert(
+      std::make_pair(std::string("x"), toml98::Value::createFloat(1.5)));
 
   std::vector<toml98::Value> items;
   items.push_back(toml98::Value::createInteger(10));
@@ -115,8 +115,7 @@ Test(value, roundtrip_nested) {
   cr_assert_eq(out->size(), 2);
   cr_assert(out->at(0) == toml98::Value::createInteger(10));
 
-  const std::map<std::string, toml98::Value>* inner_out =
-      out->at(1).getTable();
+  const std::map<std::string, toml98::Value>* inner_out = out->at(1).getTable();
   cr_assert_eq(inner_out->size(), 1);
   cr_assert(inner_out->at("x") == toml98::Value::createFloat(1.5));
 }

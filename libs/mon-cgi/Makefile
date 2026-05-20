@@ -139,6 +139,10 @@ test:
 	$(MAKE) -C $(TEST_DIR) all --silent
 	@printf "$(BOLD)Built tests$(RESET)\n"
 
+format:
+	@printf "$(BOLD)Formatting source files...$(RESET)\n"
+	@find . -type f \( -name '*.cpp' -o -name '*.hpp' -o -name '*.tpp' \) -exec clang-format -i {} + 2>/dev/null; true
+
 clang-tidy:
 	clang-tidy $(SRCS) -- $(CCX_FLAGS) $(INC)
 
@@ -152,5 +156,5 @@ fclean:
 
 re: fclean all
 
-.PHONY: all clean fclean re dirs compile_commands.json test clang-tidy
+.PHONY: all clean fclean re dirs compile_commands.json test format clang-tidy
 -include $(DEP)
