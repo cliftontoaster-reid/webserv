@@ -2,6 +2,7 @@
 
 #include <sys/types.h>
 
+#include <cctype>
 #include <cstdlib>
 #include <stack>
 #include <stdexcept>
@@ -115,7 +116,19 @@ void Lexer::push(const std::basic_string<char>& str) { _source.append(str); }
 
 // NOLINTBEGIN(readability-convert-member-functions-to-static)
 Token* Lexer::handle_normal() { TODO(); }
-Token* Lexer::handle_word() { TODO(); }
+Token* Lexer::handle_word() 
+{
+  char letter = peek();
+  while (std::isalnum(letter))
+  {
+    pop();
+    _buffer.push_back(letter);
+    letter = peek();
+  }
+  std::string tmp;
+  tmp.swap(_buffer);
+  return new Token(TokenWord, tmp);
+}
 // NOLINTEND(readability-convert-member-functions-to-static)
 Token* Lexer::handle_string() {
   if (!_buffer.empty()) {
