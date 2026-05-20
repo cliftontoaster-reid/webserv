@@ -47,10 +47,11 @@ jobs:
           chmod +x llvm.sh
           sudo ./llvm.sh 22
           sudo apt-get install -y clang-format-22
-          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-22 100
+          sudo ln -sf /usr/bin/clang-format-22 /usr/bin/clang-format
 
       - name: Show source files found
         run: |
+          rm -f llvm.sh
           echo "clang-format version: $(clang-format --version)"
           echo "Source files:"
           find . -type f \( -name '*.cpp' -o -name '*.hpp' -o -name '*.tpp' \) -not -path './.git/*'
@@ -83,6 +84,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          rm -f llvm.sh
           BRANCH="chore/auto-format-$(date +%s)"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -94,7 +96,8 @@ jobs:
             --base main \
             --head "$BRANCH" \
             --title "style: auto-format codebase" \
-            --body "Automated code formatting via \`make format\`."
+            --body "Automated code formatting via \`make format\`." || \
+          echo "PR creation failed (needs 'Allow GitHub Actions to create PRs' enabled in repo settings)"
 
   lint:
     runs-on: ubuntu-latest
