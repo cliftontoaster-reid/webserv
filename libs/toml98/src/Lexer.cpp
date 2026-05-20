@@ -27,12 +27,10 @@ Token& Token::operator=(const Token& other) {
 Token::~Token() {}
 
 Lexer::Lexer() : _pos(0), _isLastEqual(false) {
-  _stack = std::stack<LexerState>();
   _stack.push(LexerNormal);
 }
 Lexer::Lexer(const std::string& str)
     : _source(str), _pos(0), _isLastEqual(false) {
-  _stack = std::stack<LexerState>();
   _stack.push(LexerNormal);
 }
 Lexer::Lexer(const Lexer& other)
@@ -242,7 +240,7 @@ Token* Lexer::handle_inline_table() { TODO(); }
 Token* Lexer::handle_whitespace() {
   char now = 0;
 
-  while ((now = pop()) != '\0' && now == ' ' && now == '\t') {
+  while ((now = pop()) != '\0' && (now == ' ' || now == '\t')) {
     _buffer.push_back(now);
   }
 
@@ -256,13 +254,13 @@ Token* Lexer::handle_whitespace() {
 }
 
 char Lexer::pop() {
-  if (_pos > _source.length()) {
+  if (_pos >= _source.length()) {
     throw std::runtime_error("Cannot read after end of file.");
   }
-  return _source.at(_pos);
+  return _source.at(_pos++);
 }
 char Lexer::peek() {
-  if (_pos > _source.length()) {
+  if (_pos >= _source.length()) {
     throw std::runtime_error("Cannot read after end of file.");
   }
   return _source.at(_pos);
