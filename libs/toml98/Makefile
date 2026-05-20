@@ -20,8 +20,8 @@ DEBUG_CFLAGS	 = -g3 -O0 -fno-omit-frame-pointer -D_GLIBCXX_DEBUG \
 DEBUG_LDFLAGS	= -fsanitize=address,undefined
 
 RELEASE_CFLAGS = -O3 -DNDEBUG -D_FORTIFY_SOURCE=2 \
-								 -fstack-protector-strong -flto -ffunction-sections -fdata-sections
-RELEASE_LDFLAGS = -flto -Wl,--gc-sections -Wl,-z,relro -Wl,-z,now
+								 -fstack-protector-strong -ffunction-sections -fdata-sections
+RELEASE_LDFLAGS = -Wl,--gc-sections -Wl,-z,relro -Wl,-z,now
 
 ifeq ($(shell which clang++),)
 	CCX = g++
