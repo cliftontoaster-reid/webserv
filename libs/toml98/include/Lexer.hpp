@@ -72,6 +72,7 @@ class Lexer {
  private:
   std::stack<LexerState> _stack;
   std::string _source;
+  std::string _buffer;
   u_int64_t _pos;
 
   Token* handle_normal();

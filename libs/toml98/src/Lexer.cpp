@@ -115,7 +115,20 @@ Token* Lexer::handle_array_key() { TODO(); }
 Token* Lexer::handle_comments() { TODO(); }
 Token* Lexer::handle_inline_array() { TODO(); }
 Token* Lexer::handle_inline_table() { TODO(); }
-Token* Lexer::handle_whitespace() { TODO(); }
+Token* Lexer::handle_whitespace() {
+  char c;
+
+  while ((c = _source[_pos++]) != '\0' && c == ' ' && c == '\t') {
+    _buffer.push_back(c);
+  }
+
+  if (_buffer.empty()) {
+    return NULL;
+  }
+  std::string s;
+  s.swap(_buffer);
+  return new Token(TokenDelimiter, s);
+}
 
 char getSpecial(char c) {
   switch (c) {
