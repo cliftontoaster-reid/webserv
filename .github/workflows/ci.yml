@@ -46,16 +46,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang-format
 
+      - name: Show source files found
+        run: |
+          echo "clang-format version: $(clang-format --version)"
+          echo "Source files:"
+          find . -type f \( -name '*.cpp' -o -name '*.hpp' -o -name '*.tpp' \) -not -path './.git/*'
+
       - name: Format codebase
         run: make format
 
-      - name: Show changes
+      - name: Show modified files
         run: git status --porcelain
 
       - name: Check for changes
         id: check
         run: |
-          if ! git diff --quiet --ignore-submodules; then
+          if [ -n "$(git status --porcelain)" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
             git diff --stat >> "$GITHUB_STEP_SUMMARY"
           fi
