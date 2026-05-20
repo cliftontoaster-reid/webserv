@@ -93,25 +93,24 @@ class Lexer {
   Token* run();
   void push(const std::basic_string<char>& str);
 
- private:
+ protected:
+  Token* handle_normal();
+  Token* handle_word();
+  Token* handle_string();
+  Token* handle_string_double();  // TODO
+  Token* handle_string_multiline();
+  Token* handle_string_double_multiline();  // TODO
+  Token* handle_table_key();                // TODO
+  Token* handle_array_key();                // TODO
+  Token* handle_comments();
+  Token* handle_inline_array();  // TODO
+  Token* handle_inline_table();  // TODO
+  Token* handle_whitespace();
   std::stack<LexerState> _stack;
   std::string _source;
   std::string _buffer;
   u_int64_t _pos;
   bool _isLastEqual;
-
-  Token* handle_normal(); //TODO
-  Token* handle_word();
-  Token* handle_string();
-  Token* handle_string_double(); //TODO
-  Token* handle_string_multiline();
-  Token* handle_string_double_multiline(); //TODO
-  Token* handle_table_key(); //TODO
-  Token* handle_array_key(); //TODO
-  Token* handle_comments();
-  Token* handle_inline_array(); //TODO
-  Token* handle_inline_table(); //TODO
-  Token* handle_whitespace();
 
   char pop();
   char peek();

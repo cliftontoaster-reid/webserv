@@ -13,9 +13,28 @@
 
 namespace toml98 {
 
-Lexer::Lexer() : _pos(0), _isLastEqual(false) {}
+Token::Token() : type(TokenWord) {}
+Token::Token(TokenType type, const std::string& value)
+    : type(type), value(value) {}
+Token::Token(const Token& other) : type(other.type), value(other.value) {}
+Token& Token::operator=(const Token& other) {
+  if (this != &other) {
+    type = other.type;
+    value = other.value;
+  }
+  return *this;
+}
+Token::~Token() {}
+
+Lexer::Lexer() : _pos(0), _isLastEqual(false) {
+  _stack = std::stack<LexerState>();
+  _stack.push(LexerNormal);
+}
 Lexer::Lexer(const std::string& str)
-    : _source(str), _pos(0), _isLastEqual(false) {}
+    : _source(str), _pos(0), _isLastEqual(false) {
+  _stack = std::stack<LexerState>();
+  _stack.push(LexerNormal);
+}
 Lexer::Lexer(const Lexer& other)
     : _source(other._source),
       _buffer(other._buffer),

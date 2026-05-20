@@ -81,6 +81,7 @@ TEST_DIR	= ./tests
 # -------
 SRCS = \
 	$(SRC_DIR)/ValueTest.cpp \
+	$(SRC_DIR)/Lexer/handle_normal_test.cpp \
 
 BOBJ ?=
 OBJ  := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
@@ -138,7 +139,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 $(BIN_DIR)/$(NAME): $(LIBS_ARCHIVES) $(OBJ)
 	@mkdir -p "$(@D)"
-	@$(CCX) -o "$@" $(LDX_FLAGS) $(LDFLAGS) \
+	$(CCX) -o "$@" $(LDX_FLAGS) $(LDFLAGS) \
 		-Wl,-rpath,'$$ORIGIN/$(CRITERION_BIN_DIR)/lib' \
 		$(OBJ) $(LIBS_ARCHIVES)
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME)$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
