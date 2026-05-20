@@ -49,11 +49,15 @@ jobs:
       - name: Format codebase
         run: make format
 
+      - name: Show changes
+        run: git status --porcelain
+
       - name: Check for changes
         id: check
         run: |
           if ! git diff --quiet --ignore-submodules; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Commit and push to PR

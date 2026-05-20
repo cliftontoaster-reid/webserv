@@ -283,7 +283,7 @@ $(NAME): .linkflag_$(MODE) $(BIN_DIR)/$(NAME)
 
 format:
 	@printf "$(BOLD)Formatting all source files...$(RESET)\n"
-	@find . -type f \( -name '*.cpp' -o -name '*.hpp' -o -name '*.tpp' \) -exec clang-format -i {} + 2>/dev/null; true
+	@find . -type f \( -name '*.cpp' -o -name '*.hpp' -o -name '*.tpp' \) -exec clang-format -i {} +; true
 
 clang-tidy:
 	@printf "$(BOLD)Running clang-tidy on all projects...$(RESET)\n"

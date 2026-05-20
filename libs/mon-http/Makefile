@@ -141,7 +141,7 @@ test:
 
 format:
 	@printf "$(BOLD)Formatting source files...$(RESET)\n"
-	@find . -type f \( -name '*.cpp' -o -name '*.hpp' -o -name '*.tpp' \) -exec clang-format -i {} + 2>/dev/null; true
+	@find . -type f \( -name '*.cpp' -o -name '*.hpp' -o -name '*.tpp' \) -exec clang-format -i {} +; true
 
 clang-tidy:
 	clang-tidy $(SRCS) -- $(CCX_FLAGS) $(INC)
