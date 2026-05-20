@@ -9,7 +9,8 @@ Checks: >
   cppcoreguidelines-*,
   -modernize-*,
   -cppcoreguidelines-pro-type-union-access,
-  -cppcoreguidelines-use-default-member-init
+  -cppcoreguidelines-use-default-member-init,
+  -cppcoreguidelines-use-enum-class
 
 # Only analyze your own headers
 HeaderFilterRegex: '^(include|src)/.*'
