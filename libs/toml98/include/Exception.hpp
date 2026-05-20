@@ -4,6 +4,11 @@
 
 #include <exception>
 
+#define STRINGIZE(x) #x
+#define TODO()                                                  \
+  throw std::runtime_error("TODO: not implemented at " __FILE__ \
+                           ":" STRINGIZE(__LINE__))
+
 namespace toml98 {
 
 class EarlyEndOfFile : public std::exception {

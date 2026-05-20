@@ -54,7 +54,7 @@ enum LexerState {
   LexerArrayKey,               //  [[ ... ]]
   LexerComments,               //   # ...
   LexerInlineArray,            // = [ ... ]
-  LexerInlineTable,            //   { ... : ... }
+  LexerInlineTable,            //   { ... }
   WhiteSpace,
 };
 
