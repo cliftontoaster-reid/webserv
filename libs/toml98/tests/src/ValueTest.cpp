@@ -2,6 +2,7 @@
 #include <criterion/internal/assert.h>
 #include <criterion/internal/test.h>
 
+#include <stdint.h>
 #include <stdexcept>
 
 #include "Value.hpp"
@@ -16,10 +17,37 @@ Test(value, roundtrip_string) {
 }
 
 Test(value, roundtrip_integer) {
-  uint64_t n = 42;
+  int64_t n = 42;
 
   toml98::Value val = toml98::Value::createInteger(n);
-  uint64_t n2 = val.getInteger();
+  int64_t n2 = val.getInteger();
+
+  cr_assert_eq(n2, n);
+}
+
+Test(value, negative_integer) {
+  int64_t n = -1;
+
+  toml98::Value val = toml98::Value::createInteger(n);
+  int64_t n2 = val.getInteger();
+
+  cr_assert_eq(n2, n);
+}
+
+Test(value, integer_min) {
+  int64_t n = INT64_MIN;
+
+  toml98::Value val = toml98::Value::createInteger(n);
+  int64_t n2 = val.getInteger();
+
+  cr_assert_eq(n2, n);
+}
+
+Test(value, integer_max) {
+  int64_t n = INT64_MAX;
+
+  toml98::Value val = toml98::Value::createInteger(n);
+  int64_t n2 = val.getInteger();
 
   cr_assert_eq(n2, n);
 }

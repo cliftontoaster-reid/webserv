@@ -11,7 +11,9 @@ Value Value::createString(const std::string& val) {
   return Value(ValueString, reinterpret_cast<void*>(ptr));
 }
 
-Value Value::createInteger(uint64_t val) { return Value(ValueInteger, val); }
+Value Value::createInteger(int64_t val) {
+  return Value(ValueInteger, static_cast<uint64_t>(val));
+}
 
 Value Value::createFloat(double val) {
   uint64_t bits;
@@ -42,11 +44,11 @@ const std::string* Value::getString() const {
   return reinterpret_cast<const std::string*>(_ptr);
 }
 
-uint64_t Value::getInteger() const {
+int64_t Value::getInteger() const {
   if (_type != ValueInteger) {
     throw std::runtime_error("Value is not an integer.");
   }
-  return _nbr;
+  return static_cast<int64_t>(_nbr);
 }
 
 double Value::getFloat() const {

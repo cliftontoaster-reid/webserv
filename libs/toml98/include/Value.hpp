@@ -23,7 +23,7 @@ enum ValueType {
 class Value {
  public:
   static Value createString(const std::string& val);
-  static Value createInteger(uint64_t val);
+  static Value createInteger(int64_t val);
   static Value createFloat(double val);
   static Value createBoolean(bool val);
   static Value createArray(const std::vector<Value>& val);
@@ -32,7 +32,7 @@ class Value {
   ValueType type() const;
 
   const std::string* getString() const;
-  uint64_t getInteger() const;
+  int64_t getInteger() const;
   double getFloat() const;
   bool getBoolean() const;
   const std::vector<Value>* getArray() const;
