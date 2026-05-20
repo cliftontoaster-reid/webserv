@@ -57,7 +57,7 @@ class Value {
   };
 };
 
-std::ostream& operator<<(std::ostream& os, const Value& val);
+std::ostream& operator<<(std::ostream& ost, const Value& val);
 
 }  // namespace toml98
 

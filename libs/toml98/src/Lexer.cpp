@@ -1,16 +1,19 @@
 #include "Lexer.hpp"
 
+#include <sys/types.h>
+
 #include <cstdlib>
 #include <stack>
 #include <stdexcept>
 #include <string>
 
 #include "Exception.hpp"
+#include "utils.hpp"
 
 namespace toml98 {
 
-Lexer::Lexer() : _source(""), _buffer(""), _pos(0) {}
-Lexer::Lexer(const std::string& s) : _source(s), _buffer(""), _pos(0) {}
+Lexer::Lexer() : _pos(0) {}
+Lexer::Lexer(const std::string& str) : _source(str), _pos(0) {}
 Lexer::Lexer(const Lexer& other)
     : _source(other._source), _buffer(other._buffer), _pos(other._pos) {
   std::stack<LexerState> temp_stack = other._stack;
@@ -61,12 +64,12 @@ Token* Lexer::run() {
   _stack.push(LexerNormal);
 
   while (ret == NULL) {
-    if (_stack.size() == 0) {
+    if (_stack.empty()) {
       _stack.push(LexerNormal);
     }
-    LexerState ty = _stack.top();
+    LexerState current = _stack.top();
 
-    switch (ty) {
+    switch (current) {
       case LexerNormal:
         ret = handle_normal();
         break;
@@ -108,10 +111,12 @@ Token* Lexer::run() {
 
   return ret;
 }
-void Lexer::push(const std::basic_string<char>& s) { _source.append(s); }
+void Lexer::push(const std::basic_string<char>& str) { _source.append(str); }
 
+// NOLINTBEGIN(readability-convert-member-functions-to-static)
 Token* Lexer::handle_normal() { TODO(); }
 Token* Lexer::handle_word() { TODO(); }
+// NOLINTEND(readability-convert-member-functions-to-static)
 Token* Lexer::handle_string() {
   if (!_buffer.empty()) {
     _buffer.clear();
@@ -120,26 +125,28 @@ Token* Lexer::handle_string() {
   }
 
   while (_pos < _source.length()) {
-    char c = pop();
+    char now = pop();
 
-    if (c == '\n' || c == '\r') {
+    if (now == '\n' || now == '\r') {
       _buffer.clear();
       throw std::runtime_error(
           "Unexpected new line in non multi-line literal string.");
     }
 
-    if (c == '\'') {
-      std::string s;
-      s.swap(_buffer);
-      return new Token(TokenDelimiter, s);
+    if (now == '\'') {
+      std::string tmp;
+      tmp.swap(_buffer);
+      return new Token(TokenDelimiter, tmp);
     }
 
-    _buffer.push_back(c);
+    _buffer.push_back(now);
   }
 
   _buffer.clear();
   throw std::runtime_error("Unterminated literal string.");
 }
+
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 Token* Lexer::handle_string_double() { TODO(); }
 Token* Lexer::handle_string_multiline() {
   if (!_buffer.empty()) {
@@ -148,19 +155,19 @@ Token* Lexer::handle_string_multiline() {
         "Literal string started right with a non empty buffer.");
   }
 
-  if (_pos < _source.length() && _source[_pos] == '\n') {
+  if (_pos < _source.length() && _source.at(_pos) == '\n') {
     pop();
-  } else if (_pos < _source.length() && _source[_pos] == '\r') {
+  } else if (_pos < _source.length() && _source.at(_pos) == '\r') {
     pop();
-    if (_pos < _source.length() && _source[_pos] == '\n') {
+    if (_pos < _source.length() && _source.at(_pos) == '\n') {
       pop();
     }
   }
 
   while (_pos < _source.length()) {
-    char c = pop();
+    char now = pop();
 
-    if (c == '\'') {
+    if (now == '\'') {
       std::size_t quoteCount = 1;
       while (_pos < _source.length() && pop() == '\'') {
         quoteCount++;
@@ -171,54 +178,55 @@ Token* Lexer::handle_string_multiline() {
           _buffer.append(quoteCount - 3, '\'');
         }
 
-        std::string s;
-        s.swap(_buffer);
-        return new Token(TokenDelimiter, s);
-      } else {
-        _buffer.append(quoteCount, '\'');
+        std::string tmp;
+        tmp.swap(_buffer);
+        return new Token(TokenDelimiter, tmp);
       }
+      _buffer.append(quoteCount, '\'');
     }
   }
 
   _buffer.clear();
   throw std::runtime_error("Unterminated literal multiline string.");
 }
+// NOLINTBEGIN(readability-convert-member-functions-to-static)
 Token* Lexer::handle_string_double_multiline() { TODO(); }
 Token* Lexer::handle_table_key() { TODO(); }
 Token* Lexer::handle_array_key() { TODO(); }
 Token* Lexer::handle_comments() { TODO(); }
 Token* Lexer::handle_inline_array() { TODO(); }
 Token* Lexer::handle_inline_table() { TODO(); }
+// NOLINTEND(readability-convert-member-functions-to-static)
 Token* Lexer::handle_whitespace() {
-  char c;
+  char now = 0;
 
-  while ((c = pop()) != '\0' && c == ' ' && c == '\t') {
-    _buffer.push_back(c);
+  while ((now = pop()) != '\0' && now == ' ' && now == '\t') {
+    _buffer.push_back(now);
   }
 
   if (_buffer.empty()) {
     return NULL;
   }
-  std::string s;
-  s.swap(_buffer);
-  return new Token(TokenDelimiter, s);
+  std::string tmp;
+  tmp.swap(_buffer);
+  return new Token(TokenDelimiter, tmp);
 }
 
 char Lexer::pop() {
   if (_pos > _source.length()) {
     throw std::runtime_error("Cannot read after end of file.");
   }
-  return _source[_pos++];
+  return _source.at(_pos);
 }
 char Lexer::peek() {
   if (_pos > _source.length()) {
     throw std::runtime_error("Cannot read after end of file.");
   }
-  return _source[_pos];
+  return _source.at(_pos);
 }
 
-char getSpecial(char c) {
-  switch (c) {
+char getSpecial(char code) {
+  switch (code) {
     case 'b':
       return '\b';
     case 't':
@@ -240,35 +248,47 @@ char getSpecial(char c) {
   }
 }
 
-std::string getUnicode(const std::string& s) {
-  unsigned long codepoint = 0;
+std::string getUnicode(const std::string& str) {
+  u_int64_t codepoint = 0;
 
   std::string hexPart;
-  if (s.substr(0, 2) == "\\x" || s.substr(0, 2) == "\\u" ||
-      s.substr(0, 2) == "\\U") {
-    hexPart = s.substr(2);
+  if (str.substr(0, 2) == "\\x" || str.substr(0, 2) == "\\u" ||
+      str.substr(0, 2) == "\\U") {
+    hexPart = str.substr(2);
   } else {
-    hexPart = s;
+    hexPart = str;
   }
 
-  codepoint = strtol(hexPart.c_str(), NULL, 16);
+  codepoint = strtol(hexPart.c_str(), NULL, HEX_BASE);
 
   std::string result;
 
-  if (codepoint <= 0x7F) {
+  if (codepoint <= UTF8_MAX_1BYTE) {
     result += static_cast<char>(codepoint);
-  } else if (codepoint <= 0x7FF) {
-    result += static_cast<char>(0xC0 | (codepoint >> 6));
-    result += static_cast<char>(0x80 | (codepoint & 0x3F));
-  } else if (codepoint <= 0xFFFF) {
-    result += static_cast<char>(0xE0 | (codepoint >> 12));
-    result += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
-    result += static_cast<char>(0x80 | (codepoint & 0x3F));
-  } else if (codepoint <= 0x10FFFF) {
-    result += static_cast<char>(0xF0 | (codepoint >> 18));
-    result += static_cast<char>(0x80 | ((codepoint >> 12) & 0x3F));
-    result += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
-    result += static_cast<char>(0x80 | (codepoint & 0x3F));
+  } else if (codepoint <= UTF8_MAX_2BYTE) {
+    result +=
+        static_cast<char>(UTF8_LEAD_2BYTE | (codepoint >> UTF8_SHIFT_6BITS));
+    result += static_cast<char>(UTF8_CONTINUATION_LEAD |
+                                (codepoint & UTF8_CONTINUATION_MASK));
+  } else if (codepoint <= UTF8_MAX_3BYTE) {
+    result +=
+        static_cast<char>(UTF8_LEAD_3BYTE | (codepoint >> UTF8_SHIFT_12BITS));
+    result += static_cast<char>(
+        UTF8_CONTINUATION_LEAD |
+        ((codepoint >> UTF8_SHIFT_6BITS) & UTF8_CONTINUATION_MASK));
+    result += static_cast<char>(UTF8_CONTINUATION_LEAD |
+                                (codepoint & UTF8_CONTINUATION_MASK));
+  } else if (codepoint <= UTF8_MAX_4BYTE) {
+    result +=
+        static_cast<char>(UTF8_LEAD_4BYTE | (codepoint >> UTF8_SHIFT_18BITS));
+    result += static_cast<char>(
+        UTF8_CONTINUATION_LEAD |
+        ((codepoint >> UTF8_SHIFT_12BITS) & UTF8_CONTINUATION_MASK));
+    result += static_cast<char>(
+        UTF8_CONTINUATION_LEAD |
+        ((codepoint >> UTF8_SHIFT_6BITS) & UTF8_CONTINUATION_MASK));
+    result += static_cast<char>(UTF8_CONTINUATION_LEAD |
+                                (codepoint & UTF8_CONTINUATION_MASK));
   }
 
   return result;

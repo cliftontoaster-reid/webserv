@@ -7,6 +7,30 @@
 #include <stack>
 #include <string>
 
+// UTF-8 Payload Extraction Masks and Shifts
+enum Utf8Payload {
+  UTF8_CONTINUATION_MASK = 0x3F,  // 00111111 (Extracts 6 bits of payload data)
+  UTF8_SHIFT_6BITS = 6,           // Shifts past 1 continuation byte payload
+  UTF8_SHIFT_12BITS = 12,         // Shifts past 2 continuation bytes payload
+  UTF8_SHIFT_18BITS = 18          // Shifts past 3 continuation bytes payload
+};
+
+// Maximum Unicode Codepoint Thresholds for UTF-8 Byte Lengths
+enum Utf8Max {
+  UTF8_MAX_1BYTE = 0x7F,     // U+0000   to U+007F
+  UTF8_MAX_2BYTE = 0x7FF,    // U+0080   to U+07FF
+  UTF8_MAX_3BYTE = 0xFFFF,   // U+0800   to U+FFFF
+  UTF8_MAX_4BYTE = 0x10FFFF  // U+100000 to U+10FFFF
+};
+
+// Leading and Continuation Byte Bitwise Prefixes
+enum Utf8Prefix {
+  UTF8_LEAD_2BYTE = 0xC0,        // 110xxxxx (Starts a 2-byte sequence)
+  UTF8_LEAD_3BYTE = 0xE0,        // 1110xxxx (Starts a 3-byte sequence)
+  UTF8_LEAD_4BYTE = 0xF0,        // 11110xxx (Starts a 4-byte sequence)
+  UTF8_CONTINUATION_LEAD = 0x80  // 10xxxxxx (Marks a trailing payload byte)
+};
+
 namespace toml98 {
 
 enum TokenType {
@@ -61,13 +85,13 @@ enum LexerState {
 class Lexer {
  public:
   Lexer();
-  Lexer(const std::string& s);
+  explicit Lexer(const std::string& str);
   Lexer(const Lexer& other);
   Lexer& operator=(const Lexer& other);
   ~Lexer();
 
   Token* run();
-  void push(const std::basic_string<char>& s);
+  void push(const std::basic_string<char>& str);
 
  private:
   std::stack<LexerState> _stack;
@@ -92,9 +116,9 @@ class Lexer {
   char peek();
 };
 
-char getSpecial(char c);
+char getSpecial(char code);
 
-std::string getUnicode(const std::string& s);
+std::string getUnicode(const std::string& str);
 
 }  // namespace toml98
 

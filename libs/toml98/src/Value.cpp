@@ -1,5 +1,6 @@
 #include "Value.hpp"
 
+#include <cmath>
 #include <cstddef>
 #include <cstring>
 #include <stdexcept>
@@ -8,7 +9,7 @@ namespace toml98 {
 
 Value Value::createString(const std::string& val) {
   std::string* ptr = new std::string(val);
-  return Value(ValueString, reinterpret_cast<void*>(ptr));
+  return Value(ValueString, static_cast<void*>(ptr));
 }
 
 Value Value::createInteger(int64_t val) {
@@ -16,7 +17,7 @@ Value Value::createInteger(int64_t val) {
 }
 
 Value Value::createFloat(double val) {
-  uint64_t bits;
+  uint64_t bits = 0;
   std::memcpy(&bits, &val, sizeof(val));
   return Value(ValueFloat, bits);
 }
@@ -41,7 +42,7 @@ const std::string* Value::getString() const {
   if (_type != ValueString) {
     throw std::runtime_error("Value is not a string.");
   }
-  return reinterpret_cast<const std::string*>(_ptr);
+  return static_cast<const std::string*>(_ptr);
 }
 
 int64_t Value::getInteger() const {
@@ -56,7 +57,7 @@ double Value::getFloat() const {
     throw std::runtime_error("Value is not a float.");
   }
   uint64_t bits = _nbr;
-  double val;
+  double val = NAN;
   std::memcpy(&val, &bits, sizeof(val));
   return val;
 }
@@ -72,33 +73,33 @@ const std::vector<Value>* Value::getArray() const {
   if (_type != ValueArray) {
     throw std::runtime_error("Value is not an array.");
   }
-  return reinterpret_cast<const std::vector<Value>*>(_ptr);
+  return static_cast<const std::vector<Value>*>(_ptr);
 }
 
 const std::map<std::string, Value>* Value::getTable() const {
   if (_type != ValueTable) {
     throw std::runtime_error("Value is not a table.");
   }
-  return reinterpret_cast<const std::map<std::string, Value>*>(_ptr);
+  return static_cast<const std::map<std::string, Value>*>(_ptr);
 }
 
 Value::Value(const Value& other) : _type(other._type), _ptr(NULL) {
   switch (_type) {
     case ValueString: {
-      const std::string* src = reinterpret_cast<const std::string*>(other._ptr);
-      _ptr = reinterpret_cast<void*>(new std::string(*src));
+      const std::string* src = static_cast<const std::string*>(other._ptr);
+      _ptr = static_cast<void*>(new std::string(*src));
       break;
     }
     case ValueArray: {
       const std::vector<Value>* src =
-          reinterpret_cast<const std::vector<Value>*>(other._ptr);
-      _ptr = reinterpret_cast<void*>(new std::vector<Value>(*src));
+          static_cast<const std::vector<Value>*>(other._ptr);
+      _ptr = static_cast<void*>(new std::vector<Value>(*src));
       break;
     }
     case ValueTable: {
       const std::map<std::string, Value>* src =
-          reinterpret_cast<const std::map<std::string, Value>*>(other._ptr);
-      _ptr = reinterpret_cast<void*>(new std::map<std::string, Value>(*src));
+          static_cast<const std::map<std::string, Value>*>(other._ptr);
+      _ptr = static_cast<void*>(new std::map<std::string, Value>(*src));
       break;
     }
     case ValueInteger:
@@ -119,21 +120,20 @@ Value& Value::operator=(const Value& other) {
     _ptr = NULL;
     switch (_type) {
       case ValueString: {
-        const std::string* src =
-            reinterpret_cast<const std::string*>(other._ptr);
-        _ptr = reinterpret_cast<void*>(new std::string(*src));
+        const std::string* src = static_cast<const std::string*>(other._ptr);
+        _ptr = static_cast<void*>(new std::string(*src));
         break;
       }
       case ValueArray: {
         const std::vector<Value>* src =
-            reinterpret_cast<const std::vector<Value>*>(other._ptr);
-        _ptr = reinterpret_cast<void*>(new std::vector<Value>(*src));
+            static_cast<const std::vector<Value>*>(other._ptr);
+        _ptr = static_cast<void*>(new std::vector<Value>(*src));
         break;
       }
       case ValueTable: {
         const std::map<std::string, Value>* src =
-            reinterpret_cast<const std::map<std::string, Value>*>(other._ptr);
-        _ptr = reinterpret_cast<void*>(new std::map<std::string, Value>(*src));
+            static_cast<const std::map<std::string, Value>*>(other._ptr);
+        _ptr = static_cast<void*>(new std::map<std::string, Value>(*src));
         break;
       }
       case ValueInteger:
@@ -146,19 +146,18 @@ Value& Value::operator=(const Value& other) {
     // Destroy old data only after successful copy
     switch (oldType) {
       case ValueString: {
-        std::string* str = reinterpret_cast<std::string*>(oldPtr);
+        std::string* str = static_cast<std::string*>(oldPtr);
         delete str;
         break;
       }
       case ValueArray: {
-        std::vector<Value>* array =
-            reinterpret_cast<std::vector<Value>*>(oldPtr);
+        std::vector<Value>* array = static_cast<std::vector<Value>*>(oldPtr);
         delete array;
         break;
       }
       case ValueTable: {
         std::map<std::string, Value>* table =
-            reinterpret_cast<std::map<std::string, Value>*>(oldPtr);
+            static_cast<std::map<std::string, Value>*>(oldPtr);
         delete table;
         break;
       }
@@ -174,18 +173,18 @@ Value& Value::operator=(const Value& other) {
 Value::~Value() {
   switch (_type) {
     case ValueString: {
-      std::string* str = reinterpret_cast<std::string*>(_ptr);
+      std::string* str = static_cast<std::string*>(_ptr);
       delete str;
       break;
     }
     case ValueArray: {
-      std::vector<Value>* array = reinterpret_cast<std::vector<Value>*>(_ptr);
+      std::vector<Value>* array = static_cast<std::vector<Value>*>(_ptr);
       delete array;
       break;
     }
     case ValueTable: {
       std::map<std::string, Value>* table =
-          reinterpret_cast<std::map<std::string, Value>*>(_ptr);
+          static_cast<std::map<std::string, Value>*>(_ptr);
       delete table;
       break;
     }
@@ -197,27 +196,30 @@ Value::~Value() {
 }
 
 bool Value::operator==(const Value& other) const {
-  if (_type != other._type) return false;
+  if (_type != other._type) {
+    return false;
+  }
   switch (_type) {
     case ValueString:
-      return *reinterpret_cast<const std::string*>(_ptr) ==
-             *reinterpret_cast<const std::string*>(other._ptr);
+      return *static_cast<const std::string*>(_ptr) ==
+             *static_cast<const std::string*>(other._ptr);
     case ValueInteger:
       return _nbr == other._nbr;
     case ValueFloat: {
-      double a, b;
-      std::memcpy(&a, &_nbr, sizeof(a));
-      std::memcpy(&b, &other._nbr, sizeof(b));
-      return a == b;
+      double floatA = NAN;
+      double floatB = NAN;
+      std::memcpy(&floatA, &_nbr, sizeof(floatA));
+      std::memcpy(&floatB, &other._nbr, sizeof(floatB));
+      return floatA == floatB;
     }
     case ValueBoolean:
       return static_cast<bool>(_nbr) == static_cast<bool>(other._nbr);
     case ValueArray:
-      return *reinterpret_cast<const std::vector<Value>*>(_ptr) ==
-             *reinterpret_cast<const std::vector<Value>*>(other._ptr);
+      return *static_cast<const std::vector<Value>*>(_ptr) ==
+             *static_cast<const std::vector<Value>*>(other._ptr);
     case ValueTable:
-      return *reinterpret_cast<const std::map<std::string, Value>*>(_ptr) ==
-             *reinterpret_cast<const std::map<std::string, Value>*>(other._ptr);
+      return *static_cast<const std::map<std::string, Value>*>(_ptr) ==
+             *static_cast<const std::map<std::string, Value>*>(other._ptr);
   }
   return false;
 }
@@ -226,47 +228,51 @@ bool Value::operator!=(const Value& other) const { return !(*this == other); }
 
 Value::Value(ValueType type, void* val) : _type(type), _ptr(val) {}
 Value::Value(ValueType type, uint64_t val) : _type(type), _nbr(val) {}
-Value::Value() : _type(ValueString) {}
+Value::Value() : _type(ValueString), _ptr() {}
 
-std::ostream& operator<<(std::ostream& os, const Value& val) {
+std::ostream& operator<<(std::ostream& ost, const Value& val) {
   switch (val.type()) {
     case ValueString:
-      os << *val.getString();
+      ost << *val.getString();
       break;
     case ValueInteger:
-      os << val.getInteger();
+      ost << val.getInteger();
       break;
     case ValueFloat:
-      os << val.getFloat();
+      ost << val.getFloat();
       break;
     case ValueBoolean:
-      os << (val.getBoolean() ? "true" : "false");
+      ost << (val.getBoolean() ? "true" : "false");
       break;
     case ValueArray: {
-      os << "[";
+      ost << "[";
       const std::vector<Value>* arr = val.getArray();
       for (std::size_t i = 0; i < arr->size(); ++i) {
-        if (i > 0) os << ", ";
-        os << (*arr)[i];
+        if (i > 0) {
+          ost << ", ";
+        }
+        ost << arr->at(i);
       }
-      os << "]";
+      ost << "]";
       break;
     }
     case ValueTable: {
-      os << "{";
+      ost << "{";
       const std::map<std::string, Value>* table = val.getTable();
       bool first = true;
       for (std::map<std::string, Value>::const_iterator it = table->begin();
            it != table->end(); ++it) {
-        if (!first) os << ", ";
+        if (!first) {
+          ost << ", ";
+        }
         first = false;
-        os << it->first << " = " << it->second;
+        ost << it->first << " = " << it->second;
       }
-      os << "}";
+      ost << "}";
       break;
     }
   }
-  return os;
+  return ost;
 }
 
 }  // namespace toml98
