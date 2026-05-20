@@ -32,7 +32,9 @@ Lexer::Lexer() : _pos(0), _isLastEqual(false) {
 }
 Lexer::Lexer(const std::string& str)
     : _source(str), _pos(0), _isLastEqual(false) {
-  _stack = std::stack<LexerState>();
+  
+  
+      _stack = std::stack<LexerState>();
   _stack.push(LexerNormal);
 }
 Lexer::Lexer(const Lexer& other)
