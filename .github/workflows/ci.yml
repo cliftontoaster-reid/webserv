@@ -27,6 +27,62 @@ jobs:
           make -C libs/toml98 test
           ./libs/toml98/tests/toml98_test --verbose
 
+  format:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    concurrency:
+      group: ci-format
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+
+      - name: Format codebase
+        run: make format
+
+      - name: Check for changes
+        id: check
+        run: |
+          if ! git diff --quiet --ignore-submodules; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push to PR
+        if: steps.check.outputs.changed == 'true' && github.event_name == 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "style: auto-format codebase"
+          git push
+
+      - name: Create PR with formatting changes
+        if: steps.check.outputs.changed == 'true' && github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="chore/auto-format-$(date +%s)"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add -A
+          git commit -m "style: auto-format codebase"
+          git push origin "$BRANCH"
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "style: auto-format codebase" \
+            --body "Automated code formatting via \`make format\`."
+
   lint:
     runs-on: ubuntu-latest
     steps:
