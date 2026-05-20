@@ -20,6 +20,7 @@ jobs:
       - name: Building toml98
         run: |
           make -C libs/toml98 all
+          make -C libs/toml98 all MODE=release
       
       - name: Running toml98's tests
         run: |
