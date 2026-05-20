@@ -1,4 +1,3 @@
-
 #ifndef TOML98_INCLUDE_LEXER_HPP
 #define TOML98_INCLUDE_LEXER_HPP
 
@@ -53,6 +52,7 @@ enum TokenType {
 
   TokenEqual,  // '=' or ':' based on context
   TokenDelimiter,
+  TokenNewLine,
   TokenDot,
 };
 

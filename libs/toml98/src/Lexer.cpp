@@ -193,7 +193,12 @@ Token* Lexer::handle_string_multiline() {
 Token* Lexer::handle_string_double_multiline() { TODO(); }
 Token* Lexer::handle_table_key() { TODO(); }
 Token* Lexer::handle_array_key() { TODO(); }
-Token* Lexer::handle_comments() { TODO(); }
+Token* Lexer::handle_comments()
+{
+  while (peek() != '\n' && peek() != '\0')
+    pop();
+  return new Token(TokenNewLine, "\n");
+}
 Token* Lexer::handle_inline_array() { TODO(); }
 Token* Lexer::handle_inline_table() { TODO(); }
 // NOLINTEND(readability-convert-member-functions-to-static)
