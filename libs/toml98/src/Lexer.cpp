@@ -55,6 +55,10 @@ Lexer::~Lexer() {}
 
 Token* Lexer::run() {
   Token* ret = NULL;
+  _pos = 0;
+  _buffer.clear();
+  _stack = std::stack<LexerState>();
+  _stack.push(LexerNormal);
 
   while (ret == NULL) {
     if (_stack.size() == 0) {
@@ -108,7 +112,34 @@ void Lexer::push(const std::basic_string<char>& s) { _source.append(s); }
 
 Token* Lexer::handle_normal() { TODO(); }
 Token* Lexer::handle_word() { TODO(); }
-Token* Lexer::handle_string() { TODO(); }
+Token* Lexer::handle_string() {
+  if (!_buffer.empty()) {
+    _buffer.clear();
+    throw std::runtime_error(
+        "Literal string started right with a non empty buffer.");
+  }
+
+  while (_pos < _source.length()) {
+    char c = pop();
+
+    if (c == '\n' || c == '\r') {
+      _buffer.clear();
+      throw std::runtime_error(
+          "Unexpected new line in non multi-line literal string.");
+    }
+
+    if (c == '\'') {
+      std::string s;
+      s.swap(_buffer);
+      return new Token(TokenDelimiter, s);
+    }
+
+    _buffer.push_back(c);
+  }
+
+  _buffer.clear();
+  throw std::runtime_error("Unterminated literal string.");
+}
 Token* Lexer::handle_string_double() { TODO(); }
 Token* Lexer::handle_string_multiline() { TODO(); }
 Token* Lexer::handle_string_double_multiline() { TODO(); }
@@ -120,7 +151,7 @@ Token* Lexer::handle_inline_table() { TODO(); }
 Token* Lexer::handle_whitespace() {
   char c;
 
-  while ((c = _source[_pos++]) != '\0' && c == ' ' && c == '\t') {
+  while ((c = pop()) != '\0' && c == ' ' && c == '\t') {
     _buffer.push_back(c);
   }
 
@@ -130,6 +161,19 @@ Token* Lexer::handle_whitespace() {
   std::string s;
   s.swap(_buffer);
   return new Token(TokenDelimiter, s);
+}
+
+char Lexer::pop() {
+  if (_pos > _source.length()) {
+    throw std::runtime_error("Cannot read after end of file.");
+  }
+  return _source[_pos++];
+}
+char Lexer::peek() {
+  if (_pos > _source.length()) {
+    throw std::runtime_error("Cannot read after end of file.");
+  }
+  return _source[_pos];
 }
 
 char getSpecial(char c) {
@@ -162,6 +206,8 @@ std::string getUnicode(const std::string& s) {
   if (s.substr(0, 2) == "\\x" || s.substr(0, 2) == "\\u" ||
       s.substr(0, 2) == "\\U") {
     hexPart = s.substr(2);
+  } else {
+    hexPart = s;
   }
 
   codepoint = strtol(hexPart.c_str(), NULL, 16);

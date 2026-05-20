@@ -87,6 +87,9 @@ class Lexer {
   Token* handle_inline_array();
   Token* handle_inline_table();
   Token* handle_whitespace();
+
+  char pop();
+  char peek();
 };
 
 char getSpecial(char c);
