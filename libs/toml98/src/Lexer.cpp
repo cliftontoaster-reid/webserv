@@ -26,9 +26,7 @@ Token& Token::operator=(const Token& other) {
 }
 Token::~Token() {}
 
-Lexer::Lexer() : _pos(0), _isLastEqual(false) {
-  _stack.push(LexerNormal);
-}
+Lexer::Lexer() : _pos(0), _isLastEqual(false) { _stack.push(LexerNormal); }
 Lexer::Lexer(const std::string& str)
     : _source(str), _pos(0), _isLastEqual(false) {
   _stack.push(LexerNormal);
