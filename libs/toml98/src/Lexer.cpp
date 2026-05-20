@@ -9,9 +9,10 @@
 
 namespace toml98 {
 
-Lexer::Lexer() : _source(""), _pos(0) {}
-Lexer::Lexer(const std::string& s) : _source(s), _pos(0) {}
-Lexer::Lexer(const Lexer& other) : _source(other._source), _pos(other._pos) {
+Lexer::Lexer() : _source(""), _buffer(""), _pos(0) {}
+Lexer::Lexer(const std::string& s) : _source(s), _buffer(""), _pos(0) {}
+Lexer::Lexer(const Lexer& other)
+    : _source(other._source), _buffer(other._buffer), _pos(other._pos) {
   std::stack<LexerState> temp_stack = other._stack;
   std::stack<LexerState> reversed;
 
@@ -45,6 +46,7 @@ Lexer& Lexer::operator=(const Lexer& other) {
     }
 
     _source = other._source;
+    _buffer = other._buffer;
     _pos = other._pos;
   }
   return *this;
