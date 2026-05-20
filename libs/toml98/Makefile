@@ -82,6 +82,7 @@ TEST_DIR	= ./tests
 SRCS = \
        $(SRC_DIR)/Value.cpp \
        $(SRC_DIR)/Lexer.cpp \
+       $(SRC_DIR)/utils.cpp \
 
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 DEP := $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(SRCS))
