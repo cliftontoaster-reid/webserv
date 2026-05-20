@@ -15,17 +15,10 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang make
+          sudo apt-get install -y clang make cmake curl python3
       
-      - name: Building toml98
-        run: |
-          make -C libs/toml98 all
-          make -C libs/toml98 all MODE=release
-      
-      - name: Running toml98's tests
-        run: |
-          make -C libs/toml98 test
-          ./libs/toml98/tests/toml98_test --verbose
+      - name: Build and run all tests
+        run: python3 scripts/test.py
 
   format:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
