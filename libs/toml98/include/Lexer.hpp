@@ -67,7 +67,7 @@ class Lexer {
   ~Lexer();
 
   Token* run();
-  void push(const std::string& s);
+  void push(const std::basic_string<char>& s);
 
  private:
   std::stack<LexerState> _stack;

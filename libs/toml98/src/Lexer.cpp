@@ -102,7 +102,7 @@ Token* Lexer::run() {
 
   return ret;
 }
-void Lexer::push(const std::string& s) { _source.append(s); }
+void Lexer::push(const std::basic_string<char>& s) { _source.append(s); }
 
 Token* Lexer::handle_normal() { TODO(); }
 Token* Lexer::handle_word() { TODO(); }
