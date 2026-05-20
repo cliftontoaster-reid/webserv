@@ -12,19 +12,19 @@ Token* Lexer::handle_normal() {
     return NULL;
   }
   switch (letter) {
-    case ('#'):
+    case '#':
       pop();
       _stack.push(LexerComments);
       break;
-    case ('{'):
+    case '{':
       pop();
       _stack.push(LexerInlineTable);
       break;
-    case (' '):
-    case ('\t'):
+    case ' ':
+    case '\t':
       _stack.push(LexerWhiteSpace);
       break;
-    case ('"'): {
+    case '"': {
       pop();
       if (peek() != '"') {
         _stack.push(LexerStringDouble);
@@ -38,7 +38,7 @@ Token* Lexer::handle_normal() {
       }
       break;
     }
-    case ('\''): {
+    case '\'': {
       pop();
       if (peek() != '\'') {
         _stack.push(LexerString);
@@ -52,7 +52,7 @@ Token* Lexer::handle_normal() {
       }
       break;
     }
-    case ('['): {
+    case '[': {
       pop();
       if (peek() != '[') {
         _stack.push(LexerTableKey);
