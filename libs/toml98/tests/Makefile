@@ -80,12 +80,12 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
-	$(SRC_DIR)/example.cpp \
+	$(SRC_DIR)/ValueTest.cpp \
 
 BOBJ ?=
 OBJ  := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 DEP  := $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(SRCS))
-BINC ?= .
+BINC ?= ../include
 INC  := -I$(INC_DIR) -I$(BINC)
 DIRS = $(OBJ_DIR) $(TOBJ_DIR) $(DEP_DIR) $(BIN_DIR)
 
@@ -93,7 +93,7 @@ dirs:
 	@$(foreach d, $(DIRS), mkdir -p "$(d)";)
 
 LIBRARIES := criterion
-LIBS_ARCHIVES :=
+LIBS_ARCHIVES ?=
 
 # -------
 # Criterion
