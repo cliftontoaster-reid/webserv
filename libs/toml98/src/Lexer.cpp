@@ -141,7 +141,48 @@ Token* Lexer::handle_string() {
   throw std::runtime_error("Unterminated literal string.");
 }
 Token* Lexer::handle_string_double() { TODO(); }
-Token* Lexer::handle_string_multiline() { TODO(); }
+Token* Lexer::handle_string_multiline() {
+  if (!_buffer.empty()) {
+    _buffer.clear();
+    throw std::runtime_error(
+        "Literal string started right with a non empty buffer.");
+  }
+
+  if (_pos < _source.length() && _source[_pos] == '\n') {
+    pop();
+  } else if (_pos < _source.length() && _source[_pos] == '\r') {
+    pop();
+    if (_pos < _source.length() && _source[_pos] == '\n') {
+      pop();
+    }
+  }
+
+  while (_pos < _source.length()) {
+    char c = pop();
+
+    if (c == '\'') {
+      std::size_t quoteCount = 1;
+      while (_pos < _source.length() && pop() == '\'') {
+        quoteCount++;
+      }
+
+      if (quoteCount >= 3) {
+        if (quoteCount > 3) {
+          _buffer.append(quoteCount - 3, '\'');
+        }
+
+        std::string s;
+        s.swap(_buffer);
+        return new Token(TokenDelimiter, s);
+      } else {
+        _buffer.append(quoteCount, '\'');
+      }
+    }
+  }
+
+  _buffer.clear();
+  throw std::runtime_error("Unterminated literal multiline string.");
+}
 Token* Lexer::handle_string_double_multiline() { TODO(); }
 Token* Lexer::handle_table_key() { TODO(); }
 Token* Lexer::handle_array_key() { TODO(); }
