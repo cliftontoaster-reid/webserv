@@ -15,13 +15,12 @@ int64_t intFromHex(const std::string& str) {
   }
   tmp.erase(std::remove(tmp.begin(), tmp.end(), '_'), tmp.end());
 
-  return strtoll   
-   (tmp.c_str(), NULL, HEX_BASE);
+  return strtoll(tmp.c_str(), NULL, HEX_BASE);
 }
 
 int64_t intFromOct(const std::string& str) {
   std::string tmp = std::string();
-  if (              str.substr(0, 2) == "0o") {
+  if (str.substr(0, 2) == "0o") {
     tmp = str.substr(2);
   } else {
     tmp = str;
