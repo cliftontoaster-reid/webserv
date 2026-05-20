@@ -79,7 +79,7 @@ enum LexerState {
   LexerComments,               //   # ...
   LexerInlineArray,            // = [ ... ]
   LexerInlineTable,            //   { ... }
-  WhiteSpace,
+  LexerWhiteSpace,
 };
 
 class Lexer {
@@ -98,18 +98,19 @@ class Lexer {
   std::string _source;
   std::string _buffer;
   u_int64_t _pos;
+  bool _inspection;
 
-  Token* handle_normal();
+  Token* handle_normal(); //TODO
   Token* handle_word();
   Token* handle_string();
-  Token* handle_string_double();
+  Token* handle_string_double(); //TODO
   Token* handle_string_multiline();
-  Token* handle_string_double_multiline();
-  Token* handle_table_key();
-  Token* handle_array_key();
+  Token* handle_string_double_multiline(); //TODO
+  Token* handle_table_key(); //TODO
+  Token* handle_array_key(); //TODO
   Token* handle_comments();
-  Token* handle_inline_array();
-  Token* handle_inline_table();
+  Token* handle_inline_array(); //TODO
+  Token* handle_inline_table(); //TODO
   Token* handle_whitespace();
 
   char pop();

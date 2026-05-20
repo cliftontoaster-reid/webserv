@@ -104,7 +104,7 @@ Token* Lexer::run() {
       case LexerInlineTable:
         ret = handle_inline_table();
         break;
-      case WhiteSpace:
+      case LexerWhiteSpace:
         ret = handle_whitespace();
         break;
     }
@@ -115,7 +115,6 @@ Token* Lexer::run() {
 void Lexer::push(const std::basic_string<char>& str) { _source.append(str); }
 
 // NOLINTBEGIN(readability-convert-member-functions-to-static)
-Token* Lexer::handle_normal() { TODO(); }
 Token* Lexer::handle_word() 
 {
   char letter = peek();
