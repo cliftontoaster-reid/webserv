@@ -11,9 +11,7 @@ Value Value::createString(const std::string& val) {
   return Value(ValueString, reinterpret_cast<void*>(ptr));
 }
 
-Value Value::createInteger(uint64_t val) {
-  return Value(ValueInteger, val);
-}
+Value Value::createInteger(uint64_t val) { return Value(ValueInteger, val); }
 
 Value Value::createFloat(double val) {
   uint64_t bits;
@@ -85,8 +83,7 @@ const std::map<std::string, Value>* Value::getTable() const {
 Value::Value(const Value& other) : _type(other._type), _ptr(NULL) {
   switch (_type) {
     case ValueString: {
-      const std::string* src =
-          reinterpret_cast<const std::string*>(other._ptr);
+      const std::string* src = reinterpret_cast<const std::string*>(other._ptr);
       _ptr = reinterpret_cast<void*>(new std::string(*src));
       break;
     }
@@ -134,8 +131,7 @@ Value& Value::operator=(const Value& other) {
       case ValueTable: {
         const std::map<std::string, Value>* src =
             reinterpret_cast<const std::map<std::string, Value>*>(other._ptr);
-        _ptr =
-            reinterpret_cast<void*>(new std::map<std::string, Value>(*src));
+        _ptr = reinterpret_cast<void*>(new std::map<std::string, Value>(*src));
         break;
       }
       case ValueInteger:
