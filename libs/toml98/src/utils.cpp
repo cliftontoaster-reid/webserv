@@ -7,7 +7,7 @@
 namespace toml98 {
 
 int64_t intFromHex(const std::string& str) {
-  std::string tmp;
+  std::string tmp = std::string();
   if (str.substr(0, 2) == "0x" || str.substr(0, 2) == "0X") {
     tmp = str.substr(2);
   } else {
@@ -19,7 +19,7 @@ int64_t intFromHex(const std::string& str) {
 }
 
 int64_t intFromOct(const std::string& str) {
-  std::string tmp;
+  std::string tmp = std::string();
   if (str.substr(0, 2) == "0o") {
     tmp = str.substr(2);
   } else {
@@ -31,7 +31,7 @@ int64_t intFromOct(const std::string& str) {
 }
 
 int64_t intFromBin(const std::string& str) {
-  std::string tmp;
+  std::string tmp = std::string();
   if (str.substr(0, 2) == "0b") {
     tmp = str.substr(2);
   } else {

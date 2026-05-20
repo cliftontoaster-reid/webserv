@@ -204,6 +204,7 @@ Token* Lexer::handle_whitespace() {
     _buffer.push_back(now);
   }
 
+  _stack.pop();
   if (_buffer.empty()) {
     return NULL;
   }
