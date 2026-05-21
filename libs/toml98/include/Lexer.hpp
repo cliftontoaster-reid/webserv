@@ -118,12 +118,12 @@ class Lexer {
   Token* handle_whitespace();
 
   void pop();
-  void pop(u_int64_t n);
+  void pop(u_int64_t amount);
 
   char peek();
-  char peek(u_int64_t n);
-  bool canPeek(char c);
-  bool canPeek(char c, u_int64_t n);
+  char peek(u_int64_t offset);
+  bool canPeek(char expect);
+  bool canPeek(char expect, u_int64_t offset);
   u_int64_t remaining();
 };
 
