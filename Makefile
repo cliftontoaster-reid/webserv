@@ -113,7 +113,7 @@ toml98: $(TOML98_ARCHIVE)
 $(TOML98_ARCHIVE):
 	@printf "$(BOLD)Building toml98 library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	TARGET_DIR="$(TOML98_TARGET_DIR)" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(TOML98_TARGET_DIR))" MODE="$(MODE)" \
 	$(MAKE) -C $(TOML98_DEPO) all
 	@printf "$(BOLD)Built toml98:$(RESET) $(GREEN)$(TOML98_ARCHIVE)$(RESET)\n"
 
@@ -138,7 +138,7 @@ mon-cgi: $(MON_CGI_ARCHIVE)
 $(MON_CGI_ARCHIVE):
 	@printf "$(BOLD)Building mon-cgi library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	TARGET_DIR="$(MON_CGI_TARGET_DIR)" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(MON_CGI_TARGET_DIR))" MODE="$(MODE)" \
 	$(MAKE) -C $(MON_CGI_DEPO) all
 	@printf "$(BOLD)Built mon-cgi:$(RESET) $(GREEN)$(MON_CGI_ARCHIVE)$(RESET)\n"
 
@@ -163,7 +163,7 @@ mon-http: $(MON_HTTP_ARCHIVE)
 $(MON_HTTP_ARCHIVE):
 	@printf "$(BOLD)Building mon-http library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	TARGET_DIR="$(MON_HTTP_TARGET_DIR)" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(MON_HTTP_TARGET_DIR))" MODE="$(MODE)" \
 	$(MAKE) -C $(MON_HTTP_DEPO) all
 	@printf "$(BOLD)Built mon-http:$(RESET) $(GREEN)$(MON_HTTP_ARCHIVE)$(RESET)\n"
 
@@ -188,7 +188,7 @@ mon-net: $(MON_NET_ARCHIVE)
 $(MON_NET_ARCHIVE):
 	@printf "$(BOLD)Building mon-net library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	TARGET_DIR="$(MON_NET_TARGET_DIR)" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(MON_NET_TARGET_DIR))" MODE="$(MODE)" \
 	$(MAKE) -C $(MON_NET_DEPO) all
 	@printf "$(BOLD)Built mon-net:$(RESET) $(GREEN)$(MON_NET_ARCHIVE)$(RESET)\n"
 
@@ -213,7 +213,7 @@ mon-router: $(MON_ROUTER_ARCHIVE)
 $(MON_ROUTER_ARCHIVE):
 	@printf "$(BOLD)Building mon-router library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	TARGET_DIR="$(MON_ROUTER_TARGET_DIR)" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" MODE="$(MODE)" \
 	$(MAKE) -C $(MON_ROUTER_DEPO) all
 	@printf "$(BOLD)Built mon-router:$(RESET) $(GREEN)$(MON_ROUTER_ARCHIVE)$(RESET)\n"
 
@@ -230,27 +230,27 @@ test:
 
 toml98-test:
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(CURDIR)/target/$(MODE)/toml98" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(TARGET_DIR))/toml98" MODE="$(MODE)" \
 	$(MAKE) -C $(LIBS_DIR)/toml98 test --silent
 
 mon-cgi-test:
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(CURDIR)/target/$(MODE)/mon-cgi" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(TARGET_DIR))/mon-cgi" MODE="$(MODE)" \
 	$(MAKE) -C $(LIBS_DIR)/mon-cgi test --silent
 
 mon-http-test:
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(CURDIR)/target/$(MODE)/mon-http" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(TARGET_DIR))/mon-http" MODE="$(MODE)" \
 	$(MAKE) -C $(LIBS_DIR)/mon-http test --silent
 
 mon-net-test:
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(CURDIR)/target/$(MODE)/mon-net" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(TARGET_DIR))/mon-net" MODE="$(MODE)" \
 	$(MAKE) -C $(LIBS_DIR)/mon-net test --silent
 
 mon-router-test:
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(CURDIR)/target/$(MODE)/mon-router" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(TARGET_DIR))/mon-router" MODE="$(MODE)" \
 	$(MAKE) -C $(LIBS_DIR)/mon-router test --silent
 
 test-all: test toml98-test mon-cgi-test mon-http-test mon-net-test mon-router-test
