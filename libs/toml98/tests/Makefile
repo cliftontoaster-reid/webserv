@@ -57,6 +57,8 @@ else
 	$(error "Invalid MODE specified: $(MODE). Use 'debug' or 'release'.")
 endif
 
+CFLAGS += -DTOML98_TESTS
+
 # -------
 # Project
 # -------

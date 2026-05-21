@@ -7,17 +7,21 @@
 
 #include "Lexer.hpp"
 
-class StupidNormalLexer : public toml98::Lexer {
+namespace toml98 {
+
+class StupidNormalLexer : public Lexer {
  public:
   StupidNormalLexer() {};
-  explicit StupidNormalLexer(const std::string& str) : toml98::Lexer(str) {}
+  explicit StupidNormalLexer(const std::string& str) : Lexer(str) {}
 
-  std::stack<toml98::LexerState>& stupidState() { return _stack; }
-  toml98::Token* stupid_normal() { return handle_normal(); }
+  std::stack<LexerState>& stupidState() { return _stack; }
+  Token* stupid_normal() { return handle_normal(); }
 };
 
+}  // namespace toml98
+
 Test(lexer_handle_normal, whitespace) {
-  StupidNormalLexer stupid = StupidNormalLexer(" ");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer(" ");
   stupid.stupid_normal();
 
   toml98::LexerState expected = toml98::LexerWhiteSpace;
@@ -33,7 +37,7 @@ Test(lexer_handle_normal, whitespace) {
 }
 
 Test(lexer_handle_normal, alpha) {
-  StupidNormalLexer stupid = StupidNormalLexer("a");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("a");
   stupid.stupid_normal();
 
   toml98::LexerState expected = toml98::LexerWord;
@@ -49,7 +53,7 @@ Test(lexer_handle_normal, alpha) {
 }
 
 Test(lexer_handle_normal, numeric) {
-  StupidNormalLexer stupid = StupidNormalLexer("7");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("7");
   stupid.stupid_normal();
 
   toml98::LexerState expected = toml98::LexerWord;
@@ -65,7 +69,7 @@ Test(lexer_handle_normal, numeric) {
 }
 
 Test(lexer_handle_normal, comment) {
-  StupidNormalLexer stupid = StupidNormalLexer("#");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("#");
   stupid.stupid_normal();
 
   toml98::LexerState expected = toml98::LexerComments;
@@ -81,7 +85,7 @@ Test(lexer_handle_normal, comment) {
 }
 
 Test(lexer_handle_normal, tab_whitespace) {
-  StupidNormalLexer stupid = StupidNormalLexer("\t");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("\t");
   stupid.stupid_normal();
 
   toml98::LexerState expected = toml98::LexerWhiteSpace;
@@ -97,7 +101,7 @@ Test(lexer_handle_normal, tab_whitespace) {
 }
 
 Test(lexer_handle_normal, inline_table) {
-  StupidNormalLexer stupid = StupidNormalLexer("{");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("{");
   stupid.stupid_normal();
 
   toml98::LexerState expected = toml98::LexerInlineTable;
@@ -113,7 +117,7 @@ Test(lexer_handle_normal, inline_table) {
 }
 
 Test(lexer_handle_normal, string_double) {
-  StupidNormalLexer stupid = StupidNormalLexer("\"x");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("\"x");
   stupid.stupid_normal();
 
   toml98::LexerState expected = toml98::LexerStringDouble;
@@ -129,7 +133,7 @@ Test(lexer_handle_normal, string_double) {
 }
 
 Test(lexer_handle_normal, string_double_multiline) {
-  StupidNormalLexer stupid = StupidNormalLexer("\"\"\"");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("\"\"\"");
   stupid.stupid_normal();
 
   toml98::LexerState expected = toml98::LexerStringDoubleMultiLine;
@@ -145,7 +149,7 @@ Test(lexer_handle_normal, string_double_multiline) {
 }
 
 Test(lexer_handle_normal, string_single) {
-  StupidNormalLexer stupid = StupidNormalLexer("'x");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("'x");
   stupid.stupid_normal();
 
   toml98::LexerState expected = toml98::LexerString;
@@ -161,7 +165,7 @@ Test(lexer_handle_normal, string_single) {
 }
 
 Test(lexer_handle_normal, string_single_multiline) {
-  StupidNormalLexer stupid = StupidNormalLexer("'''");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("'''");
   stupid.stupid_normal();
 
   toml98::LexerState expected = toml98::LexerStringMultiLine;
@@ -177,21 +181,21 @@ Test(lexer_handle_normal, string_single_multiline) {
 }
 
 Test(lexer_handle_normal, double_quote_error) {
-  StupidNormalLexer stupid = StupidNormalLexer("\"\"x");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("\"\"x");
   cr_expect_throw(stupid.stupid_normal(), std::runtime_error);
 }
 
 Test(lexer_handle_normal, single_quote_error) {
-  StupidNormalLexer stupid = StupidNormalLexer("''x");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("''x");
   cr_expect_throw(stupid.stupid_normal(), std::runtime_error);
 }
 
 Test(lexer_handle_normal, unknown_character) {
-  StupidNormalLexer stupid = StupidNormalLexer(",");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer(",");
   cr_expect_throw(stupid.stupid_normal(), std::runtime_error);
 }
 
 Test(lexer_handle_normal, newline) {
-  StupidNormalLexer stupid = StupidNormalLexer("\n");
+  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("\n");
   cr_expect_throw(stupid.stupid_normal(), std::runtime_error);
 }

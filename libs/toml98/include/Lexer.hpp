@@ -93,7 +93,11 @@ class Lexer {
   Token* run();
   void push(const std::basic_string<char>& str);
 
- protected:
+#ifdef TOML98_TESTS
+  friend class StupidNormalLexer;
+#endif
+
+ private:
   Token* handle_normal();
   Token* handle_word();
   Token* handle_string();
