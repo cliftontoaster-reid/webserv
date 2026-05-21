@@ -117,7 +117,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D) $(dir $(DEP_DIR)/$*.d)
 	@$(CCX) $(CCX_FLAGS) $(CFLAGS) \
 		-MF $(DEP_DIR)/$*.d -c $< -o $@ $(INC)
-	@printf "$(BOLD)Compiled$(RESET) $(YELLOW)test$(RESET) $(BLUE)$<$(RESET) -> $(GREEN)$@$(RESET) $(BOLD)$(RED)$(DEP_DIR)/$*.d$(RESET)\n"
+	@printf "$(BOLD)Compiled$(RESET) $(BLUE)$<$(RESET) -> $(GREEN)$@$(RESET) $(BOLD)$(RED)$(DEP_DIR)/$*.d$(RESET)\n"
 
 $(BIN_DIR)/$(NAME).a: $(OBJ) $(LIBS_ARCHIVES)
 	@mkdir -p $(BIN_DIR)
