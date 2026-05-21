@@ -121,10 +121,19 @@ $(CRITERION_ARCHIVE):
 	  -C "$(CRITERION_BIN_DIR)/" --strip-components=1
 	@printf "$(BOLD)Downloaded criterion:$(RESET) $(GREEN)$(CRITERION_ARCHIVE)$(RESET)\n"
 
-# TODO: make a script for that
-compile_commands.json: Makefile $(SRC)
+compile_commands.json: Makefile $(SRCS)
 	@echo "Generating compile_commands.json ..."
-	@bear -- $(MAKE) fclean all CC=clang++ VERBOSE=1
+	@python3 ../../../scripts/generate_compile_commands.py \
+		--output $@ \
+		--directory $(CURDIR) \
+		--compiler $(CCX) \
+		$(foreach f,$(CCX_FLAGS),--cflags=$(f)) \
+		$(foreach f,$(CFLAGS),--cppflags=$(f)) \
+		$(foreach i,$(INC),--inc=$(i)) \
+		$(foreach s,$(SRCS),--src=$(s)) \
+		--obj-dir $(OBJ_DIR) \
+		--src-dir $(SRC_DIR) \
+		--dep-dir $(DEP_DIR)
 	@echo "compile_commands.json generated."
 
 .linkflag_$(MODE):

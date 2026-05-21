@@ -82,7 +82,12 @@ TEST_DIR	= ./tests
 SRCS = \
        $(SRC_DIR)/Value.cpp \
        $(SRC_DIR)/Lexer.cpp \
-			 $(SRC_DIR)/Lexer/handle_normal.cpp \
+       $(SRC_DIR)/Lexer/handle_comments.cpp \
+       $(SRC_DIR)/Lexer/handle_normal.cpp \
+       $(SRC_DIR)/Lexer/handle_string.cpp \
+       $(SRC_DIR)/Lexer/handle_string_multiline.cpp \
+       $(SRC_DIR)/Lexer/handle_whitespace.cpp \
+       $(SRC_DIR)/Lexer/handle_word.cpp \
 			 $(SRC_DIR)/utils.cpp \
 
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
@@ -98,10 +103,19 @@ LIBS_ARCHIVES :=
 
 # TODO: tests
 
-# TODO: make a script for that
-compile_commands.json: Makefile $(SRC)
+compile_commands.json: Makefile $(SRCS)
 	@echo "Generating compile_commands.json ..."
-	@bear -- $(MAKE) fclean all CC=clang++ VERBOSE=1
+	@python3 ../../scripts/generate_compile_commands.py \
+		--output $@ \
+		--directory $(CURDIR) \
+		--compiler $(CCX) \
+		$(foreach f,$(CCX_FLAGS),--cflags=$(f)) \
+		$(foreach f,$(CFLAGS),--cppflags=$(f)) \
+		$(foreach i,$(INC),--inc=$(i)) \
+		$(foreach s,$(SRCS),--src=$(s)) \
+		--obj-dir $(OBJ_DIR) \
+		--src-dir $(SRC_DIR) \
+		--dep-dir $(DEP_DIR)
 	@echo "compile_commands.json generated."
 
 .linkflag_$(MODE):
