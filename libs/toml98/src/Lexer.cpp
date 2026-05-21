@@ -140,118 +140,13 @@ Token* Lexer::run() {
 void Lexer::push(const std::basic_string<char>& str) { _source.append(str); }
 
 // NOLINTBEGIN(readability-convert-member-functions-to-static)
-Token* Lexer::handle_word() {
-  char letter = peek();
-  while (std::isalnum(letter) != 0) {
-    pop();
-    _buffer.push_back(letter);
-    letter = peek();
-  }
-  std::string tmp;
-  tmp.swap(_buffer);
-  return new Token(TokenWord, tmp);
-}
-// NOLINTEND(readability-convert-member-functions-to-static)
-Token* Lexer::handle_string() {
-  if (!_buffer.empty()) {
-    _buffer.clear();
-    throw std::runtime_error(
-        "Literal string started right with a non empty buffer.");
-  }
-
-  while (_pos < _source.length()) {
-    char now = pop();
-
-    if (now == '\n' || now == '\r') {
-      _buffer.clear();
-      throw std::runtime_error(
-          "Unexpected new line in non multi-line literal string.");
-    }
-
-    if (now == '\'') {
-      std::string tmp;
-      tmp.swap(_buffer);
-      return new Token(TokenDelimiter, tmp);
-    }
-
-    _buffer.push_back(now);
-  }
-
-  _buffer.clear();
-  throw std::runtime_error("Unterminated literal string.");
-}
-
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 Token* Lexer::handle_string_double() { TODO(); }
-Token* Lexer::handle_string_multiline() {
-  if (!_buffer.empty()) {
-    _buffer.clear();
-    throw std::runtime_error(
-        "Literal string started right with a non empty buffer.");
-  }
-
-  if (_pos < _source.length() && _source.at(_pos) == '\n') {
-    pop();
-  } else if (_pos < _source.length() && _source.at(_pos) == '\r') {
-    pop();
-    if (_pos < _source.length() && _source.at(_pos) == '\n') {
-      pop();
-    }
-  }
-
-  while (_pos < _source.length()) {
-    char now = pop();
-
-    if (now == '\'') {
-      std::size_t quoteCount = 1;
-      while (_pos < _source.length() && pop() == '\'') {
-        quoteCount++;
-      }
-
-      if (quoteCount >= 3) {
-        if (quoteCount > 3) {
-          _buffer.append(quoteCount - 3, '\'');
-        }
-
-        std::string tmp;
-        tmp.swap(_buffer);
-        return new Token(TokenDelimiter, tmp);
-      }
-      _buffer.append(quoteCount, '\'');
-    }
-  }
-
-  _buffer.clear();
-  throw std::runtime_error("Unterminated literal multiline string.");
-}
-// NOLINTBEGIN(readability-convert-member-functions-to-static)
 Token* Lexer::handle_string_double_multiline() { TODO(); }
 Token* Lexer::handle_table_key() { TODO(); }
 Token* Lexer::handle_array_key() { TODO(); }
-Token* Lexer::handle_comments() {
-  while (peek() != '\n' && peek() != '\0') {
-    pop();
-  }
-  return new Token(TokenNewLine, "\n");
-}
 Token* Lexer::handle_inline_array() { TODO(); }
 Token* Lexer::handle_inline_table() { TODO(); }
 // NOLINTEND(readability-convert-member-functions-to-static)
-Token* Lexer::handle_whitespace() {
-  char now = 0;
-
-  while ((now = pop()) != '\0' && (now == ' ' || now == '\t')) {
-    _buffer.push_back(now);
-  }
-
-  _stack.pop();
-  if (_buffer.empty()) {
-    return NULL;
-  }
-  std::string tmp;
-  tmp.swap(_buffer);
-  return new Token(TokenDelimiter, tmp);
-}
 
 char Lexer::pop() {
   if (_pos >= _source.length()) {
