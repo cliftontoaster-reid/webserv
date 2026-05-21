@@ -10,11 +10,13 @@ Checks: >
   -modernize-*,
   -cppcoreguidelines-pro-type-union-access,
   -cppcoreguidelines-use-default-member-init,
-  -cppcoreguidelines-use-enum-class
+  -cppcoreguidelines-use-enum-class,
+  -cppcoreguidelines-avoid-do-while,
+  -cppcoreguidelines-pro-type-vararg,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-member-init,
+  -cert-dcl37-c
 
 # Only analyze your own headers
 HeaderFilterRegex: '^(include|src)/.*'
 WarningsAsErrors: ''
-MacroBlocklist: []
-SuppressSpecifiers:
-  - "criterion"

@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <string>
 
-#include "Exception.hpp"
 #include "utils.hpp"
 
 namespace toml98 {
