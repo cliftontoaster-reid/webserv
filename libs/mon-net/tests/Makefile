@@ -57,6 +57,8 @@ else
 	$(error "Invalid MODE specified: $(MODE). Use 'debug' or 'release'.")
 endif
 
+CFLAGS += -DMON_NET_TESTS
+
 # -------
 # Project
 # -------
@@ -85,7 +87,7 @@ SRCS = \
 BOBJ ?=
 OBJ  := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 DEP  := $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(SRCS))
-BINC ?= .
+BINC ?= ../include
 INC  := -I$(INC_DIR) -I$(BINC)
 DIRS = $(OBJ_DIR) $(TOBJ_DIR) $(DEP_DIR) $(BIN_DIR)
 
@@ -93,7 +95,7 @@ dirs:
 	@$(foreach d, $(DIRS), mkdir -p "$(d)";)
 
 LIBRARIES := criterion
-LIBS_ARCHIVES :=
+LIBS_ARCHIVES ?=
 
 # -------
 # Criterion
@@ -128,6 +130,7 @@ compile_commands.json: Makefile $(SRCS)
 		--compiler $(CCX) \
 		$(foreach f,$(CCX_FLAGS),--cflags=$(f)) \
 		$(foreach f,$(CFLAGS),--cppflags=$(f)) \
+		--cppflags='-DMON_NET_TESTS' \
 		$(foreach i,$(INC),--inc=$(i)) \
 		$(foreach s,$(SRCS),--src=$(s)) \
 		--obj-dir $(OBJ_DIR) \

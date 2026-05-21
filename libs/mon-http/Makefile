@@ -140,11 +140,11 @@ lib$(NAME).so: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).so
 # -----
 # Tests
 # -----
-test:
+test: lib$(NAME).a
 	@printf "$(BOLD)Building tests...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
 	TARGET_DIR="$(TARGET_DIR)" MODE="$(MODE)" \
-	BOBJ="$(OBJ)" BINC="$(INC)" LIBS_ARCHIVES="$(LIBS_ARCHIVES)" \
+	BOBJ="$(OBJ)" LIBS_ARCHIVES="../lib$(NAME).a $(LIBS_ARCHIVES)" \
 	$(MAKE) -C $(TEST_DIR) all --silent
 	@printf "$(BOLD)Built tests$(RESET)\n"
 
