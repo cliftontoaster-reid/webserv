@@ -137,18 +137,28 @@ Token* Lexer::run() {
 }
 void Lexer::push(const std::basic_string<char>& str) { _source.append(str); }
 
-char Lexer::pop() {
+inline void Lexer::pop() { pop(1); }
+inline void Lexer::pop(u_int64_t n) {
   if (_pos >= _source.length()) {
-    throw std::runtime_error("Cannot read after end of file.");
+    throw std::runtime_error("Early end of file.");
   }
-  return _source.at(_pos++);
+  _pos += n;
 }
-char Lexer::peek() {
-  if (_pos >= _source.length()) {
-    throw std::runtime_error("Cannot read after end of file.");
+inline char Lexer::peek() { return peek(0); }
+inline char Lexer::peek(u_int64_t n) {
+  if ((_pos + n) >= _source.length()) {
+    throw std::runtime_error("Early end of file.");
   }
-  return _source.at(_pos);
+  return _source.at(_pos + n);
 }
+inline bool Lexer::canPeek(char c) { return canPeek(c, 0); }
+inline bool Lexer::canPeek(char c, u_int64_t n) {
+  if ((_pos + n) >= _source.length()) {
+    return false;
+  }
+  return (_source.at(_pos + n) == c);
+}
+u_int64_t Lexer::remaining() { return _source.length() - _pos; }
 
 char getSpecial(char code) {
   switch (code) {

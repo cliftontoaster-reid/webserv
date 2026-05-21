@@ -117,8 +117,14 @@ class Lexer {
   Token* handle_inline_table();  // TODO
   Token* handle_whitespace();
 
-  char pop();
+  void pop();
+  void pop(u_int64_t n);
+
   char peek();
+  char peek(u_int64_t n);
+  bool canPeek(char c);
+  bool canPeek(char c, u_int64_t n);
+  u_int64_t remaining();
 };
 
 char getSpecial(char code);
