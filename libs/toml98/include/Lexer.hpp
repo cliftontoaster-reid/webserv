@@ -98,6 +98,12 @@ class Lexer {
 #endif
 
  private:
+  std::stack<LexerState> _stack;
+  std::string _source;
+  std::string _buffer;
+  u_int64_t _pos;
+  bool _isLastEqual;
+
   Token* handle_normal();
   Token* handle_word();
   Token* handle_string();
@@ -110,11 +116,6 @@ class Lexer {
   Token* handle_inline_array();  // TODO
   Token* handle_inline_table();  // TODO
   Token* handle_whitespace();
-  std::stack<LexerState> _stack;
-  std::string _source;
-  std::string _buffer;
-  u_int64_t _pos;
-  bool _isLastEqual;
 
   char pop();
   char peek();
