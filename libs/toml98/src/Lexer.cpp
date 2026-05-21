@@ -2,7 +2,6 @@
 
 #include <sys/types.h>
 
-#include <cctype>
 #include <cstdlib>
 #include <stack>
 #include <stdexcept>
@@ -138,15 +137,6 @@ Token* Lexer::run() {
   return ret;
 }
 void Lexer::push(const std::basic_string<char>& str) { _source.append(str); }
-
-// NOLINTBEGIN(readability-convert-member-functions-to-static)
-Token* Lexer::handle_string_double() { TODO(); }
-Token* Lexer::handle_string_double_multiline() { TODO(); }
-Token* Lexer::handle_table_key() { TODO(); }
-Token* Lexer::handle_array_key() { TODO(); }
-Token* Lexer::handle_inline_array() { TODO(); }
-Token* Lexer::handle_inline_table() { TODO(); }
-// NOLINTEND(readability-convert-member-functions-to-static)
 
 char Lexer::pop() {
   if (_pos >= _source.length()) {

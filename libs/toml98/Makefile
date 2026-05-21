@@ -82,10 +82,16 @@ TEST_DIR	= ./tests
 SRCS = \
        $(SRC_DIR)/Value.cpp \
        $(SRC_DIR)/Lexer.cpp \
+       $(SRC_DIR)/Lexer/handle_array_key.cpp \
        $(SRC_DIR)/Lexer/handle_comments.cpp \
+       $(SRC_DIR)/Lexer/handle_inline_array.cpp \
+       $(SRC_DIR)/Lexer/handle_inline_table.cpp \
        $(SRC_DIR)/Lexer/handle_normal.cpp \
        $(SRC_DIR)/Lexer/handle_string.cpp \
+       $(SRC_DIR)/Lexer/handle_string_double.cpp \
+       $(SRC_DIR)/Lexer/handle_string_double_multiline.cpp \
        $(SRC_DIR)/Lexer/handle_string_multiline.cpp \
+       $(SRC_DIR)/Lexer/handle_table_key.cpp \
        $(SRC_DIR)/Lexer/handle_whitespace.cpp \
        $(SRC_DIR)/Lexer/handle_word.cpp \
 			 $(SRC_DIR)/utils.cpp \
