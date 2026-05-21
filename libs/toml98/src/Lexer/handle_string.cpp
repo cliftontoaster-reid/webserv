@@ -12,7 +12,8 @@ Token* Lexer::handle_string() {
   }
 
   while (_pos < _source.length()) {
-    char now = pop();
+    char now = peek();
+    pop();
 
     if (now == '\n' || now == '\r') {
       _buffer.clear();

@@ -21,12 +21,14 @@ Token* Lexer::handle_string_multiline() {
   }
 
   while (_pos < _source.length()) {
-    char now = pop();
+    char now = peek();
+    pop();
 
     if (now == '\'') {
       std::size_t quoteCount = 1;
-      while (_pos < _source.length() && pop() == '\'') {
+      while (_pos < _source.length() && peek() == '\'') {
         quoteCount++;
+        pop();
       }
 
       if (quoteCount >= 3) {

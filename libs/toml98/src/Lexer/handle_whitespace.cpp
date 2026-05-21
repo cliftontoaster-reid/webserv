@@ -5,8 +5,9 @@ namespace toml98 {
 Token* Lexer::handle_whitespace() {
   char now = 0;
 
-  while ((now = pop()) != '\0' && (now == ' ' || now == '\t')) {
+  while ((now = peek()) != '\0' && (now == ' ' || now == '\t')) {
     _buffer.push_back(now);
+    pop();
   }
 
   _stack.pop();
