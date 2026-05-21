@@ -15,3 +15,6 @@ Checks: >
 # Only analyze your own headers
 HeaderFilterRegex: '^(include|src)/.*'
 WarningsAsErrors: ''
+MacroBlocklist: []
+SuppressSpecifiers:
+  - "criterion"

@@ -131,6 +131,7 @@ compile_commands.json: Makefile $(SRCS)
 		--compiler $(CCX) \
 		$(foreach f,$(CCX_FLAGS),--cflags=$(f)) \
 		$(foreach f,$(CFLAGS),--cppflags=$(f)) \
+		--cppflags='-DTOML98_TESTS' \
 		$(foreach i,$(INC),--inc=$(i)) \
 		$(foreach s,$(SRCS),--src=$(s)) \
 		--obj-dir $(OBJ_DIR) \
