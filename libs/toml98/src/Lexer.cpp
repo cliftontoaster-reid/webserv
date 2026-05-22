@@ -137,23 +137,23 @@ Token* Lexer::run() {
 }
 void Lexer::push(const std::basic_string<char>& str) { _source.append(str); }
 
-inline void Lexer::pop() { pop(1); }
-inline void Lexer::pop(u_int64_t amount) {
+void Lexer::pop() { pop(1); }
+void Lexer::pop(u_int64_t amount) {
   if (_pos >= _source.length()) {
     throw std::runtime_error("Early end of file.");
   }
   _pos += amount;
 }
-inline char Lexer::peek() { return peek(0); }
-inline char Lexer::peek(u_int64_t offset) {
+char Lexer::peek() { return peek(0); }
+char Lexer::peek(u_int64_t offset) {
   if ((_pos + offset) >= _source.length()) {
     throw std::runtime_error("Early end of file.");
   }
   return _source.at(_pos + offset);
 }
-inline bool Lexer::canPeek() { return (_pos < _source.length()); }
-inline bool Lexer::canPeek(char expect) { return canPeek(expect, 0); }
-inline bool Lexer::canPeek(char expect, u_int64_t offset) {
+bool Lexer::canPeek() { return (_pos < _source.length()); }
+bool Lexer::canPeek(char expect) { return canPeek(expect, 0); }
+bool Lexer::canPeek(char expect, u_int64_t offset) {
   if ((_pos + offset) >= _source.length()) {
     return false;
   }
