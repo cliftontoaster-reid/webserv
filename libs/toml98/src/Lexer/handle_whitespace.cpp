@@ -3,9 +3,12 @@
 namespace toml98 {
 
 Token* Lexer::handle_whitespace() {
-  char now = 0;
+  while (true) {
+    char now = peek();
+    if (now == '\0' || (now != ' ' && now != '\t')) {
+      break;
+    }
 
-  while ((now = peek()) != '\0' && (now == ' ' || now == '\t')) {
     _buffer.push_back(now);
     pop();
   }

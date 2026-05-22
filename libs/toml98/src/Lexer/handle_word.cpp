@@ -5,12 +5,15 @@
 namespace toml98 {
 
 Token* Lexer::handle_word() {
-  char letter = peek();
-  while (std::isalnum(letter) != 0) {
+  while (true) {
+    char now = peek();
+    if (std::isalnum(now) == 0 && now != '-' && now != '_') {
+      break;
+    }
     pop();
-    _buffer.push_back(letter);
-    letter = peek();
+    _buffer.push_back(now);
   }
+
   std::string tmp;
   tmp.swap(_buffer);
   return new Token(TokenWord, tmp);
