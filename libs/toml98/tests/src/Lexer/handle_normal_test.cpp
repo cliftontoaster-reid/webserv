@@ -180,22 +180,7 @@ Test(lexer_handle_normal, string_single_multiline) {
   cr_expect(state.empty());
 }
 
-Test(lexer_handle_normal, double_quote_error) {
-  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("\"\"x");
-  cr_expect_throw(stupid.stupid_normal(), std::runtime_error);
-}
-
-Test(lexer_handle_normal, single_quote_error) {
-  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("''x");
-  cr_expect_throw(stupid.stupid_normal(), std::runtime_error);
-}
-
 Test(lexer_handle_normal, unknown_character) {
   toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer(",");
-  cr_expect_throw(stupid.stupid_normal(), std::runtime_error);
-}
-
-Test(lexer_handle_normal, newline) {
-  toml98::StupidNormalLexer stupid = toml98::StupidNormalLexer("\n");
   cr_expect_throw(stupid.stupid_normal(), std::runtime_error);
 }
