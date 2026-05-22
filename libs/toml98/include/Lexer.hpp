@@ -107,14 +107,14 @@ class Lexer {
   Token* handle_normal();
   Token* handle_word();
   Token* handle_string();
-  Token* handle_string_double();  // TODO
+  Token* handle_string_double();  // TODO(cliftontoaster-reid)
   Token* handle_string_multiline();
-  Token* handle_string_double_multiline();  // TODO
-  Token* handle_table_key();                // TODO
-  Token* handle_array_key();                // TODO
+  Token* handle_string_double_multiline();  // TODO(cliftontoaster-reid)
+  Token* handle_table_key();                // TODO(cliftontoaster-reid)
+  Token* handle_array_key();                // TODO(cliftontoaster-reid)
   Token* handle_comments();
-  Token* handle_inline_array();  // TODO
-  Token* handle_inline_table();  // TODO
+  Token* handle_inline_array();  // TODO(cliftontoaster-reid)
+  Token* handle_inline_table();  // TODO(cliftontoaster-reid)
   Token* handle_whitespace();
 
   void pop();
