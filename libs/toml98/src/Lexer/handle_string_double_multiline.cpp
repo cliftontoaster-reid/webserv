@@ -77,11 +77,13 @@ Token* Lexer::handle_string_double_multiline() {
       }
       _buffer.append(quoteCount, '"');
     } else if (now == '\\') {
-      if (!canPeekAt(1))
+      if (!canPeekAt(1)) {
         throw std::runtime_error("Unknown character in Normal");
+      }
       u_int64_t len = getSpecialLenght(peek(1));
-      if (!canPeekAt(len))
+      if (!canPeekAt(len)) {
         throw std::runtime_error("Unknown character in Normal");
+      }
 
       if (len == 1) {
         pop();
@@ -93,6 +95,9 @@ Token* Lexer::handle_string_double_multiline() {
       }
     }
   }
+
+  _buffer.clear();
+  throw std::runtime_error("Unterminated literal multiline string.");
 }
 
 }  // namespace toml98
