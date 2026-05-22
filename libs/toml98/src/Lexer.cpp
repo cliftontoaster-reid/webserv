@@ -151,6 +151,7 @@ inline char Lexer::peek(u_int64_t offset) {
   }
   return _source.at(_pos + offset);
 }
+inline bool Lexer::canPeek() { return (_pos < _source.length()); }
 inline bool Lexer::canPeek(char expect) { return canPeek(expect, 0); }
 inline bool Lexer::canPeek(char expect, u_int64_t offset) {
   if ((_pos + offset) >= _source.length()) {

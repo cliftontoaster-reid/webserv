@@ -122,6 +122,7 @@ class Lexer {
 
   char peek();
   char peek(u_int64_t offset);
+  bool canPeek();
   bool canPeek(char expect);
   bool canPeek(char expect, u_int64_t offset);
   u_int64_t remaining();
