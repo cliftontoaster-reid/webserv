@@ -84,8 +84,7 @@ Token* Lexer::handle_normal() {
           "change it to '\\n' (Linux) or '\\r\\n' (Windows)");
 
     default:
-      throw std::runtime_error(
-          "Unterminated literal string: Unknown character in Normal");
+      throw std::runtime_error("Unknown character in Normal");
   }
 
   return NULL;
