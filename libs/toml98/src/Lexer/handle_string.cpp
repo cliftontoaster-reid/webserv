@@ -5,32 +5,29 @@
 namespace toml98 {
 
 Token* Lexer::handle_string() {
-  if (!_buffer.empty()) {
-    _buffer.clear();
-    throw std::runtime_error(
-        "Literal string started right with a non empty buffer.");
-  }
+  std::string result;
 
-  while (_pos < _source.length()) {
+  while (canPeek()) {
     char now = peek();
     pop();
 
-    if (now == '\n' || now == '\r') {
-      _buffer.clear();
-      throw std::runtime_error(
-          "Unexpected new line in non multi-line literal string.");
-    }
+    switch (now) {
+      case '\'':
+        _stack.pop();
+        return new Token(TokenString, result);
 
-    if (now == '\'') {
-      std::string tmp;
-      tmp.swap(_buffer);
-      return new Token(TokenDelimiter, tmp);
-    }
+      case '\n':
+      case '\r':
+        throw std::runtime_error(
+            "New lines are not supported unless escaped"
+            "in non multi-line strings.");
 
-    _buffer.push_back(now);
+      default:
+        result.push_back(now);
+        break;
+    }
   }
 
-  _buffer.clear();
   throw std::runtime_error("Unterminated literal string.");
 }
 

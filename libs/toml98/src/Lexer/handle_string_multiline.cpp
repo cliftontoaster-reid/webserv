@@ -17,10 +17,7 @@
 namespace toml98 {
 
 Token* Lexer::handle_string_multiline() {
-  if (!_buffer.empty()) {
-    _buffer.clear();
-    throw std::runtime_error("Literal string started with a non-empty buffer.");
-  }
+  std::string result;
 
   if (canPeek('\n')) {
     pop();
@@ -35,27 +32,18 @@ Token* Lexer::handle_string_multiline() {
     char now = peek();
     pop();
 
-    if (now == '\'') {
-      std::size_t quoteCount = 1;
-      while (canPeek('\'')) {
-        quoteCount++;
-        pop();
-      }
-
-      if (quoteCount >= 3) {
-        if (quoteCount > 3) {
-          _buffer.append(quoteCount - 3, '\'');
+    switch (now) {
+      case '\'':
+        if (handleQuoteSequence(result, '\'')) {
+          return new Token(TokenString, result);
         }
+        break;
 
-        std::string tmp;
-        tmp.swap(_buffer);
-        return new Token(TokenDelimiter, tmp);
-      }
-      _buffer.append(quoteCount, '\'');
+      default:
+        result.push_back(now);
     }
   }
 
-  _buffer.clear();
   throw std::runtime_error("Unterminated literal multiline string.");
 }
 

@@ -9,6 +9,28 @@
 
 #include "utils.hpp"
 
+static inline u_int64_t getSpecialLenght(char code) {
+  switch (code) {
+    case 'b':
+    case 't':
+    case 'n':
+    case 'f':
+    case 'r':
+    case 'e':
+    case '"':
+    case '\\':
+      return UTF8_ESCLEN_SPECIAL;
+    case 'x':
+      return UTF8_ESCLEN_X;
+    case 'u':
+      return UTF8_ESCLEN_U;
+    case 'U':
+      return UTF8_ESCLEN_UU;
+    default:
+      throw std::runtime_error("Unexpected special character.");
+  }
+}
+
 namespace toml98 {
 
 Token::Token() : type(TokenWord) {}
@@ -171,6 +193,43 @@ bool Lexer::canPeekAt(u_int64_t offset) {
   return (_pos + offset < _source.length());
 }
 u_int64_t Lexer::remaining() { return _source.length() - _pos; }
+
+void Lexer::handleEscapeSequence(std::string& output) {
+  if (!canPeekAt(1)) {
+    throw std::runtime_error("Early End Of File.");
+  }
+
+  u_int64_t len = getSpecialLenght(peek(1));
+  if (!canPeekAt(len)) {
+    throw std::runtime_error("Early End Of File.");
+  }
+
+  if (len == 1) {
+    output.push_back(getSpecial(peek()));
+    pop();
+  } else {
+    output.append(getUnicode(peek(0, len)));
+    pop(len);
+  }
+}
+
+bool Lexer::handleQuoteSequence(std::string& output, char quote) {
+  std::size_t quoteCount = 1;
+  while (canPeek('"')) {
+    quoteCount++;
+    pop();
+  }
+
+  if (quoteCount >= 3) {
+    if (quoteCount > 3) {
+      output.append(quoteCount - 3, quote);
+    }
+    return true;
+  }
+
+  output.append(quoteCount, quote);
+  return false;
+}
 
 char getSpecial(char code) {
   switch (code) {

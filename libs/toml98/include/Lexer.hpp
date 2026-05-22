@@ -125,6 +125,9 @@ class Lexer {
   Token* handle_inline_table();  // TODO(cliftontoaster-reid)
   Token* handle_whitespace();
 
+  void handleEscapeSequence(std::string& output);
+  bool handleQuoteSequence(std::string& output, char quote);
+
   void pop();
   void pop(u_int64_t amount);
 

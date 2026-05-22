@@ -5,66 +5,37 @@
 
 #include "Lexer.hpp"
 
-static inline u_int64_t getSpecialLenght(char code) {
-  switch (code) {
-    case 'b':
-    case 't':
-    case 'n':
-    case 'f':
-    case 'r':
-    case 'e':
-    case '"':
-    case '\\':
-      return UTF8_ESCLEN_SPECIAL;
-    case 'x':
-      return UTF8_ESCLEN_X;
-    case 'u':
-      return UTF8_ESCLEN_U;
-    case 'U':
-      return UTF8_ESCLEN_UU;
-    default:
-      throw std::runtime_error("Unexpected special character.");
-  }
-}
-
 namespace toml98 {
 
 Token* Lexer::handle_string_double() {
-  std::string tmp;
+  std::string result;
 
-  while (true) {
+  while (canPeek()) {
     char now = peek();
     pop();
 
     switch (now) {
       case '"':
         _stack.pop();
-        return new Token(TokenString, tmp);
+        return new Token(TokenString, result);
 
-      case '\\': {
-        if (!canPeekAt(1)) {
-          throw std::runtime_error("Unknown character in Normal");
-        }
-        u_int64_t len = getSpecialLenght(peek(1));
-        if (!canPeekAt(len)) {
-          throw std::runtime_error("Unknown character in Normal");
-        }
+      case '\\':
+        handleEscapeSequence(result);
+        break;
 
-        if (len == 1) {
-          pop();
-          tmp.push_back(getSpecial(peek()));
-        } else {
-          std::string code = peek(0, len);
-          tmp.append(getUnicode(code));
-          pop(len);
-        }
-      }
+      case '\n':
+      case '\r':
+        throw std::runtime_error(
+            "New lines are not supported unless escaped in non multi-line "
+            "strings.");
 
       default:
-        tmp.push_back(now);
+        result.push_back(now);
         break;
     }
   }
+
+  throw std::runtime_error("Unterminated string.");
 }
 
 }  // namespace toml98

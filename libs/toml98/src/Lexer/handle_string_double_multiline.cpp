@@ -11,40 +11,14 @@
 /* ************************************************************************** */
 
 #include <stdexcept>
+#include <string>
 
-#include "Exception.hpp"
 #include "Lexer.hpp"
-
-static inline u_int64_t getSpecialLenght(char code) {
-  switch (code) {
-    case 'b':
-    case 't':
-    case 'n':
-    case 'f':
-    case 'r':
-    case 'e':
-    case '"':
-    case '\\':
-      return UTF8_ESCLEN_SPECIAL;
-    case 'x':
-      return UTF8_ESCLEN_X;
-    case 'u':
-      return UTF8_ESCLEN_U;
-    case 'U':
-      return UTF8_ESCLEN_UU;
-    default:
-      throw std::runtime_error("Unexpected special character.");
-  }
-}
 
 namespace toml98 {
 
 Token* Lexer::handle_string_double_multiline() {
-  if (!_buffer.empty()) {
-    _buffer.clear();
-    throw std::runtime_error(
-        "Literal string started right with a non empty buffer.");
-  }
+  std::string result;
 
   if (canPeek('\n')) {
     pop();
@@ -55,49 +29,27 @@ Token* Lexer::handle_string_double_multiline() {
     }
   }
 
-  while (_pos < _source.length()) {
+  while (canPeek()) {
     char now = peek();
     pop();
 
-    if (now == '"') {
-      std::size_t quoteCount = 1;
-      while (_pos < _source.length() && peek() == '"') {
-        quoteCount++;
-        pop();
-      }
-
-      if (quoteCount >= 3) {
-        if (quoteCount > 3) {
-          _buffer.append(quoteCount - 3, '"');
+    switch (now) {
+      case '"':
+        if (handleQuoteSequence(result, '"')) {
+          return new Token(TokenString, result);
         }
+        break;
 
-        std::string tmp;
-        tmp.swap(_buffer);
-        return new Token(TokenDelimiter, tmp);
-      }
-      _buffer.append(quoteCount, '"');
-    } else if (now == '\\') {
-      if (!canPeekAt(1)) {
-        throw std::runtime_error("Unknown character in Normal");
-      }
-      u_int64_t len = getSpecialLenght(peek(1));
-      if (!canPeekAt(len)) {
-        throw std::runtime_error("Unknown character in Normal");
-      }
+      case '\\':
+        handleEscapeSequence(result);
+        break;
 
-      if (len == 1) {
-        pop();
-        _buffer.push_back(getSpecial(peek()));
-      } else {
-        std::string code = peek(0, len);
-        _buffer.append(getUnicode(code));
-        pop(len);
-      }
+      default:
+        result.push_back(now);
     }
   }
 
-  _buffer.clear();
-  throw std::runtime_error("Unterminated literal multiline string.");
+  throw std::runtime_error("Unterminated multiline string.");
 }
 
 }  // namespace toml98
