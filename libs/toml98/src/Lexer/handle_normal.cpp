@@ -36,10 +36,10 @@ Token* Lexer::handle_normal() {
       pop();
 
       if (canPeek(quote) && canPeek(quote, 1)) {
-        throw std::runtime_error(
-            "Table keys cannot contain multi-line strings.");
-      }
-      if (canPeek()) {
+        pop(2);
+        _stack.push(quote == '"' ? LexerStringDoubleMultiLine
+                                 : LexerStringMultiLine);
+      } else if (canPeek()) {
         _stack.push(quote == '"' ? LexerStringDouble : LexerString);
       } else {
         throw std::runtime_error("Unterminated string: Early end of file.");
