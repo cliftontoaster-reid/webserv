@@ -7,26 +7,25 @@ namespace toml98 {
 Token* Lexer::handle_string_multiline() {
   if (!_buffer.empty()) {
     _buffer.clear();
-    throw std::runtime_error(
-        "Literal string started right with a non empty buffer.");
+    throw std::runtime_error("Literal string started with a non-empty buffer.");
   }
 
-  if (_pos < _source.length() && _source.at(_pos) == '\n') {
+  if (canPeek('\n')) {
     pop();
-  } else if (_pos < _source.length() && _source.at(_pos) == '\r') {
+  } else if (canPeek('\r')) {
     pop();
-    if (_pos < _source.length() && _source.at(_pos) == '\n') {
+    if (canPeek('\n')) {
       pop();
     }
   }
 
-  while (_pos < _source.length()) {
+  while (canPeek()) {
     char now = peek();
     pop();
 
     if (now == '\'') {
       std::size_t quoteCount = 1;
-      while (_pos < _source.length() && peek() == '\'') {
+      while (canPeek('\'')) {
         quoteCount++;
         pop();
       }
