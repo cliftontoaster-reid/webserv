@@ -151,6 +151,14 @@ char Lexer::peek(u_int64_t offset) {
   }
   return _source.at(_pos + offset);
 }
+std::string Lexer::peek(u_int64_t offset, u_int64_t size) {
+  if ((_pos + offset + size) >= _source.length()) {
+    throw std::runtime_error("Early end of file.");
+  }
+
+  return _source.substr(_pos + offset, size);
+}
+
 bool Lexer::canPeek() { return (_pos < _source.length()); }
 bool Lexer::canPeek(char expect) { return canPeek(expect, 0); }
 bool Lexer::canPeek(char expect, u_int64_t offset) {
@@ -158,6 +166,9 @@ bool Lexer::canPeek(char expect, u_int64_t offset) {
     return false;
   }
   return (_source.at(_pos + offset) == expect);
+}
+bool Lexer::canPeekAt(u_int64_t offset) {
+  return (_pos + offset < _source.length());
 }
 u_int64_t Lexer::remaining() { return _source.length() - _pos; }
 

@@ -6,6 +6,14 @@
 #include <stack>
 #include <string>
 
+// UTF-8 escape sequence length.
+enum Utf8EscapeLength {
+  UTF8_ESCLEN_SPECIAL = 1,
+  UTF8_ESCLEN_X = 3,
+  UTF8_ESCLEN_U = 5,
+  UTF8_ESCLEN_UU = 9,
+};
+
 // UTF-8 Payload Extraction Masks and Shifts
 enum Utf8Payload {
   UTF8_CONTINUATION_MASK = 0x3F,  // 00111111 (Extracts 6 bits of payload data)
@@ -122,9 +130,12 @@ class Lexer {
 
   char peek();
   char peek(u_int64_t offset);
+  std::string peek(u_int64_t offset, u_int64_t size);
+
   bool canPeek();
   bool canPeek(char expect);
   bool canPeek(char expect, u_int64_t offset);
+  bool canPeekAt(u_int64_t offset);
   u_int64_t remaining();
 };
 
