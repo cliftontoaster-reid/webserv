@@ -3,23 +3,23 @@
 namespace toml98 {
 
 Token* Lexer::handle_whitespace() {
+  std::string result;
+
   while (true) {
     char now = peek();
     if (now == '\0' || (now != ' ' && now != '\t')) {
       break;
     }
 
-    _buffer.push_back(now);
+    result.push_back(now);
     pop();
   }
 
   _stack.pop();
-  if (_buffer.empty()) {
+  if (result.empty()) {
     return NULL;
   }
-  std::string tmp;
-  tmp.swap(_buffer);
-  return new Token(TokenDelimiter, tmp);
+  return new Token(TokenDelimiter, result);
 }
 
 }  // namespace toml98
