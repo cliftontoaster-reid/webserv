@@ -38,14 +38,27 @@ def build_tests():
             ["make", target, f"MODE={MODE}", "--silent"],
             cwd=PROJECT_ROOT, capture_output=True, timeout=120,
         )
-        print("\033[32mOK\033[0m" if r.returncode == 0 else "\033[31mFAILED\033[0m")
+        if r.returncode == 0:
+            print("\033[32mOK\033[0m")
+        else:
+            print("\033[31mFAILED\033[0m")
+            if r.stdout:
+                print(r.stdout.decode() if isinstance(r.stdout, bytes) else r.stdout)
+            if r.stderr:
+                print(r.stderr.decode() if isinstance(r.stderr, bytes) else r.stderr)
 
 
 def list_tests(binary: Path, lib_dir: Path) -> list[str]:
     env = {**os.environ, "LD_LIBRARY_PATH": str(lib_dir)}
     r = subprocess.run([str(binary), "--list"], capture_output=True, text=True, timeout=30, env=env)
     if r.returncode != 0:
-        print(f"    ERROR: {r.stderr.strip()}")
+        print(f"    ERROR ({r.returncode}):")
+        if r.stdout:
+            for line in r.stdout.splitlines():
+                print(f"      | {line}")
+        if r.stderr:
+            for line in r.stderr.splitlines():
+                print(f"      | {line}")
         return []
     tests = []
     suite = None
@@ -124,10 +137,11 @@ def write_cmakelists(bin_dir: Path, all_tests: dict[str, list[str]]):
 
 def run_ctest():
     print("==> Running ctest...")
-    subprocess.run(
+    c = subprocess.run(
         ["cmake", "-S", str(CTEST_DIR), "-B", str(CTEST_DIR), "-Wno-dev"],
-        capture_output=True,
     )
+    if c.returncode != 0:
+        sys.exit(c.returncode)
     r = subprocess.run(
         ["ctest", "--output-on-failure", "--test-dir", str(CTEST_DIR)] + sys.argv[1:],
     )
