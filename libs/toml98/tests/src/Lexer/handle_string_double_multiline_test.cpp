@@ -1,9 +1,11 @@
 #include <criterion/criterion.h>
 #include <criterion/internal/assert.h>
 #include <criterion/internal/test.h>
+
 #include <stack>
 #include <stdexcept>
 #include <string>
+
 #include "StupidLexer.hpp"
 
 using namespace toml98;
@@ -101,60 +103,72 @@ Test(lexer_handle_string_double_multiline, initial_cr_only_skip) {
 
 Test(lexer_handle_string_double_multiline, unterminated_at_eof) {
   StupidLexer stupid("hello");
-  cr_expect_throw(stupid.stupid_handle_string_double_multiline(), std::runtime_error);
+  cr_expect_throw(stupid.stupid_handle_string_double_multiline(),
+                  std::runtime_error);
 }
 
 Test(lexer_handle_string_double_multiline, only_two_quotes_close) {
   StupidLexer stupid("value\"\"");
-  cr_expect_throw(stupid.stupid_handle_string_double_multiline(), std::runtime_error);
+  cr_expect_throw(stupid.stupid_handle_string_double_multiline(),
+                  std::runtime_error);
 }
 
 Test(lexer_handle_string_double_multiline, only_one_quote_close) {
   StupidLexer stupid("value\"");
-  cr_expect_throw(stupid.stupid_handle_string_double_multiline(), std::runtime_error);
+  cr_expect_throw(stupid.stupid_handle_string_double_multiline(),
+                  std::runtime_error);
 }
 
 Test(lexer_handle_string_double_multiline, invalid_escape_sequence) {
   StupidLexer stupid("\\q\"\"\"");
-  cr_expect_throw(stupid.stupid_handle_string_double_multiline(), std::runtime_error);
+  cr_expect_throw(stupid.stupid_handle_string_double_multiline(),
+                  std::runtime_error);
 }
 
 Test(lexer_handle_string_double_multiline, escape_at_eof) {
   StupidLexer stupid("hello\\");
-  cr_expect_throw(stupid.stupid_handle_string_double_multiline(), std::runtime_error);
+  cr_expect_throw(stupid.stupid_handle_string_double_multiline(),
+                  std::runtime_error);
 }
 
 Test(lexer_handle_string_double_multiline, incomplete_unicode_x) {
   StupidLexer stupid("\\xH\"\"\"");
-  cr_expect_throw(stupid.stupid_handle_string_double_multiline(), std::runtime_error);
+  cr_expect_throw(stupid.stupid_handle_string_double_multiline(),
+                  std::runtime_error);
 }
 
 Test(lexer_handle_string_double_multiline, incomplete_unicode_u) {
   StupidLexer stupid("\\uHH\"\"\"");
-  cr_expect_throw(stupid.stupid_handle_string_double_multiline(), std::runtime_error);
+  cr_expect_throw(stupid.stupid_handle_string_double_multiline(),
+                  std::runtime_error);
 }
 
 Test(lexer_handle_string_double_multiline, invalid_hex_digit) {
   StupidLexer stupid("\\xZZ\"\"\"");
-  cr_expect_throw(stupid.stupid_handle_string_double_multiline(), std::runtime_error);
+  cr_expect_throw(stupid.stupid_handle_string_double_multiline(),
+                  std::runtime_error);
 }
 
 Test(lexer_handle_string_double_multiline, very_long_unterminated) {
   StupidLexer stupid(std::string(10000, 'a'));
-  cr_expect_throw(stupid.stupid_handle_string_double_multiline(), std::runtime_error);
+  cr_expect_throw(stupid.stupid_handle_string_double_multiline(),
+                  std::runtime_error);
 }
 
 Test(lexer_handle_string_double_multiline, backslash_replaces_closing) {
   StupidLexer stupid("...\\\"\"\"");
-  cr_expect_throw(stupid.stupid_handle_string_double_multiline(), std::runtime_error);
+  cr_expect_throw(stupid.stupid_handle_string_double_multiline(),
+                  std::runtime_error);
 }
 
 Test(lexer_handle_string_double_multiline, empty_source_unterminated) {
   StupidLexer stupid("");
-  cr_expect_throw(stupid.stupid_handle_string_double_multiline(), std::runtime_error);
+  cr_expect_throw(stupid.stupid_handle_string_double_multiline(),
+                  std::runtime_error);
 }
 
 Test(lexer_handle_string_double_multiline, incomplete_U_escape) {
   StupidLexer stupid("\\U000000\"\"\"");
-  cr_expect_throw(stupid.stupid_handle_string_double_multiline(), std::runtime_error);
+  cr_expect_throw(stupid.stupid_handle_string_double_multiline(),
+                  std::runtime_error);
 }
