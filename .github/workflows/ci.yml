@@ -17,9 +17,17 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y clang make cmake curl python3 libcriterion-dev
-      
-      - name: Build and run all tests
-        run: python3 scripts/test.py
+
+      - name: Build tests
+        run: |
+          find . -name Makefile ! -path "*/tests/*" ! -path "./target/*" ! -path "./.git/*" \
+            -exec sh -c 'make test MODE=release -C "$(dirname "$1")"' _ {} \;
+
+      - name: Run tests
+        run: |
+          export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$(pwd)/target/release/criterion/bin/lib"
+          find . -name "*_test" -type f ! -path "./target/*" ! -path "./.git/*" \
+            -exec sh -c 'echo "=== {} ===" && {}' \;
 
   format:
     if: github.event_name == 'pull_request' || github.event_name == 'push'

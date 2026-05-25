@@ -36,7 +36,7 @@ def build_tests():
         print(f"  [{name}] ", end="")
         r = subprocess.run(
             ["make", target, f"MODE={MODE}", "--silent"],
-            cwd=PROJECT_ROOT, timeout=120,
+            cwd=PROJECT_ROOT, capture_output=True, timeout=120,
         )
         print("\033[32mOK\033[0m" if r.returncode == 0 else "\033[31mFAILED\033[0m")
 
@@ -44,11 +44,6 @@ def build_tests():
 def list_tests(binary: Path, lib_dir: Path) -> list[str]:
     env = {**os.environ, "LD_LIBRARY_PATH": str(lib_dir)}
     r = subprocess.run([str(binary), "--list"], capture_output=True, text=True, timeout=30, env=env)
-    for line in r.stdout.splitlines():
-        print(f"    | {line}")
-    for line in r.stderr.splitlines():
-        print(f"    | {line}")
-    print(f"    => exit {r.returncode}, stdout={len(r.stdout)} bytes, stderr={len(r.stderr)} bytes")
     if r.returncode != 0 or not r.stdout.strip():
         return []
     tests = []
@@ -130,6 +125,7 @@ def run_ctest():
     print("==> Running ctest...")
     c = subprocess.run(
         ["cmake", "-S", str(CTEST_DIR), "-B", str(CTEST_DIR), "-Wno-dev"],
+        capture_output=True,
     )
     if c.returncode != 0:
         sys.exit(c.returncode)
