@@ -1,15 +1,18 @@
 #include <criterion/criterion.h>
 #include <criterion/internal/assert.h>
 #include <criterion/internal/test.h>
+
 #include <stack>
 #include <stdexcept>
 #include <string>
+
 #include "StupidLexer.hpp"
 
 using namespace toml98;
 
 // Helper function to verify token type and content
-static void expect_token(Token* token, TokenType expected_type, const std::string& expected_value = "") {
+static void expect_token(Token* token, TokenType expected_type,
+                         const std::string& expected_value = "") {
   cr_assert_not_null(token);
   cr_assert_eq(token->type, expected_type);
   if (!expected_value.empty()) {
@@ -19,7 +22,8 @@ static void expect_token(Token* token, TokenType expected_type, const std::strin
 }
 
 // Helper function to verify state stack after state transition
-static void verify_state_pushed(std::stack<LexerState> state, LexerState expected_top) {
+static void verify_state_pushed(std::stack<LexerState> state,
+                                LexerState expected_top) {
   cr_expect_not(state.empty());
   cr_expect_eq(state.top(), expected_top);
 }
@@ -223,7 +227,9 @@ Test(lexer_handle_inline_array, invalid_escape_in_string) {
 }
 
 Test(lexer_handle_inline_array, very_long_unterminated_array) {
-  StupidLexer stupid("a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z");
+  StupidLexer stupid(
+      "a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, "
+      "y, z");
   stupid.stupid_push_state(LexerInlineArray);
   cr_expect_throw(stupid.stupid_handle_inline_array(), std::runtime_error);
 }

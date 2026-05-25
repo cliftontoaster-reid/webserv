@@ -1,15 +1,18 @@
 #include <criterion/criterion.h>
 #include <criterion/internal/assert.h>
 #include <criterion/internal/test.h>
+
 #include <stack>
 #include <stdexcept>
 #include <string>
+
 #include "StupidLexer.hpp"
 
 using namespace toml98;
 
 // Helper function to verify token type and content
-static void expect_token(Token* token, TokenType expected_type, const std::string& expected_value = "") {
+static void expect_token(Token* token, TokenType expected_type,
+                         const std::string& expected_value = "") {
   cr_assert_not_null(token);
   cr_assert_eq(token->type, expected_type);
   if (!expected_value.empty()) {
@@ -19,7 +22,8 @@ static void expect_token(Token* token, TokenType expected_type, const std::strin
 }
 
 // Helper function to verify state stack after handle_normal
-static void verify_state_pushed(std::stack<LexerState> state, LexerState expected_top) {
+static void verify_state_pushed(std::stack<LexerState> state,
+                                LexerState expected_top) {
   cr_expect_not(state.empty());
   cr_expect_eq(state.top(), expected_top);
 }
