@@ -21,7 +21,7 @@ jobs:
       - name: Build tests
         run: |
           find . -name Makefile ! -path "*/tests/*" ! -path "./target/*" ! -path "./.git/*" \
-            -exec sh -c 'make test MODE=release -C "$(dirname "$1")"' _ {} \;
+            -exec sh -c 'make test MODE=debug -C "$(dirname "$1")"' _ {} \;
 
       - name: Run tests
         run: |
