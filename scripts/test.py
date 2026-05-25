@@ -36,29 +36,21 @@ def build_tests():
         print(f"  [{name}] ", end="")
         r = subprocess.run(
             ["make", target, f"MODE={MODE}", "--silent"],
-            cwd=PROJECT_ROOT, capture_output=True, timeout=120,
+            cwd=PROJECT_ROOT, timeout=120,
         )
-        if r.returncode == 0:
-            print("\033[32mOK\033[0m")
-        else:
-            print("\033[31mFAILED\033[0m")
-            if r.stdout:
-                print(r.stdout.decode() if isinstance(r.stdout, bytes) else r.stdout)
-            if r.stderr:
-                print(r.stderr.decode() if isinstance(r.stderr, bytes) else r.stderr)
+        print("\033[32mOK\033[0m" if r.returncode == 0 else "\033[31mFAILED\033[0m")
 
 
 def list_tests(binary: Path, lib_dir: Path) -> list[str]:
     env = {**os.environ, "LD_LIBRARY_PATH": str(lib_dir)}
     r = subprocess.run([str(binary), "--list"], capture_output=True, text=True, timeout=30, env=env)
-    if r.returncode != 0:
-        print(f"    ERROR ({r.returncode}):")
-        if r.stdout:
-            for line in r.stdout.splitlines():
-                print(f"      | {line}")
-        if r.stderr:
-            for line in r.stderr.splitlines():
-                print(f"      | {line}")
+    if r.stdout:
+        for line in r.stdout.splitlines():
+            print(f"    | {line}")
+    if r.stderr:
+        for line in r.stderr.splitlines():
+            print(f"    | {line}")
+    if r.returncode != 0 or not r.stdout.strip():
         return []
     tests = []
     suite = None
