@@ -5,6 +5,7 @@ import subprocess
 import sys
 import os
 import shutil
+import builtins
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -22,6 +23,11 @@ TESTS = {
 }
 
 CRITERION_LIB = PROJECT_ROOT / "tests" / "target" / MODE / "toml98" / "bin" / "lib"
+
+
+def print(*args, **kwargs):
+    kwargs.setdefault("flush", True)
+    return builtins.print(*args, **kwargs)
 
 
 def build_tests():
