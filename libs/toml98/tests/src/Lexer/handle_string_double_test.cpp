@@ -1,9 +1,11 @@
 #include <criterion/criterion.h>
 #include <criterion/internal/assert.h>
 #include <criterion/internal/test.h>
+
 #include <stack>
 #include <stdexcept>
 #include <string>
+
 #include "StupidLexer.hpp"
 
 using namespace toml98;
