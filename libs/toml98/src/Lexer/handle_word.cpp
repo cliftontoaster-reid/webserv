@@ -8,7 +8,7 @@ namespace toml98 {
 Token* Lexer::handle_word() {
   std::string result;
 
-  while (true) {
+  while (canPeek()) {
     char now = peek();
     if (std::isalnum(now) == 0 && now != '-' && now != '_') {
       break;
