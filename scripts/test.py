@@ -44,12 +44,11 @@ def build_tests():
 def list_tests(binary: Path, lib_dir: Path) -> list[str]:
     env = {**os.environ, "LD_LIBRARY_PATH": str(lib_dir)}
     r = subprocess.run([str(binary), "--list"], capture_output=True, text=True, timeout=30, env=env)
-    if r.stdout:
-        for line in r.stdout.splitlines():
-            print(f"    | {line}")
-    if r.stderr:
-        for line in r.stderr.splitlines():
-            print(f"    | {line}")
+    for line in r.stdout.splitlines():
+        print(f"    | {line}")
+    for line in r.stderr.splitlines():
+        print(f"    | {line}")
+    print(f"    => exit {r.returncode}, stdout={len(r.stdout)} bytes, stderr={len(r.stderr)} bytes")
     if r.returncode != 0 or not r.stdout.strip():
         return []
     tests = []
