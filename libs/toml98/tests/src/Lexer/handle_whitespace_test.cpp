@@ -1,14 +1,17 @@
 #include <criterion/criterion.h>
 #include <criterion/internal/assert.h>
 #include <criterion/internal/test.h>
+
 #include <stack>
 #include <stdexcept>
 #include <string>
+
 #include "StupidLexer.hpp"
 
 using namespace toml98;
 
-static void expect_whitespace_token(Token* token, const std::string& expected_ws) {
+static void expect_whitespace_token(Token* token,
+                                    const std::string& expected_ws) {
   cr_assert_not_null(token);
   cr_assert_eq(token->type, TokenDelimiter);
   cr_assert_eq(token->value, expected_ws);
