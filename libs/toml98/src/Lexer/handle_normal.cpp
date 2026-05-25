@@ -9,20 +9,10 @@ namespace toml98 {
 Token* Lexer::handle_normal() {
   char now = peek();
 
-  // A-Za-z0-9_- (see the last two checks bellow)
-  if (std::isalnum(now) != 0) {
-    _stack.push(LexerWord);
-    return NULL;
-  }
   switch (now) {
     case '#':
       pop();
       _stack.push(LexerComments);
-      break;
-
-    case '{':
-      pop();
-      _stack.push(LexerInlineTable);
       break;
 
     case ' ':
@@ -47,18 +37,24 @@ Token* Lexer::handle_normal() {
       break;
     }
 
+    case '{':
+      pop();
+      _stack.push(LexerInlineTable);
+      return new Token(TokenTableStart, "{");
+
     case '[': {
       pop();
-      if (peek() != '[') {
-        _stack.push(LexerTableKey);
-        return new Token(TokenTableStart, "[");
+      if (canPeek('[')) {
+        pop();
+        _stack.push(LexerArrayKey);
+        return new Token(TokenArrayStart, "[[");
       }
-      pop();
       if (_isLastEqual) {
         _stack.push(LexerInlineArray);
-      } else {
-        _stack.push(LexerTableKey);
+        return new Token(TokenArrayStart, "[");
       }
+      _stack.push(LexerTableKey);
+      return new Token(TokenTableStart, "[");
     }
 
     case '-':
@@ -83,8 +79,14 @@ Token* Lexer::handle_normal() {
           "TOML does not support Carriage Return new lines, "
           "change it to '\\n' (Linux) or '\\r\\n' (Windows)");
 
-    default:
+    default: {
+      // A-Za-z0-9_- (see the last two checks bellow)
+      if (std::isalnum(now) != 0) {
+        _stack.push(LexerWord);
+        return NULL;
+      }
       throw std::runtime_error("Unknown character in Normal");
+    }
   }
 
   return NULL;

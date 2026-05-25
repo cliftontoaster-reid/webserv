@@ -6,7 +6,7 @@
 namespace toml98 {
 
 Token* Lexer::handle_table_key() {
-  while (true) {
+  while (canPeek()) {
     char now = peek();
 
     switch (now) {
@@ -26,6 +26,9 @@ Token* Lexer::handle_table_key() {
         _stack.pop();
         pop();
         return new Token(TokenTableEnd, "]");
+      case '[':
+        throw std::runtime_error(
+            "Table Keys cannot contain other table/array keys.");
 
       case '"':
       case '\'': {
@@ -56,10 +59,13 @@ Token* Lexer::handle_table_key() {
         }
 
         throw std::runtime_error(
-            "Unterminated literal string: Unknown character in Normal");
+            "Unterminated table key: Unknown character in LexerTableKey");
       }
     }
   }
+
+  throw std::runtime_error(
+      "Unterminated table key: Unknown character in LexerTableKey");
 }
 
 }  // namespace toml98

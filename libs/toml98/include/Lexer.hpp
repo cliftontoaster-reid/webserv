@@ -115,14 +115,14 @@ class Lexer {
   Token* handle_normal();
   Token* handle_word();
   Token* handle_string();
-  Token* handle_string_double();  // TODO(cliftontoaster-reid)
+  Token* handle_string_double();
   Token* handle_string_multiline();
-  Token* handle_string_double_multiline();  // TODO(cliftontoaster-reid)
-  Token* handle_table_key();                // TODO(cliftontoaster-reid)
-  Token* handle_array_key();                // TODO(cliftontoaster-reid)
+  Token* handle_string_double_multiline();
+  Token* handle_table_key();
+  Token* handle_array_key();
   Token* handle_comments();
-  Token* handle_inline_array();  // TODO(cliftontoaster-reid)
-  Token* handle_inline_table();  // TODO(cliftontoaster-reid)
+  Token* handle_inline_array();
+  Token* handle_inline_table();
   Token* handle_whitespace();
 
   void handleEscapeSequence(std::string& output);
