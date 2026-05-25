@@ -102,7 +102,7 @@ class Lexer {
   void push(const std::basic_string<char>& str);
 
 #ifdef TOML98_TESTS
-  friend class StupidNormalLexer;
+  friend class StupidLexer;
 #endif
 
  private:
