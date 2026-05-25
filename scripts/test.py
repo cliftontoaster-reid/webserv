@@ -9,7 +9,7 @@ import builtins
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-MODE = os.environ.get("MODE", "debug")
+MODE = "release"
 CTEST_DIR = PROJECT_ROOT / "target" / "ctest"
 BIN_DIR = CTEST_DIR / "bin"
 
