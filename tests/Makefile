@@ -64,8 +64,9 @@ NAME = webserv_test
 all: $(NAME)
 
 LIBS_DIR	 =	./libs
-ORIGIN_DIR =	./target
-OFFICE_DIR =	$(ORIGIN_DIR)/$(MODE)
+# Only use local target if not passed from parent
+ORIGIN_DIR ?= ./target
+OFFICE_DIR ?= $(ORIGIN_DIR)/$(MODE)
 TARGET_DIR ?= $(OFFICE_DIR)/$(NAME)
 OBJ_DIR		 =	$(TARGET_DIR)/obj
 TOBJ_DIR	 =	$(TARGET_DIR)/tobj
@@ -98,10 +99,9 @@ LIBS_ARCHIVES :=
 # -------
 # Criterion
 # -------
-CRITERION_DEPO       = $(LIBS_DIR)/toml98
-CRITERION_TARGET_DIR = $(OFFICE_DIR)/toml98
-CRITERION_DOWN_DIR   = $(CRITERION_TARGET_DIR)/down
-CRITERION_BIN_DIR    = $(CRITERION_TARGET_DIR)/bin
+CRITERION_SHARED_DIR ?= $(OFFICE_DIR)/criterion
+CRITERION_DOWN_DIR   = $(CRITERION_SHARED_DIR)/down
+CRITERION_BIN_DIR    = $(CRITERION_SHARED_DIR)/bin
 CRITERION_DIRS       = $(CRITERION_OBJ_DIR) $(CRITERION_TOBJ_DIR) \
                        $(CRITERION_DEP_DIR) $(CRITERION_BIN_DIR)
 CRITERION_ARCHIVE    = $(CRITERION_BIN_DIR)/lib/libcriterion.so

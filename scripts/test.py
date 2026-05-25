@@ -22,7 +22,7 @@ TESTS = {
     "mon_router_test": ("mon-router-test", PROJECT_ROOT / "libs" / "mon-router" / "tests" / "mon_router_test"),
 }
 
-CRITERION_LIB = PROJECT_ROOT / "tests" / "target" / MODE / "toml98" / "bin" / "lib"
+CRITERION_LIB = PROJECT_ROOT / "target" / MODE / "criterion" / "bin" / "lib"
 
 
 def print(*args, **kwargs):

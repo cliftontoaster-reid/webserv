@@ -83,7 +83,17 @@ TEST_DIR	= ./tests
 # -------
 SRCS = \
 	$(SRC_DIR)/ValueTest.cpp \
+	$(SRC_DIR)/Lexer/handle_array_key_test.cpp \
+	$(SRC_DIR)/Lexer/handle_comments_test.cpp \
+	$(SRC_DIR)/Lexer/handle_inline_array_test.cpp \
+	$(SRC_DIR)/Lexer/handle_inline_table_test.cpp \
 	$(SRC_DIR)/Lexer/handle_normal_test.cpp \
+	$(SRC_DIR)/Lexer/handle_string_double_multiline_test.cpp \
+	$(SRC_DIR)/Lexer/handle_string_double_test.cpp \
+	$(SRC_DIR)/Lexer/handle_string_multiline_test.cpp \
+	$(SRC_DIR)/Lexer/handle_string_test.cpp \
+	$(SRC_DIR)/Lexer/handle_table_key_test.cpp \
+	$(SRC_DIR)/Lexer/handle_whitespace_test.cpp \
 	$(SRC_DIR)/Lexer/handle_word_test.cpp \
 
 BOBJ ?=
@@ -102,10 +112,9 @@ LIBS_ARCHIVES ?=
 # -------
 # Criterion
 # -------
-CRITERION_DEPO       = $(LIBS_DIR)/toml98
-CRITERION_TARGET_DIR = $(OFFICE_DIR)/toml98
-CRITERION_DOWN_DIR   = $(CRITERION_TARGET_DIR)/down
-CRITERION_BIN_DIR    = $(CRITERION_TARGET_DIR)/bin
+CRITERION_SHARED_DIR ?= $(OFFICE_DIR)/criterion
+CRITERION_DOWN_DIR   = $(CRITERION_SHARED_DIR)/down
+CRITERION_BIN_DIR    = $(CRITERION_SHARED_DIR)/bin
 CRITERION_DIRS       = $(CRITERION_OBJ_DIR) $(CRITERION_TOBJ_DIR) \
                        $(CRITERION_DEP_DIR) $(CRITERION_BIN_DIR)
 CRITERION_ARCHIVE    = $(CRITERION_BIN_DIR)/lib/libcriterion.so

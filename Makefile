@@ -72,6 +72,9 @@ TOBJ_DIR	 =	$(TARGET_DIR)/tobj
 DEP_DIR		 =	$(TARGET_DIR)/dep
 BIN_DIR		 =	$(TARGET_DIR)/bin
 
+# Shared criterion directory for all tests
+CRITERION_SHARED_DIR = $(OFFICE_DIR)/criterion
+
 INC_DIR		= ./include
 SRC_DIR		= ./src
 TEST_DIR	= ./tests
@@ -223,34 +226,34 @@ $(MON_ROUTER_ARCHIVE):
 test:
 	@printf "$(BOLD)Building tests...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(TARGET_DIR)" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(TARGET_DIR))" CRITERION_SHARED_DIR="$(abspath $(CRITERION_SHARED_DIR))" MODE="$(MODE)" \
 	BOBJ="$(OBJ)" BINC="$(INC)" LIBS_ARCHIVES="$(LIBS_ARCHIVES)" \
 	$(MAKE) -C $(TEST_DIR) all --silent
 	@printf "$(BOLD)Built tests$(RESET)\n"
 
 toml98-test:
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(abspath $(TARGET_DIR))/toml98" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(OFFICE_DIR)/toml98)" CRITERION_SHARED_DIR="$(abspath $(CRITERION_SHARED_DIR))" MODE="$(MODE)" \
 	$(MAKE) -C $(LIBS_DIR)/toml98 test --silent
 
 mon-cgi-test:
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(abspath $(TARGET_DIR))/mon-cgi" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(OFFICE_DIR)/mon-cgi)" CRITERION_SHARED_DIR="$(abspath $(CRITERION_SHARED_DIR))" MODE="$(MODE)" \
 	$(MAKE) -C $(LIBS_DIR)/mon-cgi test --silent
 
 mon-http-test:
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(abspath $(TARGET_DIR))/mon-http" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(OFFICE_DIR)/mon-http)" CRITERION_SHARED_DIR="$(abspath $(CRITERION_SHARED_DIR))" MODE="$(MODE)" \
 	$(MAKE) -C $(LIBS_DIR)/mon-http test --silent
 
 mon-net-test:
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(abspath $(TARGET_DIR))/mon-net" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(OFFICE_DIR)/mon-net)" CRITERION_SHARED_DIR="$(abspath $(CRITERION_SHARED_DIR))" MODE="$(MODE)" \
 	$(MAKE) -C $(LIBS_DIR)/mon-net test --silent
 
 mon-router-test:
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(abspath $(TARGET_DIR))/mon-router" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(OFFICE_DIR)/mon-router)" CRITERION_SHARED_DIR="$(abspath $(CRITERION_SHARED_DIR))" MODE="$(MODE)" \
 	$(MAKE) -C $(LIBS_DIR)/mon-router test --silent
 
 test-all: test toml98-test mon-cgi-test mon-http-test mon-net-test mon-router-test

@@ -19,6 +19,8 @@ class StupidLexer : public Lexer {
   u_int64_t& stupid_pos() { return _pos; }
   bool& stupid_is_last_equal() { return _isLastEqual; }
 
+  void stupid_push_state(LexerState state) { _stack.push(state); }
+
   Token* stupid_handle_normal() { return handle_normal(); }
   Token* stupid_handle_word() { return handle_word(); }
   Token* stupid_handle_string() { return handle_string(); }
