@@ -195,11 +195,11 @@ bool Lexer::canPeekAt(u_int64_t offset) {
 u_int64_t Lexer::remaining() { return _source.length() - _pos; }
 
 void Lexer::handleEscapeSequence(std::string& output) {
-  if (!canPeekAt(1)) {
+  if (!canPeek()) {
     throw std::runtime_error("Early End Of File.");
   }
 
-  u_int64_t len = getSpecialLenght(peek(1));
+  u_int64_t len = getSpecialLenght(peek());
   if (!canPeekAt(len)) {
     throw std::runtime_error("Early End Of File.");
   }
@@ -208,14 +208,14 @@ void Lexer::handleEscapeSequence(std::string& output) {
     output.push_back(getSpecial(peek()));
     pop();
   } else {
-    output.append(getUnicode(peek(0, len)));
+    output.append(getUnicode(peek(1, len - 1)));
     pop(len);
   }
 }
 
 bool Lexer::handleQuoteSequence(std::string& output, char quote) {
   std::size_t quoteCount = 1;
-  while (canPeek('"')) {
+  while (canPeek(quote)) {
     quoteCount++;
     pop();
   }

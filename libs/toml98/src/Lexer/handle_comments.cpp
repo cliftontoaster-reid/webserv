@@ -3,7 +3,12 @@
 namespace toml98 {
 
 Token* Lexer::handle_comments() {
-  while (peek() != '\n' && peek() != '\0') {
+  while (canPeek()) {
+    char now = peek();
+    if (now == '\n' || now == '\0') {
+      break;
+    }
+
     pop();
   }
   return new Token(TokenNewLine, "\n");

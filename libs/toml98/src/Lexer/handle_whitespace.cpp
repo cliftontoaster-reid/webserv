@@ -5,7 +5,7 @@ namespace toml98 {
 Token* Lexer::handle_whitespace() {
   std::string result;
 
-  while (true) {
+  while (canPeek()) {
     char now = peek();
     if (now == '\0' || (now != ' ' && now != '\t')) {
       break;

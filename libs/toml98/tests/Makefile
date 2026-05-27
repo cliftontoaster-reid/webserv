@@ -84,7 +84,17 @@ TEST_DIR	= ./tests
 SRCS = \
 	$(SRC_DIR)/ValueTest.cpp \
 	$(SRC_DIR)/Lexer/handle_normal_test.cpp \
+	$(SRC_DIR)/Lexer/handle_array_key_test.cpp \
+	$(SRC_DIR)/Lexer/handle_table_key_test.cpp \
+	$(SRC_DIR)/Lexer/handle_inline_table_test.cpp \
+	$(SRC_DIR)/Lexer/handle_inline_array_test.cpp \
+	$(SRC_DIR)/Lexer/handle_comments_test.cpp \
+	$(SRC_DIR)/Lexer/handle_whitespace_test.cpp \
 	$(SRC_DIR)/Lexer/handle_word_test.cpp \
+	$(SRC_DIR)/Lexer/handle_string_test.cpp \
+	$(SRC_DIR)/Lexer/handle_string_multiline_test.cpp \
+	$(SRC_DIR)/Lexer/handle_string_double_test.cpp \
+	$(SRC_DIR)/Lexer/handle_string_double_multiline_test.cpp \
 
 BOBJ ?=
 OBJ  := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))

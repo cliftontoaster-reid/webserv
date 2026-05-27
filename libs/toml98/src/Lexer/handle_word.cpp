@@ -1,4 +1,5 @@
 #include <cctype>
+#include <stdexcept>
 #include <string>
 
 #include "Lexer.hpp"
@@ -17,6 +18,11 @@ Token* Lexer::handle_word() {
     result.push_back(now);
   }
 
+  if (result.empty()) {
+    throw std::runtime_error("Ran LexerWord without purpose.");
+  }
+
+  _stack.pop();
   return new Token(TokenWord, result);
 }
 

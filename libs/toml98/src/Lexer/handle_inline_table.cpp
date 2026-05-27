@@ -74,7 +74,7 @@ Token* Lexer::handle_inline_table() {
       return new Token(TokenNewLine, "\n");
 
     case '\r':
-      if (canPeek('\n')) {
+      if (canPeek('\n', 1)) {
         pop(2);
         return new Token(TokenNewLine, "\r\n");
       }

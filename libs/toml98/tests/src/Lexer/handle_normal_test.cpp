@@ -5,6 +5,7 @@
 #include <stack>
 #include <stdexcept>
 
+#include "Lexer.hpp"
 #include "StupidLexer.hpp"
 
 Test(lexer_handle_normal, whitespace) {
@@ -89,9 +90,32 @@ Test(lexer_handle_normal, tab_whitespace) {
 
 Test(lexer_handle_normal, inline_table) {
   toml98::StupidLexer stupid = toml98::StupidLexer("{");
-  stupid.stupid_handle_normal();
+  auto tok = stupid.stupid_handle_normal();
 
   toml98::LexerState expected = toml98::LexerInlineTable;
+
+  cr_expect_eq(tok->type, toml98::TokenTableStart);
+  delete tok;
+
+  auto state = stupid.stupid_stack();
+  cr_expect_not(state.empty());
+  cr_expect_eq(state.top(), expected);
+  state.pop();
+  cr_expect_not(state.empty());
+  cr_expect_eq(state.top(), toml98::LexerNormal);
+  state.pop();
+  cr_expect(state.empty());
+}
+
+Test(lexer_handle_normal, inline_array) {
+  toml98::StupidLexer stupid = toml98::StupidLexer("[");
+  stupid.stupid_is_last_equal() = true;
+  auto tok = stupid.stupid_handle_normal();
+
+  toml98::LexerState expected = toml98::LexerInlineArray;
+
+  cr_expect_eq(tok->type, toml98::TokenArrayStart);
+  delete tok;
 
   auto state = stupid.stupid_stack();
   cr_expect_not(state.empty());
@@ -117,6 +141,12 @@ Test(lexer_handle_normal, string_double) {
   cr_expect_eq(state.top(), toml98::LexerNormal);
   state.pop();
   cr_expect(state.empty());
+}
+
+Test(lexer_handle_normal, string_double_eeof) {
+  toml98::StupidLexer stupid = toml98::StupidLexer("\"");
+
+  cr_expect_throw(stupid.stupid_handle_normal(), std::runtime_error);
 }
 
 Test(lexer_handle_normal, string_double_multiline) {
@@ -149,6 +179,12 @@ Test(lexer_handle_normal, string_single) {
   cr_expect_eq(state.top(), toml98::LexerNormal);
   state.pop();
   cr_expect(state.empty());
+}
+
+Test(lexer_handle_normal, string_single_eeof) {
+  toml98::StupidLexer stupid = toml98::StupidLexer("'");
+
+  cr_expect_throw(stupid.stupid_handle_normal(), std::runtime_error);
 }
 
 Test(lexer_handle_normal, string_single_multiline) {

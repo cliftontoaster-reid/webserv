@@ -44,10 +44,9 @@ Token* Lexer::handle_array_key() {
         }
         if (canPeek()) {
           _stack.push(quote == '"' ? LexerStringDouble : LexerString);
-        } else {
-          throw std::runtime_error("Unterminated string: Early end of file.");
+          return NULL;
         }
-        break;
+        throw std::runtime_error("Unterminated string: Early end of file.");
       }
 
       case '-':
