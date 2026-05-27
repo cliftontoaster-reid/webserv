@@ -39,6 +39,10 @@ def build_tests():
             cwd=PROJECT_ROOT, capture_output=True, timeout=120,
         )
         print("\033[32mOK\033[0m" if r.returncode == 0 else "\033[31mFAILED\033[0m")
+        if r.returncode != 0:
+            sys.stderr.buffer.write(r.stderr)
+            sys.stdout.buffer.write(r.stdout)
+            sys.exit(r.returncode)
 
 
 def list_tests(binary: Path, lib_dir: Path) -> list[str]:
@@ -121,10 +125,14 @@ def write_cmakelists(bin_dir: Path, all_tests: dict[str, list[str]]):
 
 def run_ctest():
     print("==> Running ctest...")
-    subprocess.run(
+    r = subprocess.run(
         ["cmake", "-S", str(CTEST_DIR), "-B", str(CTEST_DIR), "-Wno-dev"],
         capture_output=True,
     )
+    if r.returncode != 0:
+        sys.stderr.buffer.write(r.stderr)
+        sys.stdout.buffer.write(r.stdout)
+        return r.returncode
     r = subprocess.run(
         ["ctest", "--output-on-failure", "--test-dir", str(CTEST_DIR)] + sys.argv[1:],
     )
