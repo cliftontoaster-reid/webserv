@@ -11,8 +11,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      MODE: release
-      TARGET_BASE: ${{ github.workspace }}/target/release/webserv
+      MODE: debug
+      TARGET_ROOT: ${{ github.workspace }}/target/debug
     steps:
       - uses: actions/checkout@v6
       - name: Install dependencies
@@ -21,42 +21,47 @@ jobs:
           sudo apt-get install -y clang make cmake curl python3
 
       - name: Build toml98 tests
-        run: make toml98-test MODE="$MODE" TARGET_DIR="$TARGET_BASE"
+        working-directory: libs/toml98
+        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/toml98"
 
       - name: Run toml98 tests
         working-directory: libs/toml98/tests
         run: ./toml98_test --verbose
 
       - name: Build mon-cgi tests
-        run: make mon-cgi-test MODE="$MODE" TARGET_DIR="$TARGET_BASE"
+        working-directory: libs/mon-cgi
+        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-cgi"
 
       - name: Run mon-cgi tests
         working-directory: libs/mon-cgi/tests
         run: ./mon_cgi_test --verbose
 
       - name: Build mon-http tests
-        run: make mon-http-test MODE="$MODE" TARGET_DIR="$TARGET_BASE"
+        working-directory: libs/mon-http
+        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-http"
 
       - name: Run mon-http tests
         working-directory: libs/mon-http/tests
         run: ./mon_http_test --verbose
 
       - name: Build mon-net tests
-        run: make mon-net-test MODE="$MODE" TARGET_DIR="$TARGET_BASE"
+        working-directory: libs/mon-net
+        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-net"
 
       - name: Run mon-net tests
         working-directory: libs/mon-net/tests
         run: ./mon_net_test --verbose
 
       - name: Build mon-router tests
-        run: make mon-router-test MODE="$MODE" TARGET_DIR="$TARGET_BASE"
+        working-directory: libs/mon-router
+        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-router"
 
       - name: Run mon-router tests
         working-directory: libs/mon-router/tests
         run: ./mon_router_test --verbose
 
       - name: Build webserv tests
-        run: make toml98 mon-cgi mon-http mon-net mon-router test MODE="$MODE" TARGET_DIR="$TARGET_BASE"
+        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/webserv"
 
       - name: Run webserv tests
         working-directory: tests
