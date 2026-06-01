@@ -82,6 +82,10 @@ Token* Lexer::handle_inline_array() {
           "TOML does not support Carriage Return new lines, "
           "change it to '\\n' (Linux) or '\\r\\n' (Windows)");
 
+    case ',':
+      pop();
+      return new Token(TokenComma, ",");
+
     default: {
       // A-Za-z0-9_- (see the last two checks bellow)
       if (std::isalnum(now) != 0) {

@@ -249,8 +249,17 @@ Test(lexer_handle_inline_array, carriage_return_throws) {
   cr_expect_throw(stupid.stupid_handle_inline_array(), std::runtime_error);
 }
 
-Test(lexer_handle_inline_array, unknown_character_throws) {
+Test(lexer_handle_inline_array, comma_token) {
   toml98::StupidLexer stupid(",");
+  toml98::enter_inline_array(stupid);
+
+  toml98::Token* token = stupid.stupid_handle_inline_array();
+  toml98::expect_token(token, toml98::TokenComma, ",");
+  cr_expect_eq(stupid.stupid_pos(), 1U);
+}
+
+Test(lexer_handle_inline_array, unknown_character_throws) {
+  toml98::StupidLexer stupid("?");
   toml98::enter_inline_array(stupid);
 
   cr_expect_throw(stupid.stupid_handle_inline_array(), std::runtime_error);

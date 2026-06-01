@@ -83,6 +83,7 @@ TEST_DIR	= ./tests
 # -------
 SRCS = \
 	$(SRC_DIR)/ValueTest.cpp \
+	$(SRC_DIR)/LexerIntegrationTest.cpp \
 	$(SRC_DIR)/Lexer/handle_normal_test.cpp \
 	$(SRC_DIR)/Lexer/handle_array_key_test.cpp \
 	$(SRC_DIR)/Lexer/handle_table_key_test.cpp \

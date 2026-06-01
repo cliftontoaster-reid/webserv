@@ -58,7 +58,8 @@ enum TokenType {
   TokenTableStart,
   TokenTableEnd,
 
-  TokenEqual,  // '=' or ':' based on context
+  TokenEqual,
+  TokenComma,
   TokenDelimiter,
   TokenNewLine,
   TokenDot,

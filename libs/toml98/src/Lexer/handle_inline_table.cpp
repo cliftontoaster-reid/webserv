@@ -56,9 +56,9 @@ Token* Lexer::handle_inline_table() {
       return new Token(TokenArrayStart, "[");
     }
 
-    case ':':
+    case '=':
       pop();
-      return new Token(TokenEqual, ":");
+      return new Token(TokenEqual, "=");
 
     case '-':
     case '_':  // A-Za-z0-9_- (see alphanum above)
@@ -81,6 +81,10 @@ Token* Lexer::handle_inline_table() {
       throw std::runtime_error(
           "TOML does not support Carriage Return new lines, "
           "change it to '\\n' (Linux) or '\\r\\n' (Windows)");
+
+    case ',':
+      pop();
+      return new Token(TokenComma, ",");
 
     default: {
       // A-Za-z0-9_- (see the last two checks bellow)

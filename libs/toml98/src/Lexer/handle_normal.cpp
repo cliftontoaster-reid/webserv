@@ -42,6 +42,10 @@ Token* Lexer::handle_normal() {
       _stack.push(LexerInlineTable);
       return new Token(TokenTableStart, "{");
 
+    case '=':
+      pop();
+      return new Token(TokenEqual, "=");
+
     case '[': {
       pop();
       if (canPeek('[')) {
