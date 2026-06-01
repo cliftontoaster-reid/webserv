@@ -10,15 +10,57 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      MODE: release
+      TARGET_BASE: ${{ github.workspace }}/target/release/webserv
     steps:
       - uses: actions/checkout@v6
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y clang make cmake curl python3
-      
-      - name: Build and run all tests
-        run: python3 scripts/test.py
+
+      - name: Build toml98 tests
+        run: make toml98-test MODE="$MODE" TARGET_DIR="$TARGET_BASE"
+
+      - name: Run toml98 tests
+        working-directory: libs/toml98/tests
+        run: ./toml98_test --verbose
+
+      - name: Build mon-cgi tests
+        run: make mon-cgi-test MODE="$MODE" TARGET_DIR="$TARGET_BASE"
+
+      - name: Run mon-cgi tests
+        working-directory: libs/mon-cgi/tests
+        run: ./mon_cgi_test --verbose
+
+      - name: Build mon-http tests
+        run: make mon-http-test MODE="$MODE" TARGET_DIR="$TARGET_BASE"
+
+      - name: Run mon-http tests
+        working-directory: libs/mon-http/tests
+        run: ./mon_http_test --verbose
+
+      - name: Build mon-net tests
+        run: make mon-net-test MODE="$MODE" TARGET_DIR="$TARGET_BASE"
+
+      - name: Run mon-net tests
+        working-directory: libs/mon-net/tests
+        run: ./mon_net_test --verbose
+
+      - name: Build mon-router tests
+        run: make mon-router-test MODE="$MODE" TARGET_DIR="$TARGET_BASE"
+
+      - name: Run mon-router tests
+        working-directory: libs/mon-router/tests
+        run: ./mon_router_test --verbose
+
+      - name: Build webserv tests
+        run: make toml98 mon-cgi mon-http mon-net mon-router test MODE="$MODE" TARGET_DIR="$TARGET_BASE"
+
+      - name: Run webserv tests
+        working-directory: tests
+        run: ./webserv_test --verbose
 
   format:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
