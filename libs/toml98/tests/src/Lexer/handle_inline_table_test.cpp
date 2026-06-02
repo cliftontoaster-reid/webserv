@@ -2,20 +2,44 @@
 #include <criterion/internal/assert.h>
 #include <criterion/internal/test.h>
 
+#include <iostream>
 #include <stack>
 #include <stdexcept>
 #include <string>
 
+#include "Lexer.hpp"
 #include "StupidLexer.hpp"
 
 namespace toml98 {
 
+// NOLINTNEXTLINE
 static void expect_token(Token* token, TokenType type,
                          const std::string& value) {
-  cr_assert_not_null(token);
-  cr_assert_eq(token->type, type);
-  cr_assert_eq(token->value, value);
-  delete token;
+  // Check for Null
+  if (token != nullptr) {
+    // Check Type
+    if (token->type == type) {
+      // Check Value
+      if (token->value == value) {
+        // All good, continue
+      } else {
+        std::cerr << "Token value mismatch!" << '\n';
+        std::cerr << "  Expected: " << value << '\n';
+        std::cerr << "  Actual:   " << token->value << '\n';
+        cr_assert_eq(token->value, value);
+      }
+    } else {
+      std::cerr << "Token type mismatch!" << '\n';
+      std::cerr << "  Expected: " << type << '\n';
+      std::cerr << "  Actual:   " << token->type << '\n';
+      cr_assert_eq(token->type, type);
+    }
+
+    delete token;
+  } else {
+    std::cerr << "Error: Token is null." << '\n';
+    cr_assert_not_null(token);
+  }
 }
 
 static void enter_inline_table(StupidLexer& stupid) {
@@ -146,12 +170,16 @@ Test(lexer_handle_inline_table, array_key_token) {
   toml98::enter_inline_table(stupid);
 
   toml98::Token* token = stupid.stupid_handle_inline_table();
-  toml98::expect_token(token, toml98::TokenArrayStart, "[[");
+  toml98::expect_token(token, toml98::TokenArrayStart, "[");
+  cr_expect_eq(stupid.stupid_pos(), 1U);
+
+  toml98::Token* token2 = stupid.stupid_handle_inline_table();
+  toml98::expect_token(token2, toml98::TokenArrayStart, "[");
   cr_expect_eq(stupid.stupid_pos(), 2U);
 
   auto state = stupid.stupid_stack();
   cr_expect_not(state.empty());
-  cr_expect_eq(state.top(), toml98::LexerArrayKey);
+  cr_expect_eq(state.top(), toml98::LexerInlineArray);
 }
 
 Test(lexer_handle_inline_table, colon_token) {
