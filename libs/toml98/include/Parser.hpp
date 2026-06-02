@@ -5,61 +5,22 @@
 #include <string>
 #include <vector>
 
-/*
-[
-  {
-    "key": ["title"],
-    "inlined": false,
-    "value": ValueString("TOML Example")
-  },
-
-  {
-    "key": ["owner", "name"],
-    "inlined": false,
-    "value": ValueString("Tom Preston-Werner")
-  },
-  {
-    "key": ["database", "enabled"],
-    "inlined": false,
-    "value": ValueBoolean(true)
-  },
-
-  {
-    "key": ["database", "ports"],
-    "inlined": true,
-    "value": ValueList([
-      ValueInt(8000),
-      ValueInt(8001),
-      ValueInt(8002)
-    ])
-  },
-  {
-    "key": ["database", "data"],
-    "inlined": true,
-    "value": ValueList([
-      ValueList([
-        ValueString("delta"),
-        ValueString("phi")
-      ]),
-      ValueList([
-        ValueFloat(72.0)
-      ])
-    ])
-  },
-  {
-    "key": ["database", "temp_targets", "cpu"],
-    "inlined": true,
-    "value": ValueFloat(79.5)
-  },
-  {
-    "key": ["database", "temp_targets", "case"],
-    "inlined": true,
-    "value": ValueFloat(72.0)
-  }
-]
-*/
+#include "Lexer.hpp"
+#include "Value.hpp"
 
 namespace toml98 {
+
+enum ParserState {
+  ParserStateNormal,
+
+  ParserStateSuperKey,
+  ParserStateKey,
+
+  ParserStateInlineArray,
+  ParserStateInlineTable,
+
+  ParserStateValue,
+};
 
 class Parser {
  public:
@@ -72,8 +33,30 @@ class Parser {
     bool inlined;
   };
 
+  void handle_normal();
+  void handle_super_key();
+  void handle_key();
+  void handle_inline_array();
+  void handle_inline_table();
+  void handle_value();
+
  private:
-  std::vector<Statement> _document;
+  Value* _document;
+  std::vector<Token> _data;
+  std::stack<ParserState> _stack;
+  std::string _root;
+  u_int64_t _pos;
+  bool _isLastEqual;
+  ParserState _lastState;
+
+  void pop();
+  void pop(u_int64_t amount);
+
+  const Token& peek() const;
+  const Token& peek(u_int64_t offset) const;
+
+  bool _isWordDigit();
+  bool _isWordFloat();
 };
 
 }  // namespace toml98
