@@ -9,6 +9,7 @@ Checks: >
   -performance-enum-size,
   readability-*,
   google-*,
+  -google-runtime-int,
   cppcoreguidelines-*,
   -modernize-*,
   -cppcoreguidelines-pro-type-union-access,
