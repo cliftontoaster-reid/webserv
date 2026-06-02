@@ -20,7 +20,25 @@ enum ValueType {
   ValueTable,
 };
 
+class Parser;
+
+std::vector<std::string> split_path(const std::string& path) {
+  std::vector<std::string> parts;
+  std::string::size_type start = 0;
+  std::string::size_type end = path.find('.');
+
+  while (end != std::string::npos) {
+    parts.push_back(path.substr(start, end - start));
+    start = end + 1;
+    end = path.find('.', start);
+  }
+  parts.push_back(path.substr(start));
+  return parts;
+}
+
 class Value {
+  friend class Parser;
+
  public:
   static Value createString(const std::string& val);
   static Value createInteger(int64_t val);
@@ -45,6 +63,8 @@ class Value {
   bool operator==(const Value& other) const;
   bool operator!=(const Value& other) const;
 
+  const Value& get(const std::string& path) const;
+
  private:
   Value(ValueType type, void* val);
   Value(ValueType type, uint64_t val);
@@ -55,6 +75,13 @@ class Value {
     void* _ptr;
     uint64_t _nbr;
   };
+
+  const Value& get_direct_child(const std::string& key) const;
+  Value& get_direct_child_mut(const std::string& key);
+
+  std::vector<Value>* getArrayMut();
+  std::map<std::string, Value>* getTableMut();
+  Value& get_mut(const std::string& path);
 };
 
 std::ostream& operator<<(std::ostream& ost, const Value& val);

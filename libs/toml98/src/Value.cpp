@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <cstdlib>
 #include <cstring>
 #include <stdexcept>
 
@@ -81,6 +82,20 @@ const std::map<std::string, Value>* Value::getTable() const {
     throw std::runtime_error("Value is not a table.");
   }
   return static_cast<const std::map<std::string, Value>*>(_ptr);
+}
+
+std::vector<Value>* Value::getArrayMut() {
+  if (_type != ValueArray) {
+    throw std::runtime_error("Value is not an array.");
+  }
+  return static_cast<std::vector<Value>*>(_ptr);
+}
+
+std::map<std::string, Value>* Value::getTableMut() {
+  if (_type != ValueTable) {
+    throw std::runtime_error("Value is not a table.");
+  }
+  return static_cast<std::map<std::string, Value>*>(_ptr);
 }
 
 Value::Value(const Value& other) : _type(other._type), _ptr(NULL) {
@@ -229,6 +244,77 @@ bool Value::operator!=(const Value& other) const { return !(*this == other); }
 Value::Value(ValueType type, void* val) : _type(type), _ptr(val) {}
 Value::Value(ValueType type, uint64_t val) : _type(type), _nbr(val) {}
 Value::Value() : _type(ValueString), _ptr() {}
+
+const Value& Value::get(const std::string& path) const {
+  std::string::size_type dot = path.find('.');
+
+  if (dot == std::string::npos) {
+    return get_direct_child(path);
+  }
+
+  std::string key = path.substr(0, dot);
+  std::string remaining = path.substr(dot + 1);
+
+  return get_direct_child(key).get(remaining);
+}
+
+Value& Value::get_mut(const std::string& path) {
+  std::string::size_type dot = path.find('.');
+
+  if (dot == std::string::npos) {
+    return get_direct_child_mut(path);
+  }
+
+  std::string key = path.substr(0, dot);
+  std::string remaining = path.substr(dot + 1);
+
+  return get_direct_child_mut(key).get_mut(remaining);
+}
+
+const Value& Value::get_direct_child(const std::string& key) const {
+  if (_type == ValueTable) {
+    const std::map<std::string, Value>* table = getTable();
+    std::map<std::string, Value>::const_iterator iter = table->find(key);
+
+    if (iter == table->end()) {
+      throw std::runtime_error("Key not found in table: " + key);
+    }
+    return iter->second;
+  }
+  if (_type == ValueArray) {
+    long index = std::strtol(key.c_str(), NULL, 10);
+    const std::vector<Value>* arr = getArray();
+
+    if (index < 0 || static_cast<size_t>(index) >= arr->size()) {
+      throw std::runtime_error("Array index out of bounds: " + key);
+    }
+    return (*arr)[index];
+  }
+
+  throw std::runtime_error("Cannot traverse non-container type");
+}
+Value& Value::get_direct_child_mut(const std::string& key) {
+  if (_type == ValueTable) {
+    std::map<std::string, Value>* table = getTableMut();
+    std::map<std::string, Value>::iterator iter = table->find(key);
+
+    if (iter == table->end()) {
+      throw std::runtime_error("Key not found in table: " + key);
+    }
+    return iter->second;
+  }
+  if (_type == ValueArray) {
+    long index = std::strtol(key.c_str(), NULL, 10);
+    std::vector<Value>* arr = getArrayMut();
+
+    if (index < 0 || static_cast<size_t>(index) >= arr->size()) {
+      throw std::runtime_error("Array index out of bounds: " + key);
+    }
+    return (*arr)[index];
+  }
+
+  throw std::runtime_error("Cannot traverse non-container type");
+}
 
 std::ostream& operator<<(std::ostream& ost, const Value& val) {
   switch (val.type()) {
