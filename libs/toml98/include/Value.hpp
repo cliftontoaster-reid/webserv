@@ -22,7 +22,7 @@ enum ValueType {
 
 class Parser;
 
-std::vector<std::string> split_path(const std::string& path) {
+static inline std::vector<std::string> split_path(const std::string& path) {
   std::vector<std::string> parts;
   std::string::size_type start = 0;
   std::string::size_type end = path.find('.');
