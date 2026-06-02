@@ -1,4 +1,5 @@
 #include "Parser.hpp"
+
 #include <stdexcept>
 #include <vector>
 
@@ -19,4 +20,4 @@ const Token& Parser::peek(u_int64_t offset) const {
   return _data.at(_pos + offset);
 }
 
-}
+}  // namespace toml98
