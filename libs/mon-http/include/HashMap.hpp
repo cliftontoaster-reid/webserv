@@ -26,7 +26,7 @@ class HashMap {
   void remove(const Key& key);
 
  private:
-  std::vector<Entry> _store;
+  std::vector<std::vector<Entry> > _store;
 
   u_int32_t hashKey(Key key);
   void resize(u_int64_t newSize);
