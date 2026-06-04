@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
+#include <vector>
 
 namespace toml98 {
 
@@ -245,30 +246,68 @@ Value::Value(ValueType type, void* val) : _type(type), _ptr(val) {}
 Value::Value(ValueType type, uint64_t val) : _type(type), _nbr(val) {}
 Value::Value() : _type(ValueString), _ptr() {}
 
-const Value& Value::get(const std::string& path) const {
-  std::string::size_type dot = path.find('.');
-
-  if (dot == std::string::npos) {
-    return get_direct_child(path);
+const Value& Value::get(const std::vector<PathPart>& path) const {
+  if (path.empty()) {
+    throw std::runtime_error("Empty path.");
   }
 
-  std::string key = path.substr(0, dot);
-  std::string remaining = path.substr(dot + 1);
-
-  return get_direct_child(key).get(remaining);
+  const Value* cur = this;
+  for (std::vector<PathPart>::const_iterator it = path.begin();
+       it != path.end(); ++it) {
+    if (it->type == PathPart::PathPartKey) {
+      cur = &cur->get_direct_child(it->key);
+    } else {
+      if (cur->_type != ValueArray) {
+        throw std::runtime_error("Cannot traverse non-array type");
+      }
+      const std::vector<Value>* arr = cur->getArray();
+      if (it->index >= arr->size()) {
+        throw std::runtime_error("Array index out of bounds.");
+      }
+      cur = &arr->at(it->index);
+    }
+  }
+  return *cur;
 }
 
-Value& Value::get_mut(const std::string& path) {
-  std::string::size_type dot = path.find('.');
+bool Value::has(const std::vector<PathPart>& path) const {
+  try {
+    (void)get(path);
+    return true;
+  } catch (const std::exception&) {
+    return false;
+  }
+}
+bool Value::has(const PathPart& part) const {
+  try {
+    std::vector<PathPart> path;
+    path.push_back(part);
+    (void)get(path);
+    return true;
+  } catch (const std::exception&) {
+    return false;
+  }
+}
 
-  if (dot == std::string::npos) {
-    return get_direct_child_mut(path);
+Value& Value::get_mut(const std::vector<PathPart>& path) {
+  if (path.empty()) {
+    throw std::runtime_error("Empty path.");
   }
 
-  std::string key = path.substr(0, dot);
-  std::string remaining = path.substr(dot + 1);
-
-  return get_direct_child_mut(key).get_mut(remaining);
+  Value* cur = this;
+  for (std::vector<PathPart>::const_iterator it = path.begin();
+       it != path.end(); ++it) {
+    if (it->type == PathPart::PathPartKey) {
+      cur = &cur->get_direct_child_mut(it->key);
+    } else {
+      std::vector<Value>* arr = cur->getArrayMut();
+      if (it->index >= arr->size()) {
+        throw std::runtime_error("Array index out of bounds.");
+      }
+      cur = &arr->at(it->index);
+    }
+  }
+  return *cur;
 }
 
 const Value& Value::get_direct_child(const std::string& key) const {
@@ -314,6 +353,83 @@ Value& Value::get_direct_child_mut(const std::string& key) {
   }
 
   throw std::runtime_error("Cannot traverse non-container type");
+}
+
+static inline Value createValueInsert(const std::vector<PathPart>& path) {
+  const PathPart& part = path.front();
+
+  switch (part.type) {
+    case PathPart::PathPartKey: {
+      std::map<std::string, Value> table = std::map<std::string, Value>();
+
+      return Value::createTable(table);
+    }
+    case PathPart::PathPartIndex: {
+      std::vector<Value> array = std::vector<Value>();
+
+      return Value::createArray(array);
+    }
+  }
+}
+
+void Value::insertOrDie(const std::vector<PathPart>& path, const Value& value) {
+  if (path.empty()) {
+    throw std::runtime_error("Empty path.");
+  }
+
+  const PathPart& part = path.front();
+
+  if (path.size() == 1) {
+    if (part.type == PathPart::PathPartIndex) {
+      std::vector<Value>* arr = getArrayMut();
+
+      std::vector<Value>::iterator begin = arr->begin();
+      std::vector<Value>::difference_type offset =
+          static_cast<std::vector<Value>::difference_type>(part.index);
+
+      if (part.index < arr->size()) {
+        throw std::runtime_error("A value already exists at this index.");
+      }
+      if (part.index > arr->size()) {
+        throw std::runtime_error("The index is too big.");
+      }
+
+      arr->insert(begin + offset, value);
+    } else {
+      std::map<std::string, Value>* tab = getTableMut();
+
+      std::pair<std::map<std::string, Value>::iterator, bool> result =
+          tab->insert(std::make_pair(part.key, value));
+
+      if (!result.second) {
+        throw std::runtime_error("A value already exists for key: " + part.key);
+      }
+    }
+  } else {
+    const std::vector<PathPart> copy(path.begin() + 1, path.end());
+
+    if (part.type == PathPart::PathPartIndex) {
+      std::vector<Value>* arr = getArrayMut();
+
+      if (!has(part)) {
+        std::vector<Value>::iterator begin = arr->begin();
+        std::vector<Value>::difference_type offset =
+            static_cast<std::vector<Value>::difference_type>(part.index);
+
+        arr->insert(begin + offset, createValueInsert(copy));
+      }
+
+      arr->at(part.index).insertOrDie(copy, value);
+    } else {
+      std::map<std::string, Value>* tab = getTableMut();
+
+      if (!has(part)) {
+        tab->insert(std::make_pair(part.key, createValueInsert(copy)));
+      }
+
+      tab->at(part.key).insertOrDie(copy, value);
+    }
+  }
 }
 
 std::ostream& operator<<(std::ostream& ost, const Value& val) {

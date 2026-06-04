@@ -22,19 +22,32 @@ enum ValueType {
 
 class Parser;
 
-static inline std::vector<std::string> split_path(const std::string& path) {
-  std::vector<std::string> parts;
-  std::string::size_type start = 0;
-  std::string::size_type end = path.find('.');
+struct PathPart {
+  enum Type {
+    PathPartKey,
+    PathPartIndex,
+  };
 
-  while (end != std::string::npos) {
-    parts.push_back(path.substr(start, end - start));
-    start = end + 1;
-    end = path.find('.', start);
+  Type type;
+  std::string key;
+  std::size_t index;
+
+  static PathPart makeKey(const std::string& val) {
+    PathPart part;
+    part.type = PathPartKey;
+    part.key = val;
+    part.index = 0;
+    return part;
   }
-  parts.push_back(path.substr(start));
-  return parts;
-}
+
+  static PathPart makeIndex(std::size_t val) {
+    PathPart part;
+    part.type = PathPartIndex;
+    part.key = "";
+    part.index = val;
+    return part;
+  }
+};
 
 class Value {
   friend class Parser;
@@ -63,7 +76,9 @@ class Value {
   bool operator==(const Value& other) const;
   bool operator!=(const Value& other) const;
 
-  const Value& get(const std::string& path) const;
+  const Value& get(const std::vector<PathPart>& path) const;
+  bool has(const std::vector<PathPart>& path) const;
+  bool has(const PathPart& part) const;
 
  private:
   Value(ValueType type, void* val);
@@ -81,7 +96,9 @@ class Value {
 
   std::vector<Value>* getArrayMut();
   std::map<std::string, Value>* getTableMut();
-  Value& get_mut(const std::string& path);
+  Value& get_mut(const std::vector<PathPart>& path);
+
+  void insertOrDie(const std::vector<PathPart>& path, const Value& value);
 };
 
 std::ostream& operator<<(std::ostream& ost, const Value& val);
