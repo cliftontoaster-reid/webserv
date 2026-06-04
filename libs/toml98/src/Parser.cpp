@@ -1,13 +1,16 @@
 #include "Parser.hpp"
 
 #include <stdexcept>
+#include <string>
 #include <vector>
+
+#include "Lexer.hpp"
 
 namespace toml98 {
 
 void Parser::pop() { pop(1); }
 void Parser::pop(u_int64_t amount) {
-  if (_pos >= _data.size()) {
+  if (_pos + amount > _data.size()) {
     throw std::runtime_error("Early end of file.");
   }
   _pos += amount;
