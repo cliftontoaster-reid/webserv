@@ -1,3 +1,4 @@
+#include <utility>
 #include <vector>
 
 #include "Lexer.hpp"
@@ -14,13 +15,11 @@ void Parser::readSuperKey(bool isArray) {
       readKeyPath(isArray ? TokenArrayKeyEnd : TokenTableKeyEnd);
 
   if (isArray) {
-    if (_document->has(ret)) {
-      const Value& val = _document->get(ret);
-      if (val.type() != ValueArray) {
-        throw std::runtime_error("Expected array for array table.");
-      }
-      ret.push_back(PathPart::makeIndex(val.getArray()->size()));
+    std::map<std::vector<PathPart>, int64_t>::iterator it = _depthMap.find(ret);
+    if (it != _depthMap.end()) {
+      ret.push_back(PathPart::makeIndex(it->second++));
     } else {
+      _depthMap.insert(std::make_pair(ret, 1));
       ret.push_back(PathPart::makeIndex(0));
     }
   }

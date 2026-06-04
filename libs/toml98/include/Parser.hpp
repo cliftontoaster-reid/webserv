@@ -4,6 +4,7 @@
 
 #include <sys/types.h>
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -55,6 +56,7 @@ class Parser {
   u_int64_t _pos;
   // bool _isLastEqual;
   // TokenType _lastTokType;
+  std::map<std::vector<PathPart>, int64_t> _depthMap;
 
   void readKeyPair(std::vector<PathPart> root);
   void readValue(std::vector<PathPart> root, const PathPart& key);
@@ -86,6 +88,8 @@ class Parser {
   double readFloat(const Token& tok);
   static int64_t readInteger(const Token& tok);
   static bool readBoolean(const Token& tok);
+
+  void insertOrDie(const std::vector<PathPart>& path, const Value& value);
 };
 
 }  // namespace toml98

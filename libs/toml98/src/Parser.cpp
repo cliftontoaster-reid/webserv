@@ -75,4 +75,24 @@ Value Parser::parse(std::vector<Token> tokens) {
   return result;
 }
 
+void Parser::insertOrDie(const std::vector<PathPart>& path,
+                         const Value& value) {
+  std::vector<PathPart> resolved(path);
+  resolved.reserve(path.size());
+
+  for (std::size_t len = path.size(); len > 0; --len) {
+    std::vector<PathPart> prefix(path.begin(), path.begin() + len);
+    std::map<std::vector<PathPart>, int64_t>::iterator it =
+        _depthMap.find(prefix);
+    if (it != _depthMap.end()) {
+      if (len == path.size()) {
+        throw std::runtime_error("Path is already an array table.");
+      }
+      resolved.insert(resolved.begin() + len, PathPart::makeIndex(it->second));
+    }
+  }
+
+  _document->insertOrDie(path, value);
+}
+
 }  // namespace toml98
