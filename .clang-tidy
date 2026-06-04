@@ -3,6 +3,7 @@ Checks: >
   -*,
   bugprone-*,
   -bugprone-reserved-identifier,
+  -bugprone-easily-swappable-parameters,
   cert-*,
   -cert-dcl51-cpp,
   performance-*,

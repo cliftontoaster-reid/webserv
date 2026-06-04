@@ -1,10 +1,13 @@
 #include "Parser.hpp"
 
+#include <algorithm>
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 #include "Lexer.hpp"
+#include "Value.hpp"
 
 namespace toml98 {
 
@@ -24,6 +27,9 @@ const Token& Parser::peek(u_int64_t offset) const {
 }
 
 bool Parser::canPeek() { return (_pos < _data.size()); }
+bool Parser::canPeek(u_int64_t offset) {
+  return (_pos + offset < _data.size());
+}
 
 const Token& Parser::consume(const std::string& msg) {
   if (!canPeek()) {
@@ -44,6 +50,29 @@ void Parser::skipWhitespace() {
 
     pop();
   }
+}
+
+Value Parser::parse(std::vector<Token> tokens) {
+  _data.clear();
+  _data.swap(tokens);
+  _pos = 0;
+  _document = new Value(Value::createTable(std::map<std::string, Value>()));
+
+  while (canPeek()) {
+    readBody(std::vector<PathPart>());
+    if (!canPeek()) {
+      break;
+    }
+    const Token& tok = peek();
+    if (tok.type == TokenTableKeyStart || tok.type == TokenArrayKeyStart) {
+      readSuperKey(tok.type == TokenArrayKeyStart);
+    }
+  }
+
+  Value result = *_document;
+  delete _document;
+  _document = NULL;
+  return result;
 }
 
 }  // namespace toml98

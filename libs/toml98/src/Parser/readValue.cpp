@@ -17,11 +17,11 @@ void Parser::readValue(std::vector<PathPart> root, const PathPart& key) {
 
   switch (tok.type) {
     case TokenWord:
-      if (_isWordBoolean(tok)) {
+      if (isWordBoolean(tok)) {
         _document->insertOrDie(root, Value::createBoolean(readBoolean(tok)));
-      } else if (_isWordFloat(tok)) {
+      } else if (isWordFloat(tok)) {
         _document->insertOrDie(root, Value::createFloat(readFloat(tok)));
-      } else if (_isWordDigit(tok)) {
+      } else if (isWordDigit(tok)) {
         _document->insertOrDie(root, Value::createInteger(readInteger(tok)));
       } else {
         throw std::runtime_error("Invalid word in readValue.");

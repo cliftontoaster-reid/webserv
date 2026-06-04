@@ -26,7 +26,16 @@ namespace toml98 {
 // };
 
 class Parser {
+#ifdef TOML98_TESTS
+  friend class StupidParser;
+#endif
+
  public:
+  ~Parser() {
+    if (_document != NULL) {
+      delete _document;
+    }
+  }
   struct KeyPath {
     std::vector<std::string> path;
   };
@@ -66,16 +75,17 @@ class Parser {
   const Token& peek() const;
   const Token& peek(u_int64_t offset) const;
   bool canPeek();
+  bool canPeek(u_int64_t offset);
 
   void skipWhitespace();
 
-  bool _isWordDigit(const Token& tok);
-  bool _isWordFloat(const Token& tok);
-  bool _isWordBoolean(const Token& tok);
+  bool isWordFloat(const Token& tok);
+  static bool isWordDigit(const Token& tok);
+  static bool isWordBoolean(const Token& tok);
 
-  int64_t readInteger(const Token& tok);
   double readFloat(const Token& tok);
-  bool readBoolean(const Token& tok);
+  static int64_t readInteger(const Token& tok);
+  static bool readBoolean(const Token& tok);
 };
 
 }  // namespace toml98

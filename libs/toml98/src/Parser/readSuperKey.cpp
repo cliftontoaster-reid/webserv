@@ -7,6 +7,9 @@
 namespace toml98 {
 
 void Parser::readSuperKey(bool isArray) {
+  if (peek().type == TokenArrayKeyStart || peek().type == TokenTableKeyStart) {
+    pop();
+  }
   std::vector<PathPart> ret =
       readKeyPath(isArray ? TokenArrayKeyEnd : TokenTableKeyEnd);
 

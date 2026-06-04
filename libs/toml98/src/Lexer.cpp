@@ -99,10 +99,7 @@ Lexer::~Lexer() {}
 
 Token* Lexer::run() {
   Token* ret = NULL;
-  _pos = 0;
   _buffer.clear();
-  _stack = std::stack<LexerState>();
-  _stack.push(LexerNormal);
 
   while (ret == NULL) {
     if (_stack.empty()) {

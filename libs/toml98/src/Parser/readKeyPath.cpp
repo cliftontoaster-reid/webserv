@@ -1,3 +1,4 @@
+#include <sstream>
 #include <stdexcept>
 
 #include "Lexer.hpp"
@@ -36,6 +37,7 @@ std::vector<PathPart> Parser::readKeyPath(TokenType superMario) {
       case TokenTableKeyEnd:
       case TokenArrayKeyEnd:
         if (superMario == tok.type) {
+          pop();
           return ret;
         } else {
           throw std::runtime_error(
@@ -60,7 +62,12 @@ std::vector<PathPart> Parser::readKeyPath(TokenType superMario) {
     pop();
   }
 
-  throw std::runtime_error("Early End Of File in KeyPath.");
+  std::stringstream ssr;
+  ssr << _pos;
+  std::string str_pos = ssr.str();
+
+  throw std::runtime_error("Early End Of File in KeyPath : " + str_pos +
+                           " type " + tokTypeToString(superMario));
 }
 
 }  // namespace toml98
