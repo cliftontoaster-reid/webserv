@@ -42,4 +42,41 @@ int64_t intFromBin(const std::string& str) {
   return strtoll(str.c_str(), NULL, BIN_BASE);
 }
 
+std::string tokTypeToString(TokenType tokty) {
+  switch (tokty) {
+    case TokenWord:
+      return "TokenWord";
+    case TokenString:
+      return "TokenString";
+    case TokenMultiString:
+      return "TokenMultiString";
+    case TokenTableKeyStart:
+      return "TokenTableKeyStart";
+    case TokenTableKeyEnd:
+      return "TokenTableKeyEnd";
+    case TokenArrayKeyStart:
+      return "TokenArrayKeyStart";
+    case TokenArrayKeyEnd:
+      return "TokenArrayKeyEnd";
+    case TokenArrayStart:
+      return "TokenArrayStart";
+    case TokenArrayEnd:
+      return "TokenArrayEnd";
+    case TokenTableStart:
+      return "TokenTableStart";
+    case TokenTableEnd:
+      return "TokenTableEnd";
+    case TokenEqual:
+      return "TokenEqual";
+    case TokenComma:
+      return "TokenComma";
+    case TokenDelimiter:
+      return "TokenDelimiter";
+    case TokenNewLine:
+      return "TokenNewLine";
+    case TokenDot:
+      return "TokenDot";
+  }
+}
+
 }  // namespace toml98

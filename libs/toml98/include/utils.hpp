@@ -6,6 +6,8 @@
 
 #include <string>
 
+#include "Lexer.hpp"
+
 enum STRT_BASE {
   HEX_BASE = 16,
   OCT_BASE = 8,
@@ -17,6 +19,8 @@ namespace toml98 {
 int64_t intFromHex(const std::string& str);
 int64_t intFromOct(const std::string& str);
 int64_t intFromBin(const std::string& str);
+
+std::string tokTypeToString(TokenType tokty);
 
 }  // namespace toml98
 
