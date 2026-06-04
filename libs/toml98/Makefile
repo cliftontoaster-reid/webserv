@@ -94,6 +94,14 @@ SRCS = \
        $(SRC_DIR)/Lexer/handle_table_key.cpp \
        $(SRC_DIR)/Lexer/handle_whitespace.cpp \
        $(SRC_DIR)/Lexer/handle_word.cpp \
+			 $(SRC_DIR)/Parser.cpp \
+			 $(SRC_DIR)/Parser/readArray.cpp \
+			 $(SRC_DIR)/Parser/readBody.cpp \
+			 $(SRC_DIR)/Parser/readKeyPair.cpp \
+			 $(SRC_DIR)/Parser/readKeyPath.cpp \
+			 $(SRC_DIR)/Parser/readSuperKey.cpp \
+			 $(SRC_DIR)/Parser/readTable.cpp \
+			 $(SRC_DIR)/Parser/readValue.cpp \
 			 $(SRC_DIR)/utils.cpp \
 
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
