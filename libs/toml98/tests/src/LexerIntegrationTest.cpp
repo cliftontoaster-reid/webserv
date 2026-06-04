@@ -156,7 +156,7 @@ Test(lexer_integration, table_toml) {
   std::vector<toml98::Token*> tokens = tokenize_all(content);
 
   std::vector<ExpectedToken> expected = {
-      {toml98::TokenTableStart, "["}, {toml98::TokenWord, "section"},
+      {toml98::TokenTableKeyStart, "["}, {toml98::TokenWord, "section"},
       {toml98::TokenTableEnd, "]"},   {toml98::TokenNewLine, "\n"},
       {toml98::TokenWord, "key"},     {toml98::TokenDelimiter, " "},
       {toml98::TokenEqual, "="},      {toml98::TokenDelimiter, " "},
@@ -187,9 +187,9 @@ Test(lexer_integration, nested_tables_toml) {
   std::vector<toml98::Token*> tokens = tokenize_all(content);
 
   std::vector<ExpectedToken> expected = {
-      {toml98::TokenTableStart, "["}, {toml98::TokenWord, "a"},
+      {toml98::TokenTableKeyStart, "["}, {toml98::TokenWord, "a"},
       {toml98::TokenTableEnd, "]"},   {toml98::TokenNewLine, "\n"},
-      {toml98::TokenTableStart, "["}, {toml98::TokenWord, "b"},
+      {toml98::TokenTableKeyStart, "["}, {toml98::TokenWord, "b"},
       {toml98::TokenTableEnd, "]"},   {toml98::TokenNewLine, "\n"},
       {toml98::TokenWord, "key"},     {toml98::TokenDelimiter, " "},
       {toml98::TokenEqual, "="},      {toml98::TokenDelimiter, " "},
@@ -234,7 +234,7 @@ Test(lexer_integration, official_example_without_date_toml) {
       {toml98::TokenNewLine, "\n"},
       {toml98::TokenNewLine, "\n"},
 
-      {toml98::TokenTableStart, "["},
+      {toml98::TokenTableKeyStart, "["},
       {toml98::TokenWord, "owner"},
       {toml98::TokenTableEnd, "]"},
       {toml98::TokenNewLine, "\n"},
@@ -247,7 +247,7 @@ Test(lexer_integration, official_example_without_date_toml) {
       {toml98::TokenNewLine, "\n"},
       {toml98::TokenNewLine, "\n"},
 
-      {toml98::TokenTableStart, "["},
+      {toml98::TokenTableKeyStart, "["},
       {toml98::TokenWord, "database"},
       {toml98::TokenTableEnd, "]"},
       {toml98::TokenNewLine, "\n"},
@@ -322,13 +322,13 @@ Test(lexer_integration, official_example_without_date_toml) {
       {toml98::TokenNewLine, "\n"},
       {toml98::TokenNewLine, "\n"},
 
-      {toml98::TokenTableStart, "["},
+      {toml98::TokenTableKeyStart, "["},
       {toml98::TokenWord, "servers"},
       {toml98::TokenTableEnd, "]"},
       {toml98::TokenNewLine, "\n"},
       {toml98::TokenNewLine, "\n"},
 
-      {toml98::TokenTableStart, "["},
+      {toml98::TokenTableKeyStart, "["},
       {toml98::TokenWord, "servers"},
       {toml98::TokenDot, "."},
       {toml98::TokenWord, "alpha"},
@@ -350,7 +350,7 @@ Test(lexer_integration, official_example_without_date_toml) {
       {toml98::TokenNewLine, "\n"},
       {toml98::TokenNewLine, "\n"},
 
-      {toml98::TokenTableStart, "["},
+      {toml98::TokenTableKeyStart, "["},
       {toml98::TokenWord, "servers"},
       {toml98::TokenDot, "."},
       {toml98::TokenWord, "beta"},

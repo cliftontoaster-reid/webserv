@@ -55,10 +55,10 @@ Token* Lexer::handle_normal() {
       if (canPeek('[')) {
         pop();
         _stack.push(LexerArrayKey);
-        return new Token(TokenArrayStart, "[[");
+        return new Token(TokenArrayKeyStart, "[[");
       }
       _stack.push(LexerTableKey);
-      return new Token(TokenTableStart, "[");
+      return new Token(TokenTableKeyStart, "[");
     }
 
     case '-':
