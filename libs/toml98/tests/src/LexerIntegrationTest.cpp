@@ -157,10 +157,10 @@ Test(lexer_integration, table_toml) {
 
   std::vector<ExpectedToken> expected = {
       {toml98::TokenTableKeyStart, "["}, {toml98::TokenWord, "section"},
-      {toml98::TokenTableEnd, "]"},   {toml98::TokenNewLine, "\n"},
-      {toml98::TokenWord, "key"},     {toml98::TokenDelimiter, " "},
-      {toml98::TokenEqual, "="},      {toml98::TokenDelimiter, " "},
-      {toml98::TokenWord, "123"},     {toml98::TokenNewLine, "\n"},
+      {toml98::TokenTableEnd, "]"},      {toml98::TokenNewLine, "\n"},
+      {toml98::TokenWord, "key"},        {toml98::TokenDelimiter, " "},
+      {toml98::TokenEqual, "="},         {toml98::TokenDelimiter, " "},
+      {toml98::TokenWord, "123"},        {toml98::TokenNewLine, "\n"},
   };
 
   assert_token_stream(tokens, expected);
@@ -188,12 +188,12 @@ Test(lexer_integration, nested_tables_toml) {
 
   std::vector<ExpectedToken> expected = {
       {toml98::TokenTableKeyStart, "["}, {toml98::TokenWord, "a"},
-      {toml98::TokenTableEnd, "]"},   {toml98::TokenNewLine, "\n"},
+      {toml98::TokenTableEnd, "]"},      {toml98::TokenNewLine, "\n"},
       {toml98::TokenTableKeyStart, "["}, {toml98::TokenWord, "b"},
-      {toml98::TokenTableEnd, "]"},   {toml98::TokenNewLine, "\n"},
-      {toml98::TokenWord, "key"},     {toml98::TokenDelimiter, " "},
-      {toml98::TokenEqual, "="},      {toml98::TokenDelimiter, " "},
-      {toml98::TokenWord, "true"},    {toml98::TokenNewLine, "\n"},
+      {toml98::TokenTableEnd, "]"},      {toml98::TokenNewLine, "\n"},
+      {toml98::TokenWord, "key"},        {toml98::TokenDelimiter, " "},
+      {toml98::TokenEqual, "="},         {toml98::TokenDelimiter, " "},
+      {toml98::TokenWord, "true"},       {toml98::TokenNewLine, "\n"},
   };
 
   assert_token_stream(tokens, expected);
