@@ -42,21 +42,21 @@ ValueType Value::type() const { return _type; }
 
 const std::string* Value::getString() const {
   if (_type != ValueString) {
-    throw std::runtime_error("Value is not a string.");
+    throw std::runtime_error("Value is not a string");
   }
   return static_cast<const std::string*>(_ptr);
 }
 
 int64_t Value::getInteger() const {
   if (_type != ValueInteger) {
-    throw std::runtime_error("Value is not an integer.");
+    throw std::runtime_error("Value is not an integer");
   }
   return static_cast<int64_t>(_nbr);
 }
 
 double Value::getFloat() const {
   if (_type != ValueFloat) {
-    throw std::runtime_error("Value is not a float.");
+    throw std::runtime_error("Value is not a float");
   }
   uint64_t bits = _nbr;
   double val = NAN;
@@ -66,35 +66,35 @@ double Value::getFloat() const {
 
 bool Value::getBoolean() const {
   if (_type != ValueBoolean) {
-    throw std::runtime_error("Value is not a boolean.");
+    throw std::runtime_error("Value is not a boolean");
   }
   return static_cast<bool>(_nbr);
 }
 
 const std::vector<Value>* Value::getArray() const {
   if (_type != ValueArray) {
-    throw std::runtime_error("Value is not an array.");
+    throw std::runtime_error("Value is not an array");
   }
   return static_cast<const std::vector<Value>*>(_ptr);
 }
 
 const std::map<std::string, Value>* Value::getTable() const {
   if (_type != ValueTable) {
-    throw std::runtime_error("Value is not a table.");
+    throw std::runtime_error("Value is not a table");
   }
   return static_cast<const std::map<std::string, Value>*>(_ptr);
 }
 
 std::vector<Value>* Value::getArrayMut() {
   if (_type != ValueArray) {
-    throw std::runtime_error("Value is not an array.");
+    throw std::runtime_error("Value is not an array");
   }
   return static_cast<std::vector<Value>*>(_ptr);
 }
 
 std::map<std::string, Value>* Value::getTableMut() {
   if (_type != ValueTable) {
-    throw std::runtime_error("Value is not a table.");
+    throw std::runtime_error("Value is not a table");
   }
   return static_cast<std::map<std::string, Value>*>(_ptr);
 }
@@ -248,7 +248,7 @@ Value::Value() : _type(ValueString), _ptr() {}
 
 const Value& Value::get(const std::vector<PathPart>& path) const {
   if (path.empty()) {
-    throw std::runtime_error("Empty path.");
+    throw std::runtime_error("Empty path");
   }
 
   const Value* cur = this;
@@ -262,7 +262,7 @@ const Value& Value::get(const std::vector<PathPart>& path) const {
       }
       const std::vector<Value>* arr = cur->getArray();
       if (it->index >= arr->size()) {
-        throw std::runtime_error("Array index out of bounds.");
+        throw std::runtime_error("Array index out of bounds");
       }
       cur = &arr->at(it->index);
     }
@@ -291,7 +291,7 @@ bool Value::has(const PathPart& part) const {
 
 Value& Value::get_mut(const std::vector<PathPart>& path) {
   if (path.empty()) {
-    throw std::runtime_error("Empty path.");
+    throw std::runtime_error("Empty path");
   }
 
   Value* cur = this;
@@ -302,7 +302,7 @@ Value& Value::get_mut(const std::vector<PathPart>& path) {
     } else {
       std::vector<Value>* arr = cur->getArrayMut();
       if (it->index >= arr->size()) {
-        throw std::runtime_error("Array index out of bounds.");
+        throw std::runtime_error("Array index out of bounds");
       }
       cur = &arr->at(it->index);
     }
@@ -374,7 +374,7 @@ static inline Value createValueInsert(const std::vector<PathPart>& path) {
 
 void Value::insertOrDie(const std::vector<PathPart>& path, const Value& value) {
   if (path.empty()) {
-    throw std::runtime_error("Empty path.");
+    throw std::runtime_error("Empty path");
   }
 
   const PathPart& part = path.front();
@@ -388,10 +388,10 @@ void Value::insertOrDie(const std::vector<PathPart>& path, const Value& value) {
           static_cast<std::vector<Value>::difference_type>(part.index);
 
       if (part.index < arr->size()) {
-        throw std::runtime_error("A value already exists at this index.");
+        throw std::runtime_error("A value already exists at this index");
       }
       if (part.index > arr->size()) {
-        throw std::runtime_error("The index is too big.");
+        throw std::runtime_error("The index is too big");
       }
 
       arr->insert(begin + offset, value);
@@ -430,6 +430,16 @@ void Value::insertOrDie(const std::vector<PathPart>& path, const Value& value) {
       tab->at(part.key).insertOrDie(copy, value);
     }
   }
+}
+
+bool PathPart::operator<(const PathPart& other) const {
+  if (type != other.type) {
+    return type < other.type;
+  }
+  if (type == PathPartKey) {
+    return key < other.key;
+  }
+  return index < other.index;
 }
 
 std::ostream& operator<<(std::ostream& ost, const Value& val) {

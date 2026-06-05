@@ -47,6 +47,8 @@ struct PathPart {
     part.index = val;
     return part;
   }
+
+  bool operator<(const PathPart& other) const;
 };
 
 class Value {
