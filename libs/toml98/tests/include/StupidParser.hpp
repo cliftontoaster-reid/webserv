@@ -4,6 +4,7 @@
 #include <criterion/criterion.h>
 #include <criterion/internal/assert.h>
 
+#include <iostream>
 #include <type_traits>
 #include <vector>
 
@@ -107,9 +108,14 @@ static inline std::vector<PathPart> makePath(std::size_t idx,
 // --- string expected value ---
 
 template <typename... Path>
-static inline void check_entry(const Value& res, const std::string& expected,
+static inline void check_entry(const char* file, int line, const Value& res,
+                               const std::string& expected,
                                const Path&... path) {
   std::vector<PathPart> p = makePath(path...);
+
+  if (!res.has(p) || *res.get(p).getString() != expected) {
+    std::cout << "Error in " << file << ":" << line << '\n';
+  }
   cr_expect(res.has(p));
   cr_expect_eq(*res.get(p).getString(), expected);
 }
@@ -117,9 +123,13 @@ static inline void check_entry(const Value& res, const std::string& expected,
 // --- int64_t expected value ---
 
 template <typename... Path>
-static inline void check_entry(const Value& res, int64_t expected,
-                               const Path&... path) {
+static inline void check_entry(const char* file, int line, const Value& res,
+                               int64_t expected, const Path&... path) {
   std::vector<PathPart> p = makePath(path...);
+
+  if (!res.has(p) || res.get(p).getInteger() != expected) {
+    std::cout << "Error in " << file << ":" << line << '\n';
+  }
   cr_expect(res.has(p));
   cr_expect_eq(res.get(p).getInteger(), expected);
 }
@@ -129,9 +139,13 @@ static inline void check_entry(const Value& res, int64_t expected,
 template <typename Expected, typename... Path>
 static inline
     typename std::enable_if<std::is_same<Expected, bool>::value, void>::type
-    check_entry(const Value& res, const Expected& expected,
-                const Path&... path) {
+    check_entry(const char* file, int line, const Value& res,
+                const Expected& expected, const Path&... path) {
   std::vector<PathPart> p = makePath(path...);
+
+  if (!res.has(p) || res.get(p).getBoolean() != expected) {
+    std::cout << "Error in " << file << ":" << line << '\n';
+  }
   cr_expect(res.has(p));
   cr_expect_eq(res.get(p).getBoolean(), expected);
 }
@@ -141,11 +155,16 @@ static inline
 template <typename Expected, typename... Path>
 static inline
     typename std::enable_if<std::is_same<Expected, double>::value, void>::type
-    check_entry(const Value& res, const Expected& expected,
-                const Path&... path) {
+    check_entry(const char* file, int line, const Value& res,
+                const Expected& expected, const Path&... path) {
   std::vector<PathPart> p = makePath(path...);
+
+  if (!res.has(p) || res.get(p).getFloat() != expected) {
+    std::cout << "Error in " << file << ":" << line << '\n';
+  }
   cr_expect(res.has(p));
-  cr_expect_float_eq(res.get(p).getFloat(), expected, 0.0001);
+  cr_expect_float_eq(res.get(p).getFloat(), expected, 0.0001, "%s:%d", file,
+                     line);
 }
 
 }  // namespace toml98

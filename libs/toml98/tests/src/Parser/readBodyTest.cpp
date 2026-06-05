@@ -24,7 +24,7 @@ Test(readBody, valid_cringe) {
 
   Value res = par.stupid_parse(tokens);
 
-  check_entry(res, "cringe", "furries");
+  check_entry(__FILE__, __LINE__, res, "cringe", "furries");
 }
 
 static inline void push_entry(const std::string& key, const std::string& value,
@@ -45,8 +45,8 @@ Test(readBody, valid_translate) {
 
   Value res = par.stupid_parse(tokens);
 
-  check_entry(res, "こんにちは", "hello");
-  check_entry(res, "はい", "yes");
-  check_entry(res, "いいえ", "no");
-  check_entry(res, "さようなら", "goodbye");
+  check_entry(__FILE__, __LINE__, res, "こんにちは", "hello");
+  check_entry(__FILE__, __LINE__, res, "はい", "yes");
+  check_entry(__FILE__, __LINE__, res, "いいえ", "no");
+  check_entry(__FILE__, __LINE__, res, "さようなら", "goodbye");
 }

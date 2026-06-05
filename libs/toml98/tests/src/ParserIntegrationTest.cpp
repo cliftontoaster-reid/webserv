@@ -3,7 +3,9 @@
 #include <criterion/internal/test.h>
 #include <stdint.h>
 
+#include <cstdio>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -51,24 +53,59 @@ Test(parser_integration, official_example_without_date_toml) {
   StupidParser par;
   Value res = par.stupid_parse(tokens);
 
-  check_entry(res, "TOML Example", "title");
+  check_entry(__FILE__, __LINE__, res, "TOML Example", "title");
 
-  check_entry(res, "Tom Preston-Werner", "owner", "name");
+  check_entry(__FILE__, __LINE__, res, "Tom Preston-Werner", "owner", "name");
 
-  check_entry(res, true, "database", "enabled");
-  check_entry(res, 8000, "database", "ports", 0);
-  check_entry(res, 8001, "database", "ports", 1);
-  check_entry(res, 8002, "database", "ports", 2);
+  check_entry(__FILE__, __LINE__, res, true, "database", "enabled");
+  check_entry(__FILE__, __LINE__, res, 8000, "database", "ports", 0);
+  check_entry(__FILE__, __LINE__, res, 8001, "database", "ports", 1);
+  check_entry(__FILE__, __LINE__, res, 8002, "database", "ports", 2);
 
-  check_entry(res, "delta", "database", "data", 0, 0);
-  check_entry(res, "phi", "database", "data", 0, 1);
-  check_entry(res, 3.14, "database", "data", 1, 0);
+  check_entry(__FILE__, __LINE__, res, "delta", "database", "data", 0, 0);
+  check_entry(__FILE__, __LINE__, res, "phi", "database", "data", 0, 1);
+  check_entry(__FILE__, __LINE__, res, 3.14, "database", "data", 1, 0);
 
-  check_entry(res, "10.0.0.1", "servers", "alpha", "ip");
-  check_entry(res, "frontend", "servers", "alpha", "role");
+  check_entry(__FILE__, __LINE__, res, "10.0.0.1", "servers", "alpha", "ip");
+  check_entry(__FILE__, __LINE__, res, "frontend", "servers", "alpha", "role");
 
-  check_entry(res, "10.0.0.2", "servers", "beta", "ip");
-  check_entry(res, "backend", "servers", "beta", "role");
+  check_entry(__FILE__, __LINE__, res, "10.0.0.2", "servers", "beta", "ip");
+  check_entry(__FILE__, __LINE__, res, "backend", "servers", "beta", "role");
+}
+
+Test(parser_integration, config) {
+  std::string content = read_file("assets/config.toml");
+  std::vector<toml98::Token> tokens = tokenize_all(content);
+
+  StupidParser par;
+  Value res = par.stupid_parse(tokens);
+
+  check_entry(__FILE__, __LINE__, res, 80, "server", 0, "ports", 0);
+
+  check_entry(__FILE__, __LINE__, res, "/srv/http/404.html", "server", 0,
+              "errors", "404", "fs");
+
+  check_entry(__FILE__, __LINE__, res, "/", "server", 0, "endpoints", 0,
+              "path");
+  check_entry(__FILE__, __LINE__, res, "/srv/httpd/", "server", 0, "endpoints",
+              0, "fs");
+
+  check_entry(__FILE__, __LINE__, res, "/static", "server", 0, "endpoints", 1,
+              "path");
+  check_entry(__FILE__, __LINE__, res, "/srv/data/", "server", 0, "endpoints",
+              1, "fs");
+
+  check_entry(__FILE__, __LINE__, res, ".php", "server", 0, "cgi", 0, "ext");
+  check_entry(__FILE__, __LINE__, res, "/", "server", 0, "cgi", 0, "if");
+  check_entry(__FILE__, __LINE__, res, "/php/path/here", "server", 0, "cgi", 0,
+              "bin");
+
+  check_entry(__FILE__, __LINE__, res, ".page.js", "server", 0, "cgi", 1,
+              "ext");
+  check_entry(__FILE__, __LINE__, res, "/static", "server", 0, "cgi", 1,
+              "ifnot");
+  check_entry(__FILE__, __LINE__, res, "/nodejs/path/here", "server", 0, "cgi",
+              1, "bin");
 }
 
 }  // namespace toml98

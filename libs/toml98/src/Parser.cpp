@@ -88,11 +88,14 @@ void Parser::insertOrDie(const std::vector<PathPart>& path,
       if (len == path.size()) {
         throw std::runtime_error("Path is already an array table.");
       }
-      resolved.insert(resolved.begin() + len, PathPart::makeIndex(it->second));
+      if (path[len].type != PathPart::PathPartIndex) {
+        resolved.insert(resolved.begin() + len,
+                        PathPart::makeIndex(it->second - 1));
+      }
     }
   }
 
-  _document->insertOrDie(path, value);
+  _document->insertOrDie(resolved, value);
 }
 
 }  // namespace toml98

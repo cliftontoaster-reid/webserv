@@ -23,8 +23,7 @@ void Parser::readSuperKey(bool isArray) {
       ret.push_back(PathPart::makeIndex(0));
     }
   }
-  _document->insertOrDie(ret,
-                         Value::createTable(std::map<std::string, Value>()));
+  insertOrDie(ret, Value::createTable(std::map<std::string, Value>()));
 
   readBody(ret);
 }
