@@ -7,12 +7,15 @@
 #include <cstddef>
 #include <vector>
 
+#define HASHMAP_DEFAULT_MAX_LOAD 0.75
+#define HASHMAP_DEFAULT_BUCKETS 16
+
 namespace mon_http {
 
 template <typename Key, typename T>
 class HashMap {
  public:
-  explicit HashMap<Key, T>(size_t initial_size = 16);
+  explicit HashMap<Key, T>(size_t initial_size = HASHMAP_DEFAULT_BUCKETS);
   HashMap<Key, T>(const HashMap<Key, T>& other);
   HashMap<Key, T>& operator=(const HashMap<Key, T>& other);
   ~HashMap<Key, T>();

@@ -21,8 +21,6 @@
 #define MURMUR_SHIFT_D 16
 #define MURMUR_SHIFT_E 19
 
-#define HASHMAP_DEFAULT_MAX_LOAD 0.75
-
 namespace mon_http {
 
 // https://en.wikipedia.org/wiki/MurmurHash
