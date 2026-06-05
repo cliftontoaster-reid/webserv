@@ -4,6 +4,7 @@
 
 #include <sys/types.h>
 
+#include <cstddef>
 #include <vector>
 
 namespace mon_http {
@@ -11,6 +12,11 @@ namespace mon_http {
 template <typename Key, typename T>
 class HashMap {
  public:
+  explicit HashMap<Key, T>(size_t initial_size = 16);
+  HashMap<Key, T>(const HashMap<Key, T>& other);
+  HashMap<Key, T>& operator=(const HashMap<Key, T>& other);
+  ~HashMap<Key, T>();
+
   struct Entry {
     Key key;
     T value;
@@ -27,8 +33,10 @@ class HashMap {
 
  private:
   std::vector<std::vector<Entry> > _store;
+  size_t _size;
+  float _load_factor_threshold;
+  u_int32_t _seed;
 
-  u_int32_t hashKey(Key key);
   void resize(u_int64_t newSize);
 };
 
