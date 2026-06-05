@@ -13,6 +13,7 @@ Checks: >
   -google-runtime-int,
   cppcoreguidelines-*,
   -modernize-*,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
   -cppcoreguidelines-pro-type-union-access,
   -cppcoreguidelines-use-default-member-init,
   -cppcoreguidelines-use-enum-class,
@@ -24,5 +25,5 @@ Checks: >
   -cert-dcl37-c
 
 # Only analyze your own headers
-HeaderFilterRegex: '^(include|src)/.*'
-WarningsAsErrors: ''
+HeaderFilterRegex: "^(include|src)/.*"
+WarningsAsErrors: ""
