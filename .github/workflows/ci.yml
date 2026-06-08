@@ -86,7 +86,7 @@ jobs:
       - name: Generate coverage report
         if: matrix.mode == 'coverage'
         run: |
-          lcov --capture --directory . --output-file target/coverage/coverage_raw.info
+          lcov --capture --directory . --output-file target/coverage/coverage_raw.info --ignore-errors mismatch
           lcov --remove target/coverage/coverage_raw.info -o coverage.info \
             '/usr/*' '*/criterion/*' '*/tests/*'
 
