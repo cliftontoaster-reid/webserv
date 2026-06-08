@@ -138,3 +138,74 @@ jobs:
             --title "style: auto-format codebase" \
             --body "Automated code formatting via \`make format\`." || \
           echo "PR creation failed (needs 'Allow GitHub Actions to create PRs' enabled in repo settings)"
+
+  coverage:
+    runs-on: ubuntu-latest
+    env:
+      MODE: coverage
+      TARGET_ROOT: ${{ github.workspace }}/target/coverage
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang make cmake curl python3 lcov
+
+      - name: Build toml98 tests
+        working-directory: libs/toml98
+        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/toml98"
+
+      - name: Run toml98 tests
+        working-directory: libs/toml98/tests
+        run: ./toml98_test --verbose
+
+      - name: Build mon-cgi tests
+        working-directory: libs/mon-cgi
+        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-cgi"
+
+      - name: Run mon-cgi tests
+        working-directory: libs/mon-cgi/tests
+        run: ./mon_cgi_test --verbose
+
+      - name: Build mon-http tests
+        working-directory: libs/mon-http
+        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-http"
+
+      - name: Run mon-http tests
+        working-directory: libs/mon-http/tests
+        run: ./mon_http_test --verbose
+
+      - name: Build mon-net tests
+        working-directory: libs/mon-net
+        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-net"
+
+      - name: Run mon-net tests
+        working-directory: libs/mon-net/tests
+        run: ./mon_net_test --verbose
+
+      - name: Build mon-router tests
+        working-directory: libs/mon-router
+        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-router"
+
+      - name: Run mon-router tests
+        working-directory: libs/mon-router/tests
+        run: ./mon_router_test --verbose
+
+      - name: Build webserv tests
+        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/webserv"
+
+      - name: Run webserv tests
+        working-directory: tests
+        run: ./webserv_test --verbose
+
+      - name: Generate coverage report
+        run: |
+          lcov --capture --directory target/coverage --output-file coverage.info
+          lcov --remove coverage.info -o coverage.info '/usr/*' '*/criterion/*' '*/tests/*'
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.info
+          fail_ci_if_error: true
