@@ -18,7 +18,7 @@ struct Http10HeaderPrinter {
   }
 };
 
-Http10Response::Http10Response() {}
+Http10Response::Http10Response() : _code(0) {}
 Http10Response::Http10Response(const Http10Response& other)
     : statusMessage(other.statusMessage),
       body(other.body),

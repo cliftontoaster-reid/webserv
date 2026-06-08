@@ -7,3 +7,5 @@
 /webserv
 
 *__pycache__*
+
+*.profraw
