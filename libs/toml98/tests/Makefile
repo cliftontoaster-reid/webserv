@@ -147,8 +147,17 @@ criterion: $(CRITERION_ARCHIVE)
 $(CRITERION_ARCHIVE):
 	@printf "$(BOLD)Downloading criterion library...$(RESET)\n"
 	@mkdir -p "$(CRITERION_DOWN_DIR)" "$(CRITERION_BIN_DIR)"
-	@curl -L -o "$(CRITERION_DOWN_DIR)/criterion.tar.xz" \
-	  https://github.com/Snaipe/Criterion/releases/download/v2.4.3/criterion-2.4.3-linux-x86_64.tar.xz
+	@if command -v gh >/dev/null 2>&1; then \
+	  gh release download v2.4.3 -R Snaipe/Criterion \
+	    -p "criterion-2.4.3-linux-x86_64.tar.xz" \
+	    -D "$(CRITERION_DOWN_DIR)" --clobber 2>/dev/null && \
+	  mv -f "$(CRITERION_DOWN_DIR)/criterion-2.4.3-linux-x86_64.tar.xz" \
+	    "$(CRITERION_DOWN_DIR)/criterion.tar.xz" 2>/dev/null; \
+	fi
+	@if [ ! -f "$(CRITERION_DOWN_DIR)/criterion.tar.xz" ]; then \
+	  curl -fL --retry 3 --retry-delay 2 -o "$(CRITERION_DOWN_DIR)/criterion.tar.xz" \
+	    https://github.com/Snaipe/Criterion/releases/download/v2.4.3/criterion-2.4.3-linux-x86_64.tar.xz; \
+	fi
 	@tar -xf "$(CRITERION_DOWN_DIR)/criterion.tar.xz" \
 	  -C "$(CRITERION_BIN_DIR)/" --strip-components=1
 	@printf "$(BOLD)Downloaded criterion:$(RESET) $(GREEN)$(CRITERION_ARCHIVE)$(RESET)\n"
