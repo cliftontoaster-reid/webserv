@@ -32,6 +32,7 @@ class Parser {
 #endif
 
  public:
+  Parser() : _document(NULL), _pos(0) {}
   ~Parser() {
     if (_document != NULL) {
       delete _document;
