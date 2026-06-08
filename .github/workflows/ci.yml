@@ -8,17 +8,25 @@ on:
       - main
 
 jobs:
-  build:
+  test:
+    strategy:
+      matrix:
+        mode: [debug, release, coverage]
     runs-on: ubuntu-latest
     env:
-      MODE: debug
-      TARGET_ROOT: ${{ github.workspace }}/target/debug
+      MODE: ${{ matrix.mode }}
+      TARGET_ROOT: ${{ github.workspace }}/target/${{ matrix.mode }}
     steps:
       - uses: actions/checkout@v6
+
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y clang make cmake curl python3
+
+      - name: Install coverage tools
+        if: matrix.mode == 'coverage'
+        run: sudo apt-get install -y llvm lcov
 
       - name: Build toml98 tests
         working-directory: libs/toml98
@@ -27,6 +35,8 @@ jobs:
       - name: Run toml98 tests
         working-directory: libs/toml98/tests
         run: ./toml98_test --verbose
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/${{ matrix.mode }}/profraw/toml98_test.profraw
 
       - name: Build mon-cgi tests
         working-directory: libs/mon-cgi
@@ -35,6 +45,8 @@ jobs:
       - name: Run mon-cgi tests
         working-directory: libs/mon-cgi/tests
         run: ./mon_cgi_test --verbose
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/${{ matrix.mode }}/profraw/mon_cgi_test.profraw
 
       - name: Build mon-http tests
         working-directory: libs/mon-http
@@ -43,6 +55,8 @@ jobs:
       - name: Run mon-http tests
         working-directory: libs/mon-http/tests
         run: ./mon_http_test --verbose
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/${{ matrix.mode }}/profraw/mon_http_test.profraw
 
       - name: Build mon-net tests
         working-directory: libs/mon-net
@@ -51,6 +65,8 @@ jobs:
       - name: Run mon-net tests
         working-directory: libs/mon-net/tests
         run: ./mon_net_test --verbose
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/${{ matrix.mode }}/profraw/mon_net_test.profraw
 
       - name: Build mon-router tests
         working-directory: libs/mon-router
@@ -59,6 +75,8 @@ jobs:
       - name: Run mon-router tests
         working-directory: libs/mon-router/tests
         run: ./mon_router_test --verbose
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/${{ matrix.mode }}/profraw/mon_router_test.profraw
 
       - name: Build webserv tests
         run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/webserv"
@@ -66,6 +84,31 @@ jobs:
       - name: Run webserv tests
         working-directory: tests
         run: ./webserv_test --verbose
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/${{ matrix.mode }}/profraw/webserv_test.profraw
+
+      - name: Generate coverage report
+        if: matrix.mode == 'coverage'
+        run: |
+          mkdir -p target/coverage/profraw
+          llvm-profdata merge -sparse target/coverage/profraw/*.profraw -o target/coverage/coverage.profdata
+          for bin in toml98_test mon_cgi_test mon_http_test mon_net_test mon_router_test webserv_test; do
+            path=$(find target/coverage -name "$bin" -type f)
+            if [ -n "$path" ]; then
+              llvm-cov export "$path" -instr-profile=target/coverage/coverage.profdata \
+                -format=lcov >> target/coverage/coverage_raw.info
+            fi
+          done
+          lcov --remove target/coverage/coverage_raw.info -o coverage.info \
+            '/usr/*' '*/criterion/*' '*/tests/*'
+
+      - name: Upload coverage reports to Codecov
+        if: matrix.mode == 'coverage'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.info
+          fail_ci_if_error: true
 
   format:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
@@ -138,95 +181,3 @@ jobs:
             --title "style: auto-format codebase" \
             --body "Automated code formatting via \`make format\`." || \
           echo "PR creation failed (needs 'Allow GitHub Actions to create PRs' enabled in repo settings)"
-
-  coverage:
-    runs-on: ubuntu-latest
-    env:
-      MODE: coverage
-      TARGET_ROOT: ${{ github.workspace }}/target/coverage
-    steps:
-      - uses: actions/checkout@v6
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang llvm make cmake curl python3 lcov
-
-      - name: Build toml98 tests
-        working-directory: libs/toml98
-        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/toml98"
-
-      - name: Run toml98 tests
-        working-directory: libs/toml98/tests
-        run: ./toml98_test --verbose
-        env:
-          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/coverage/profraw/toml98_test.profraw
-
-      - name: Build mon-cgi tests
-        working-directory: libs/mon-cgi
-        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-cgi"
-
-      - name: Run mon-cgi tests
-        working-directory: libs/mon-cgi/tests
-        run: ./mon_cgi_test --verbose
-        env:
-          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/coverage/profraw/mon_cgi_test.profraw
-
-      - name: Build mon-http tests
-        working-directory: libs/mon-http
-        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-http"
-
-      - name: Run mon-http tests
-        working-directory: libs/mon-http/tests
-        run: ./mon_http_test --verbose
-        env:
-          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/coverage/profraw/mon_http_test.profraw
-
-      - name: Build mon-net tests
-        working-directory: libs/mon-net
-        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-net"
-
-      - name: Run mon-net tests
-        working-directory: libs/mon-net/tests
-        run: ./mon_net_test --verbose
-        env:
-          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/coverage/profraw/mon_net_test.profraw
-
-      - name: Build mon-router tests
-        working-directory: libs/mon-router
-        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-router"
-
-      - name: Run mon-router tests
-        working-directory: libs/mon-router/tests
-        run: ./mon_router_test --verbose
-        env:
-          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/coverage/profraw/mon_router_test.profraw
-
-      - name: Build webserv tests
-        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/webserv"
-
-      - name: Run webserv tests
-        working-directory: tests
-        run: ./webserv_test --verbose
-        env:
-          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/coverage/profraw/webserv_test.profraw
-
-      - name: Generate coverage report
-        run: |
-          mkdir -p target/coverage/profraw
-          llvm-profdata merge -sparse target/coverage/profraw/*.profraw -o target/coverage/coverage.profdata
-          for bin in toml98_test mon_cgi_test mon_http_test mon_net_test mon_router_test webserv_test; do
-            path=$(find target/coverage -name "$bin" -type f)
-            if [ -n "$path" ]; then
-              llvm-cov export "$path" -instr-profile=target/coverage/coverage.profdata \
-                -format=lcov >> target/coverage/coverage_raw.info
-            fi
-          done
-          lcov --remove target/coverage/coverage_raw.info -o coverage.info \
-            '/usr/*' '*/criterion/*' '*/tests/*'
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.info
-          fail_ci_if_error: true
