@@ -24,6 +24,7 @@ class HttpMethod {
 
   HttpMethod();
   explicit HttpMethod(Type val);
+  explicit HttpMethod(const std::string& val);
   HttpMethod(const HttpMethod& other);
   HttpMethod& operator=(const HttpMethod& other);
 

@@ -27,7 +27,6 @@ class HttpVersion {
   static HttpVersion sniffHttpVersion(const std::vector<char>& data);
   const char* toString();
 
- private:
   Type value;
 };
 
