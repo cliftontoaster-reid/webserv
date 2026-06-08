@@ -149,7 +149,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang make cmake curl python3 lcov
+          sudo apt-get install -y clang llvm make cmake curl python3 lcov
 
       - name: Build toml98 tests
         working-directory: libs/toml98
@@ -158,6 +158,8 @@ jobs:
       - name: Run toml98 tests
         working-directory: libs/toml98/tests
         run: ./toml98_test --verbose
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/coverage/profraw/toml98_test.profraw
 
       - name: Build mon-cgi tests
         working-directory: libs/mon-cgi
@@ -166,6 +168,8 @@ jobs:
       - name: Run mon-cgi tests
         working-directory: libs/mon-cgi/tests
         run: ./mon_cgi_test --verbose
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/coverage/profraw/mon_cgi_test.profraw
 
       - name: Build mon-http tests
         working-directory: libs/mon-http
@@ -174,6 +178,8 @@ jobs:
       - name: Run mon-http tests
         working-directory: libs/mon-http/tests
         run: ./mon_http_test --verbose
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/coverage/profraw/mon_http_test.profraw
 
       - name: Build mon-net tests
         working-directory: libs/mon-net
@@ -182,6 +188,8 @@ jobs:
       - name: Run mon-net tests
         working-directory: libs/mon-net/tests
         run: ./mon_net_test --verbose
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/coverage/profraw/mon_net_test.profraw
 
       - name: Build mon-router tests
         working-directory: libs/mon-router
@@ -190,6 +198,8 @@ jobs:
       - name: Run mon-router tests
         working-directory: libs/mon-router/tests
         run: ./mon_router_test --verbose
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/coverage/profraw/mon_router_test.profraw
 
       - name: Build webserv tests
         run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/webserv"
@@ -197,11 +207,22 @@ jobs:
       - name: Run webserv tests
         working-directory: tests
         run: ./webserv_test --verbose
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/coverage/profraw/webserv_test.profraw
 
       - name: Generate coverage report
         run: |
-          lcov --capture --directory target/coverage --output-file coverage.info
-          lcov --remove coverage.info -o coverage.info '/usr/*' '*/criterion/*' '*/tests/*'
+          mkdir -p target/coverage/profraw
+          llvm-profdata merge -sparse target/coverage/profraw/*.profraw -o target/coverage/coverage.profdata
+          for bin in toml98_test mon_cgi_test mon_http_test mon_net_test mon_router_test webserv_test; do
+            path=$(find target/coverage -name "$bin" -type f)
+            if [ -n "$path" ]; then
+              llvm-cov export "$path" -instr-profile=target/coverage/coverage.profdata \
+                -format=lcov >> target/coverage/coverage_raw.info
+            fi
+          done
+          lcov --remove target/coverage/coverage_raw.info -o coverage.info \
+            '/usr/*' '*/criterion/*' '*/tests/*'
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
