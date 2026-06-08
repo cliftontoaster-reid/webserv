@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <stdexcept>
 #include <string>
 
 namespace toml98 {
@@ -76,6 +77,8 @@ std::string tokTypeToString(TokenType tokty) {
       return "TokenNewLine";
     case TokenDot:
       return "TokenDot";
+    default:
+      throw std::runtime_error("Unknown token type");
   }
 }
 

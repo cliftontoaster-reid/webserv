@@ -369,6 +369,8 @@ static inline Value createValueInsert(const std::vector<PathPart>& path) {
 
       return Value::createArray(array);
     }
+    default:
+      throw std::runtime_error("Unknown path part type");
   }
 }
 
