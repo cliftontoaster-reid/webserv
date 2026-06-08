@@ -6,9 +6,7 @@
 
 #include "HttpVersion.hpp"
 
-Test(http_version, default_construction) {
-  mon_http::HttpVersion version;
-}
+Test(http_version, default_construction) { mon_http::HttpVersion version; }
 
 Test(http_version, construction_with_type) {
   mon_http::HttpVersion v11(mon_http::HttpVersion::HttpVersion1_1);
@@ -51,9 +49,9 @@ Test(http_version, to_string) {
 }
 
 Test(http_version, sniff_http_2_0) {
-  std::vector<char> data = {'P', 'R', 'I', ' ', '*', ' ', 'H', 'T', 'T', 'P',
-                            '/', '2', '.', '0', '\r', '\n', '\r', '\n', 'S',
-                            'M', '\r', '\n', '\r', '\n'};
+  std::vector<char> data = {'P',  'R',  'I', ' ', '*',  ' ',  'H',  'T',
+                            'T',  'P',  '/', '2', '.',  '0',  '\r', '\n',
+                            '\r', '\n', 'S', 'M', '\r', '\n', '\r', '\n'};
 
   mon_http::HttpVersion version = mon_http::HttpVersion::sniffHttpVersion(data);
   cr_assert_eq(version.value, mon_http::HttpVersion::HttpVersion2_0);
