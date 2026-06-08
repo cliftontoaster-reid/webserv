@@ -104,13 +104,32 @@ jobs:
           files: coverage.info
           fail_ci_if_error: true
 
+      - name: Normalize test results to JUnit format
+        run: |
+          python3 -c "
+          import sys, xml.etree.ElementTree as ET
+          for f in sys.argv[1:]:
+              tree = ET.parse(f)
+              root = tree.getroot()
+              if root.tag != 'testsuites':
+                  continue
+              root.attrib.pop('name', None)
+              for suite in root.findall('testsuite'):
+                  for tc in suite.findall('testcase'):
+                      tc.attrib.pop('assertions', None)
+                      tc.attrib.pop('status', None)
+                      tc.set('classname', tc.get('classname', suite.get('name', '')))
+              tree.write(f, xml_declaration=True, encoding='UTF-8')
+          " target/test-results/*.xml
+
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: target/test-results/*.xml
-          handle_no_reports_found: true
+          files: target/test-results/toml98.xml,target/test-results/mon-cgi.xml,target/test-results/mon-http.xml,target/test-results/mon-net.xml,target/test-results/mon-router.xml,target/test-results/webserv.xml
+          report_type: test_results
+          fail_ci_if_error: true
 
   format:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
