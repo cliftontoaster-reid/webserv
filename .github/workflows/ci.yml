@@ -28,6 +28,10 @@ jobs:
         if: matrix.mode == 'coverage'
         run: sudo apt-get install -y llvm lcov
 
+      - name: Create profraw directory
+        if: matrix.mode == 'coverage'
+        run: mkdir -p "$TARGET_ROOT/profraw"
+
       - name: Build toml98 tests
         working-directory: libs/toml98
         run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/toml98"
