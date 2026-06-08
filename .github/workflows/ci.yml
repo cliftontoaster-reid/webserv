@@ -101,6 +101,7 @@ jobs:
       - name: Generate coverage report
         if: matrix.mode == 'coverage'
         run: |
+          export PATH="/usr/lib/llvm-18/bin:$PATH"
           mkdir -p target/coverage/profraw
           llvm-profdata merge -sparse target/coverage/profraw/*.profraw -o target/coverage/coverage.profdata
           for bin in toml98_test mon_cgi_test mon_http_test mon_net_test mon_router_test webserv_test; do
