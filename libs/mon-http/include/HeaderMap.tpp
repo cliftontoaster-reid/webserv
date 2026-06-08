@@ -31,7 +31,8 @@ inline std::string& HeaderMap::operator[](const std::string& key) {
 
 inline void HeaderMap::clear() { _store.clear(); }
 
-inline void HeaderMap::insert(const std::string& key, const std::string& value) {
+inline void HeaderMap::insert(const std::string& key,
+                              const std::string& value) {
   _store.insert(_normalize(key), value);
 }
 
