@@ -35,13 +35,7 @@ class HashMap {
   void remove(const Key& key);
 
   template <typename F>
-  void iter(F func) {
-    for (size_t i = 0; i < _store.size(); ++i) {
-      for (size_t j = 0; j < _store[i].size(); ++j) {
-        func(_store[i][j].key, _store[i][j].value);
-      }
-    }
-  }
+  void iter(F func);
 
  private:
   std::vector<std::vector<Entry> > _store;
@@ -53,5 +47,7 @@ class HashMap {
 };
 
 }  // namespace mon_http
+
+#include "HashMap.tpp"
 
 #endif

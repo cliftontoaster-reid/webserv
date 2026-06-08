@@ -81,8 +81,6 @@ TEST_DIR	= ./tests
 # -------
 SRCS = \
 	$(SRC_DIR)/AHttpRequest.cpp \
-	$(SRC_DIR)/HashMap.cpp \
-	$(SRC_DIR)/HeaderMap.cpp \
 	$(SRC_DIR)/Http10Request.cpp \
 	$(SRC_DIR)/Http10Response.cpp \
 	$(SRC_DIR)/HttpMethod.cpp \

@@ -24,9 +24,7 @@ class HeaderMap {
   void remove(const std::string& key);
 
   template <typename F>
-  void iter(F func) {
-    _store.iter(func);
-  }
+  void iter(F func);
 
  private:
   static std::string _normalize(const std::string& key);
@@ -35,5 +33,7 @@ class HeaderMap {
 };
 
 }  // namespace mon_http
+
+#include "HeaderMap.tpp"
 
 #endif
