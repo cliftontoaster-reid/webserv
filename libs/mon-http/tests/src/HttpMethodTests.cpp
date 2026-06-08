@@ -6,9 +6,7 @@
 
 #include "HttpMethod.hpp"
 
-Test(http_method, default_construction) {
-  mon_http::HttpMethod method;
-}
+Test(http_method, default_construction) { mon_http::HttpMethod method; }
 
 Test(http_method, construction_with_type) {
   mon_http::HttpMethod get(mon_http::HttpMethod::HttpMethodGet);
@@ -142,8 +140,8 @@ Test(http_method, to_string_unknown) {
 
 Test(http_method, roundtrip) {
   const char* methods[] = {
-    "GET", "HEAD", "POST", "PUT", "DELETE",
-    "CONNECT", "OPTIONS", "TRACE", "PATCH",
+      "GET",     "HEAD",    "POST",  "PUT",   "DELETE",
+      "CONNECT", "OPTIONS", "TRACE", "PATCH",
   };
 
   for (size_t i = 0; i < sizeof(methods) / sizeof(methods[0]); i++) {
