@@ -7,9 +7,7 @@
 
 #include "HeaderMap.hpp"
 
-Test(header_map, default_construction) {
-  mon_http::HeaderMap map;
-}
+Test(header_map, default_construction) { mon_http::HeaderMap map; }
 
 Test(header_map, insert_and_at) {
   mon_http::HeaderMap map;

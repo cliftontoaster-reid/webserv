@@ -9,9 +9,7 @@
 #include "Http10Request.hpp"
 #include "HttpVersion.hpp"
 
-Test(http10_request, default_construction) {
-  mon_http::Http10Request req;
-}
+Test(http10_request, default_construction) { mon_http::Http10Request req; }
 
 Test(http10_request, copy_construction) {
   std::string data = "GET / HTTP/1.0\r\n\r\n";
@@ -130,8 +128,7 @@ Test(http10_request, method_accessor) {
   mon_http::Http10Request req;
   req = req.parse(raw);
 
-  cr_assert_eq(req.method().getType(),
-               mon_http::HttpMethod::HttpMethodDelete);
+  cr_assert_eq(req.method().getType(), mon_http::HttpMethod::HttpMethodDelete);
 }
 
 Test(http10_request, has_header_after_parse) {
