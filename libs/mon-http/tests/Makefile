@@ -82,7 +82,12 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
-	$(SRC_DIR)/example.cpp \
+	$(SRC_DIR)/HashMapTests.cpp \
+	$(SRC_DIR)/HeaderMapTests.cpp \
+	$(SRC_DIR)/HttpMethodTests.cpp \
+	$(SRC_DIR)/HttpVersionTests.cpp \
+	$(SRC_DIR)/Http10ResponseTests.cpp \
+	$(SRC_DIR)/Http10RequestTests.cpp \
 
 BOBJ ?=
 OBJ  := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))

@@ -85,7 +85,7 @@ static inline std::pair<std::string, std::string> _parseHeaderLine(
   std::string key = line.substr(keyPos, middlePos - keyPos);
 
   // ---- value -----------------------------------------------------------
-  std::size_t valuePos = line.find_first_not_of(' ', middlePos);
+  std::size_t valuePos = line.find_first_not_of(' ', middlePos + 1);
   if (valuePos == std::string::npos) {
     throw std::runtime_error("Malformed HTTP request: missing header value");
   }
@@ -97,9 +97,10 @@ static inline std::pair<std::string, std::string> _parseHeaderLine(
 
   std::string value = line.substr(valuePos, endPos - valuePos);
 
-  std::string::reverse_iterator rit = std::find_if(
-      value.rbegin(), value.rend(), std::ptr_fun<int, int>(std::isspace));
-  value.erase(rit.base(), value.end());
+  std::size_t lastNonSpace = value.find_last_not_of(" \t\f\v\n\r");
+  if (lastNonSpace != std::string::npos) {
+    value.erase(lastNonSpace + 1);
+  }
 
   return std::make_pair(key, value);
 }
@@ -145,16 +146,16 @@ Http10Request Http10Request::parse(const std::vector<char>& data) {
     std::string line(lineStart, lineEnd);
 
     std::pair<std::string, std::string> header = _parseHeaderLine(line);
-    _headers.insert(header.first, header.second);
+    ret._headers.insert(header.first, header.second);
 
     pos = _newPos(lineEnd, data);
   }
 
   if (pos < data.size()) {
-    _body.assign(data.begin() + pos, data.end());
+    ret._body.assign(data.begin() + pos, data.end());
   }
-  if (hasHeader("Content-Length")) {
-    std::string lengthStr = header("Content-Length");
+  if (ret.hasHeader("Content-Length")) {
+    std::string lengthStr = ret.header("Content-Length");
     std::stringstream ssStr(lengthStr);
     size_t claimedLength = 0;
 
@@ -165,7 +166,7 @@ Http10Request Http10Request::parse(const std::vector<char>& data) {
           "Malformed HTTP request: malformed Content-Length header");
     }
 
-    if (_body.size() != claimedLength) {
+    if (ret._body.size() != claimedLength) {
       throw std::runtime_error(
           "Malformed HTTP request: body size does not match Content-Length");
     }
@@ -200,7 +201,7 @@ bool Http10Request::hasHeader(const std::string& key) {
   try {
     _headers.at(key);
     return true;
-  } catch (std::runtime_error& err) {
+  } catch (std::out_of_range& err) {
     (void)err;
     return false;
   }

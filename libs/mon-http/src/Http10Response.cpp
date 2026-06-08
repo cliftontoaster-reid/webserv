@@ -78,13 +78,13 @@ void Http10Response::setStatusCode(int code) {
   _code = code;
 }
 
-bool Http10Response::hasBody() const { return body.empty(); }
+bool Http10Response::hasBody() const { return !body.empty(); }
 
 bool Http10Response::hasHeader(const std::string& key) {
   try {
     headers.at(key);
     return true;
-  } catch (std::runtime_error& err) {
+  } catch (std::out_of_range& err) {
     (void)err;
     return false;
   }
