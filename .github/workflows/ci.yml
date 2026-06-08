@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y make cmake curl python3
+          sudo apt-get install -y clang-18 llvm-18-tools make cmake curl python3
 
       - name: Install coverage tools
         if: matrix.mode == 'coverage'
