@@ -111,6 +111,7 @@ LIBS_ARCHIVES ?=
 # -------
 # Criterion
 # -------
+CRITERION_PKG := $(shell pkg-config --exists criterion 2>/dev/null && echo yes)
 CRITERION_DEPO       = $(LIBS_DIR)/toml98
 CRITERION_TARGET_DIR = $(OFFICE_DIR)/toml98
 CRITERION_DOWN_DIR   = $(CRITERION_TARGET_DIR)/down
@@ -119,28 +120,28 @@ CRITERION_DIRS       = $(CRITERION_OBJ_DIR) $(CRITERION_TOBJ_DIR) \
                        $(CRITERION_DEP_DIR) $(CRITERION_BIN_DIR)
 CRITERION_ARCHIVE    = $(CRITERION_BIN_DIR)/lib/libcriterion.so
 CRITERION_INC_DIR    = $(CRITERION_BIN_DIR)/include
+CRITERION_RPATH      =
 
+ifeq ($(CRITERION_PKG),yes)
+INC += $(shell pkg-config --cflags criterion)
+LDFLAGS += $(shell pkg-config --libs criterion)
+$(CRITERION_ARCHIVE):
+	@printf "$(BOLD)Using system criterion library...$(RESET)\n"
+else
 LIBS_ARCHIVES += $(CRITERION_ARCHIVE)
 INC += -isystem $(CRITERION_INC_DIR)
+CRITERION_RPATH = -Wl,-rpath,'$$ORIGIN/$(CRITERION_BIN_DIR)/lib'
 
 criterion: $(CRITERION_ARCHIVE)
 $(CRITERION_ARCHIVE):
 	@printf "$(BOLD)Downloading criterion library...$(RESET)\n"
 	@mkdir -p "$(CRITERION_DOWN_DIR)" "$(CRITERION_BIN_DIR)"
-	@if command -v gh >/dev/null 2>&1; then \
-	  gh release download v2.4.3 -R Snaipe/Criterion \
-	    -p "criterion-2.4.3-linux-x86_64.tar.xz" \
-	    -D "$(CRITERION_DOWN_DIR)" --clobber 2>/dev/null && \
-	  mv -f "$(CRITERION_DOWN_DIR)/criterion-2.4.3-linux-x86_64.tar.xz" \
-	    "$(CRITERION_DOWN_DIR)/criterion.tar.xz" 2>/dev/null; \
-	fi
-	@if [ ! -f "$(CRITERION_DOWN_DIR)/criterion.tar.xz" ]; then \
-	  curl -fL --retry 3 --retry-delay 2 -o "$(CRITERION_DOWN_DIR)/criterion.tar.xz" \
-	    https://github.com/Snaipe/Criterion/releases/download/v2.4.3/criterion-2.4.3-linux-x86_64.tar.xz; \
-	fi
+	@curl -fL --retry 3 --retry-delay 2 -o "$(CRITERION_DOWN_DIR)/criterion.tar.xz" \
+	  https://github.com/Snaipe/Criterion/releases/download/v2.4.3/criterion-2.4.3-linux-x86_64.tar.xz
 	@tar -xf "$(CRITERION_DOWN_DIR)/criterion.tar.xz" \
 	  -C "$(CRITERION_BIN_DIR)/" --strip-components=1
 	@printf "$(BOLD)Downloaded criterion:$(RESET) $(GREEN)$(CRITERION_ARCHIVE)$(RESET)\n"
+endif
 
 compile_commands.json: Makefile $(SRCS)
 	@echo "Generating compile_commands.json ..."
@@ -171,7 +172,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 $(BIN_DIR)/$(NAME): $(LIBS_ARCHIVES) $(OBJ)
 	@mkdir -p "$(@D)"
 	@$(CCX) -o "$@" $(LDX_FLAGS) $(LDFLAGS) \
-		-Wl,-rpath,'$$ORIGIN/$(CRITERION_BIN_DIR)/lib' \
+		$(CRITERION_RPATH) \
 		$(OBJ) $(LIBS_ARCHIVES)
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME)$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
