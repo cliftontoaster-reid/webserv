@@ -51,9 +51,6 @@ struct ExpectedToken {
 
 void assert_token_stream(const std::vector<toml98::Token*>& actual,
                          const std::vector<ExpectedToken>& expected) {
-  // cr_assert_eq(actual.size(), expected.size(),
-  //  "Token count mismatch: got %zu, expected %zu", actual.size(),
-  //  expected.size());
   for (size_t i = 0; i < actual.size(); i++) {
     if (actual[i]->type != expected[i].type) {
       std::cerr << "Token type mismatch!" << '\n';

@@ -80,7 +80,11 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
-	$(SRC_DIR)/HashMap.cpp
+	$(SRC_DIR)/AHttpRequest.cpp \
+	$(SRC_DIR)/Http10Request.cpp \
+	$(SRC_DIR)/Http10Response.cpp \
+	$(SRC_DIR)/HttpMethod.cpp \
+	$(SRC_DIR)/HttpVersion.cpp \
 
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 DEP := $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(SRCS))
