@@ -36,13 +36,16 @@ jobs:
         if: matrix.mode == 'coverage'
         run: sudo apt-get install -y lcov
 
+      - name: Create test results directory
+        run: mkdir -p target/test-results
+
       - name: Build toml98 tests
         working-directory: libs/toml98
         run: make test CCX="$CCX" MODE="$MODE" TARGET_DIR="$TARGET_ROOT/toml98"
 
       - name: Run toml98 tests
         working-directory: libs/toml98/tests
-        run: ./toml98_test --verbose
+        run: ./toml98_test --verbose --xml=${{ github.workspace }}/target/test-results/toml98.xml
 
       - name: Build mon-cgi tests
         working-directory: libs/mon-cgi
@@ -50,7 +53,7 @@ jobs:
 
       - name: Run mon-cgi tests
         working-directory: libs/mon-cgi/tests
-        run: ./mon_cgi_test --verbose
+        run: ./mon_cgi_test --verbose --xml=${{ github.workspace }}/target/test-results/mon-cgi.xml
 
       - name: Build mon-http tests
         working-directory: libs/mon-http
@@ -58,7 +61,7 @@ jobs:
 
       - name: Run mon-http tests
         working-directory: libs/mon-http/tests
-        run: ./mon_http_test --verbose
+        run: ./mon_http_test --verbose --xml=${{ github.workspace }}/target/test-results/mon-http.xml
 
       - name: Build mon-net tests
         working-directory: libs/mon-net
@@ -66,7 +69,7 @@ jobs:
 
       - name: Run mon-net tests
         working-directory: libs/mon-net/tests
-        run: ./mon_net_test --verbose
+        run: ./mon_net_test --verbose --xml=${{ github.workspace }}/target/test-results/mon-net.xml
 
       - name: Build mon-router tests
         working-directory: libs/mon-router
@@ -74,14 +77,14 @@ jobs:
 
       - name: Run mon-router tests
         working-directory: libs/mon-router/tests
-        run: ./mon_router_test --verbose
+        run: ./mon_router_test --verbose --xml=${{ github.workspace }}/target/test-results/mon-router.xml
 
       - name: Build webserv tests
         run: make test CCX="$CCX" MODE="$MODE" TARGET_DIR="$TARGET_ROOT/webserv"
 
       - name: Run webserv tests
         working-directory: tests
-        run: ./webserv_test --verbose
+        run: ./webserv_test --verbose --xml=${{ github.workspace }}/target/test-results/webserv.xml
 
       - name: Generate coverage report
         if: matrix.mode == 'coverage'
@@ -91,7 +94,6 @@ jobs:
             '/usr/*' '*/criterion/*' '*/tests/*'
 
       - name: Import Codecov GPG key
-        if: matrix.mode == 'coverage'
         run: gpg --keyserver keyserver.ubuntu.com --recv-keys 27034E7FDB850E0BBC2C62FF806BB28AED779869
 
       - name: Upload coverage reports to Codecov
@@ -101,6 +103,14 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.info
           fail_ci_if_error: true
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: target/test-results/*.xml
+          handle_no_reports_found: true
 
   format:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
