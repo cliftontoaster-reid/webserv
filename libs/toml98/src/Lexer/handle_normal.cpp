@@ -48,17 +48,17 @@ Token* Lexer::handle_normal() {
 
     case '[': {
       pop();
-      if (canPeek('[')) {
-        pop();
-        _stack.push(LexerArrayKey);
-        return new Token(TokenArrayStart, "[[");
-      }
       if (_isLastEqual) {
         _stack.push(LexerInlineArray);
         return new Token(TokenArrayStart, "[");
       }
+      if (canPeek('[')) {
+        pop();
+        _stack.push(LexerArrayKey);
+        return new Token(TokenArrayKeyStart, "[[");
+      }
       _stack.push(LexerTableKey);
-      return new Token(TokenTableStart, "[");
+      return new Token(TokenTableKeyStart, "[");
     }
 
     case '-':

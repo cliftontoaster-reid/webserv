@@ -20,7 +20,40 @@ enum ValueType {
   ValueTable,
 };
 
+class Parser;
+
+struct PathPart {
+  enum Type {
+    PathPartKey,
+    PathPartIndex,
+  };
+
+  Type type;
+  std::string key;
+  std::size_t index;
+
+  static PathPart makeKey(const std::string& val) {
+    PathPart part;
+    part.type = PathPartKey;
+    part.key = val;
+    part.index = 0;
+    return part;
+  }
+
+  static PathPart makeIndex(std::size_t val) {
+    PathPart part;
+    part.type = PathPartIndex;
+    part.key = "";
+    part.index = val;
+    return part;
+  }
+
+  bool operator<(const PathPart& other) const;
+};
+
 class Value {
+  friend class Parser;
+
  public:
   static Value createString(const std::string& val);
   static Value createInteger(int64_t val);
@@ -45,6 +78,10 @@ class Value {
   bool operator==(const Value& other) const;
   bool operator!=(const Value& other) const;
 
+  const Value& get(const std::vector<PathPart>& path) const;
+  bool has(const std::vector<PathPart>& path) const;
+  bool has(const PathPart& part) const;
+
  private:
   Value(ValueType type, void* val);
   Value(ValueType type, uint64_t val);
@@ -55,6 +92,15 @@ class Value {
     void* _ptr;
     uint64_t _nbr;
   };
+
+  const Value& get_direct_child(const std::string& key) const;
+  Value& get_direct_child_mut(const std::string& key);
+
+  std::vector<Value>* getArrayMut();
+  std::map<std::string, Value>* getTableMut();
+  Value& get_mut(const std::vector<PathPart>& path);
+
+  void insertOrDie(const std::vector<PathPart>& path, const Value& value);
 };
 
 std::ostream& operator<<(std::ostream& ost, const Value& val);

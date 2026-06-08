@@ -64,7 +64,7 @@ Test(lexer_handle_table_key, right_bracket_ends_key) {
   toml98::enter_table_key(stupid);
 
   toml98::Token* token = stupid.stupid_handle_table_key();
-  toml98::expect_token(token, toml98::TokenTableEnd, "]");
+  toml98::expect_token(token, toml98::TokenTableKeyEnd, "]");
   cr_expect_eq(stupid.stupid_pos(), 1U);
 
   auto state = stupid.stupid_stack();

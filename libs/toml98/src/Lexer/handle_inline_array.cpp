@@ -42,11 +42,6 @@ Token* Lexer::handle_inline_array() {
 
     case '[': {
       pop();
-      if (canPeek('[')) {
-        pop();
-        _stack.push(LexerArrayKey);
-        return new Token(TokenArrayStart, "[[");
-      }
       _stack.push(LexerInlineArray);
       return new Token(TokenArrayStart, "[");
     }

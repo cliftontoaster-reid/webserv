@@ -96,6 +96,18 @@ SRCS = \
 	$(SRC_DIR)/Lexer/handle_string_multiline_test.cpp \
 	$(SRC_DIR)/Lexer/handle_string_double_test.cpp \
 	$(SRC_DIR)/Lexer/handle_string_double_multiline_test.cpp \
+  $(SRC_DIR)/ParserTest.cpp \
+  $(SRC_DIR)/Parser/readArrayTest.cpp \
+  $(SRC_DIR)/Parser/readBodyTest.cpp \
+  $(SRC_DIR)/Parser/readBooleanTest.cpp \
+  $(SRC_DIR)/Parser/readFloatTest.cpp \
+  $(SRC_DIR)/Parser/readIntegerTest.cpp \
+  $(SRC_DIR)/Parser/readKeyPairTest.cpp \
+  $(SRC_DIR)/Parser/readKeyPathTest.cpp \
+  $(SRC_DIR)/Parser/readSuperKeyTest.cpp \
+  $(SRC_DIR)/Parser/readTableTest.cpp \
+  $(SRC_DIR)/Parser/readValueTest.cpp \
+	$(SRC_DIR)/ParserIntegrationTest.cpp \
 
 BOBJ ?=
 OBJ  := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))

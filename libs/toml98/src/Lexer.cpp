@@ -99,10 +99,7 @@ Lexer::~Lexer() {}
 
 Token* Lexer::run() {
   Token* ret = NULL;
-  _pos = 0;
   _buffer.clear();
-  _stack = std::stack<LexerState>();
-  _stack.push(LexerNormal);
 
   while (ret == NULL) {
     if (_stack.empty()) {
@@ -161,7 +158,7 @@ void Lexer::push(const std::basic_string<char>& str) { _source.append(str); }
 
 void Lexer::pop() { pop(1); }
 void Lexer::pop(u_int64_t amount) {
-  if (_pos >= _source.length()) {
+  if (_pos + amount > _source.length()) {
     throw std::runtime_error("Early end of file.");
   }
   _pos += amount;

@@ -8,12 +8,7 @@
 
 namespace toml98 {
 
-static void expect_newline_token(Token* token) {
-  cr_assert_not_null(token);
-  cr_assert_eq(token->type, TokenNewLine);
-  cr_assert_eq(token->value, "\n");
-  delete token;
-}
+static void expect_newline_token(Token* token) { cr_assert_null(token); }
 
 }  // namespace toml98
 

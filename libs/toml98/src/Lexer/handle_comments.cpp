@@ -11,7 +11,8 @@ Token* Lexer::handle_comments() {
 
     pop();
   }
-  return new Token(TokenNewLine, "\n");
+  _stack.pop();
+  return NULL;
 }
 
 }  // namespace toml98

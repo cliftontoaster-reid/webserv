@@ -25,7 +25,7 @@ Token* Lexer::handle_table_key() {
       case ']':
         _stack.pop();
         pop();
-        return new Token(TokenTableEnd, "]");
+        return new Token(TokenTableKeyEnd, "]");
       case '[':
         throw std::runtime_error(
             "Table Keys cannot contain other table/array keys.");

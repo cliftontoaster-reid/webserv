@@ -20,7 +20,7 @@ static void expect_token(Token* token, TokenType type,
 
 static void enter_array_key(StupidLexer& stupid) {
   Token* token = stupid.stupid_handle_normal();
-  expect_token(token, TokenArrayStart, "[[");
+  expect_token(token, TokenArrayKeyStart, "[[");
 
   auto state = stupid.stupid_stack();
   cr_assert_not(state.empty());

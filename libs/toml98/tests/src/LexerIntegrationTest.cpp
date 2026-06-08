@@ -3,6 +3,7 @@
 #include <criterion/internal/test.h>
 
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -10,6 +11,7 @@
 
 #include "Lexer.hpp"
 #include "StupidLexer.hpp"
+#include "utils.hpp"
 
 namespace {
 
@@ -28,68 +30,13 @@ std::vector<toml98::Token*> tokenize_all(const std::string& input) {
 
   while (lex.stupid_remaining() > 0) {
     try {
-      if (lex.stupid_stack().empty()) {
-        lex.stupid_stack().push(toml98::LexerNormal);
-      }
+      toml98::Token* ret = lex.run();
 
-      toml98::LexerState state = lex.stupid_stack().top();
-      toml98::Token* tok = NULL;
-
-      switch (state) {
-        case toml98::LexerNormal:
-          tok = lex.stupid_handle_normal();
-          break;
-        case toml98::LexerWord:
-          tok = lex.stupid_handle_word();
-          break;
-        case toml98::LexerString:
-          tok = lex.stupid_handle_string();
-          break;
-        case toml98::LexerStringDouble:
-          tok = lex.stupid_handle_string_double();
-          break;
-        case toml98::LexerStringMultiLine:
-          tok = lex.stupid_handle_string_multiline();
-          break;
-        case toml98::LexerStringDoubleMultiLine:
-          tok = lex.stupid_handle_string_double_multiline();
-          break;
-        case toml98::LexerTableKey:
-          tok = lex.stupid_handle_table_key();
-          break;
-        case toml98::LexerArrayKey:
-          tok = lex.stupid_handle_array_key();
-          break;
-        case toml98::LexerComments:
-          tok = lex.stupid_handle_comments();
-          break;
-        case toml98::LexerInlineArray:
-          tok = lex.stupid_handle_inline_array();
-          break;
-        case toml98::LexerInlineTable:
-          tok = lex.stupid_handle_inline_table();
-          break;
-        case toml98::LexerWhiteSpace:
-          tok = lex.stupid_handle_whitespace();
-          break;
-      }
-
-      if (tok == NULL) {
+      if (ret == NULL) {
         continue;
       }
 
-      if (!lex.stupid_stack().empty() &&
-          lex.stupid_stack().top() == toml98::LexerComments) {
-        lex.stupid_stack().pop();
-      }
-
-      if (tok->type == toml98::TokenEqual) {
-        lex.stupid_is_last_equal() = true;
-      } else if (tok->type != toml98::TokenDelimiter) {
-        lex.stupid_is_last_equal() = false;
-      }
-
-      tokens.push_back(tok);
+      tokens.push_back(ret);
     } catch (const std::runtime_error&) {
       break;
     }
@@ -104,14 +51,30 @@ struct ExpectedToken {
 
 void assert_token_stream(const std::vector<toml98::Token*>& actual,
                          const std::vector<ExpectedToken>& expected) {
-  cr_assert_eq(actual.size(), expected.size(),
-               "Token count mismatch: got %zu, expected %zu", actual.size(),
-               expected.size());
   for (size_t i = 0; i < actual.size(); i++) {
-    cr_expect_eq(actual[i]->type, expected[i].type, "Token %zu type mismatch",
-                 i);
-    cr_expect_eq(actual[i]->value, expected[i].value,
-                 "Token %zu value mismatch", i);
+    if (actual[i]->type != expected[i].type) {
+      std::cerr << "Token type mismatch!" << '\n';
+      std::cerr << "  Expected: " << expected[i].type << '\n';
+      std::cerr << "  Actual:   " << actual[i]->type << '\n';
+      cr_expect_eq(actual[i]->type, expected[i].type,
+                   "Token %zu type mismatch, got %s, expected %s", i,
+                   toml98::tokTypeToString(actual[i]->type).c_str(),
+                   toml98::tokTypeToString(expected[i].type).c_str());
+    }
+
+    if (actual[i]->value != expected[i].value) {
+      std::cerr << "Token value mismatch!" << '\n';
+      std::cerr << "  Expected: " << expected[i].value << '\n';
+      std::cerr << "  Actual:   " << actual[i]->value << '\n';
+      cr_expect_eq(actual[i]->type, expected[i].type,
+                   "Token %zu type mismatch, got %s, expected %s", i,
+                   toml98::tokTypeToString(actual[i]->type).c_str(),
+                   toml98::tokTypeToString(expected[i].type).c_str());
+    }
+    cr_expect_eq(actual[i]->type, expected[i].type,
+                 "Token %zu type mismatch, got %s, expected %s", i,
+                 toml98::tokTypeToString(actual[i]->type).c_str(),
+                 toml98::tokTypeToString(expected[i].type).c_str());
   }
 }
 
@@ -142,11 +105,11 @@ Test(lexer_integration, table_toml) {
   std::vector<toml98::Token*> tokens = tokenize_all(content);
 
   std::vector<ExpectedToken> expected = {
-      {toml98::TokenTableStart, "["}, {toml98::TokenWord, "section"},
-      {toml98::TokenTableEnd, "]"},   {toml98::TokenNewLine, "\n"},
-      {toml98::TokenWord, "key"},     {toml98::TokenDelimiter, " "},
-      {toml98::TokenEqual, "="},      {toml98::TokenDelimiter, " "},
-      {toml98::TokenWord, "123"},     {toml98::TokenNewLine, "\n"},
+      {toml98::TokenTableKeyStart, "["}, {toml98::TokenWord, "section"},
+      {toml98::TokenTableKeyEnd, "]"},   {toml98::TokenNewLine, "\n"},
+      {toml98::TokenWord, "key"},        {toml98::TokenDelimiter, " "},
+      {toml98::TokenEqual, "="},         {toml98::TokenDelimiter, " "},
+      {toml98::TokenWord, "123"},        {toml98::TokenNewLine, "\n"},
   };
 
   assert_token_stream(tokens, expected);
@@ -158,10 +121,10 @@ Test(lexer_integration, comment_toml) {
   std::vector<toml98::Token*> tokens = tokenize_all(content);
 
   std::vector<ExpectedToken> expected = {
-      {toml98::TokenNewLine, "\n"},   {toml98::TokenNewLine, "\n"},
-      {toml98::TokenWord, "key"},     {toml98::TokenDelimiter, " "},
-      {toml98::TokenEqual, "="},      {toml98::TokenDelimiter, " "},
-      {toml98::TokenString, "value"}, {toml98::TokenNewLine, "\n"},
+      {toml98::TokenNewLine, "\n"},  {toml98::TokenWord, "key"},
+      {toml98::TokenDelimiter, " "}, {toml98::TokenEqual, "="},
+      {toml98::TokenDelimiter, " "}, {toml98::TokenString, "value"},
+      {toml98::TokenNewLine, "\n"},
   };
 
   assert_token_stream(tokens, expected);
@@ -173,13 +136,13 @@ Test(lexer_integration, nested_tables_toml) {
   std::vector<toml98::Token*> tokens = tokenize_all(content);
 
   std::vector<ExpectedToken> expected = {
-      {toml98::TokenTableStart, "["}, {toml98::TokenWord, "a"},
-      {toml98::TokenTableEnd, "]"},   {toml98::TokenNewLine, "\n"},
-      {toml98::TokenTableStart, "["}, {toml98::TokenWord, "b"},
-      {toml98::TokenTableEnd, "]"},   {toml98::TokenNewLine, "\n"},
-      {toml98::TokenWord, "key"},     {toml98::TokenDelimiter, " "},
-      {toml98::TokenEqual, "="},      {toml98::TokenDelimiter, " "},
-      {toml98::TokenWord, "true"},    {toml98::TokenNewLine, "\n"},
+      {toml98::TokenTableKeyStart, "["}, {toml98::TokenWord, "a"},
+      {toml98::TokenTableKeyEnd, "]"},   {toml98::TokenNewLine, "\n"},
+      {toml98::TokenTableKeyStart, "["}, {toml98::TokenWord, "b"},
+      {toml98::TokenTableKeyEnd, "]"},   {toml98::TokenNewLine, "\n"},
+      {toml98::TokenWord, "key"},        {toml98::TokenDelimiter, " "},
+      {toml98::TokenEqual, "="},         {toml98::TokenDelimiter, " "},
+      {toml98::TokenWord, "true"},       {toml98::TokenNewLine, "\n"},
   };
 
   assert_token_stream(tokens, expected);
@@ -210,7 +173,6 @@ Test(lexer_integration, official_example_without_date_toml) {
   std::vector<ExpectedToken> expected = {
       {toml98::TokenNewLine, "\n"},
       {toml98::TokenNewLine, "\n"},
-      {toml98::TokenNewLine, "\n"},
 
       {toml98::TokenWord, "title"},
       {toml98::TokenDelimiter, " "},
@@ -220,9 +182,9 @@ Test(lexer_integration, official_example_without_date_toml) {
       {toml98::TokenNewLine, "\n"},
       {toml98::TokenNewLine, "\n"},
 
-      {toml98::TokenTableStart, "["},
+      {toml98::TokenTableKeyStart, "["},
       {toml98::TokenWord, "owner"},
-      {toml98::TokenTableEnd, "]"},
+      {toml98::TokenTableKeyEnd, "]"},
       {toml98::TokenNewLine, "\n"},
 
       {toml98::TokenWord, "name"},
@@ -233,9 +195,9 @@ Test(lexer_integration, official_example_without_date_toml) {
       {toml98::TokenNewLine, "\n"},
       {toml98::TokenNewLine, "\n"},
 
-      {toml98::TokenTableStart, "["},
+      {toml98::TokenTableKeyStart, "["},
       {toml98::TokenWord, "database"},
-      {toml98::TokenTableEnd, "]"},
+      {toml98::TokenTableKeyEnd, "]"},
       {toml98::TokenNewLine, "\n"},
 
       {toml98::TokenWord, "enabled"},
@@ -250,7 +212,6 @@ Test(lexer_integration, official_example_without_date_toml) {
       {toml98::TokenEqual, "="},
       {toml98::TokenDelimiter, " "},
       {toml98::TokenArrayStart, "["},
-      {toml98::TokenDelimiter, " "},
       {toml98::TokenWord, "8000"},
       {toml98::TokenComma, ","},
       {toml98::TokenDelimiter, " "},
@@ -258,7 +219,6 @@ Test(lexer_integration, official_example_without_date_toml) {
       {toml98::TokenComma, ","},
       {toml98::TokenDelimiter, " "},
       {toml98::TokenWord, "8002"},
-      {toml98::TokenDelimiter, " "},
       {toml98::TokenArrayEnd, "]"},
       {toml98::TokenNewLine, "\n"},
 
@@ -267,7 +227,6 @@ Test(lexer_integration, official_example_without_date_toml) {
       {toml98::TokenEqual, "="},
       {toml98::TokenDelimiter, " "},
       {toml98::TokenArrayStart, "["},
-      {toml98::TokenDelimiter, " "},
       {toml98::TokenArrayStart, "["},
       {toml98::TokenString, "delta"},
       {toml98::TokenComma, ","},
@@ -281,7 +240,6 @@ Test(lexer_integration, official_example_without_date_toml) {
       {toml98::TokenDot, "."},
       {toml98::TokenWord, "14"},
       {toml98::TokenArrayEnd, "]"},
-      {toml98::TokenDelimiter, " "},
       {toml98::TokenArrayEnd, "]"},
       {toml98::TokenNewLine, "\n"},
 
@@ -312,17 +270,17 @@ Test(lexer_integration, official_example_without_date_toml) {
       {toml98::TokenNewLine, "\n"},
       {toml98::TokenNewLine, "\n"},
 
-      {toml98::TokenTableStart, "["},
+      {toml98::TokenTableKeyStart, "["},
       {toml98::TokenWord, "servers"},
-      {toml98::TokenTableEnd, "]"},
+      {toml98::TokenTableKeyEnd, "]"},
       {toml98::TokenNewLine, "\n"},
       {toml98::TokenNewLine, "\n"},
 
-      {toml98::TokenTableStart, "["},
+      {toml98::TokenTableKeyStart, "["},
       {toml98::TokenWord, "servers"},
       {toml98::TokenDot, "."},
       {toml98::TokenWord, "alpha"},
-      {toml98::TokenTableEnd, "]"},
+      {toml98::TokenTableKeyEnd, "]"},
       {toml98::TokenNewLine, "\n"},
 
       {toml98::TokenWord, "ip"},
@@ -340,11 +298,11 @@ Test(lexer_integration, official_example_without_date_toml) {
       {toml98::TokenNewLine, "\n"},
       {toml98::TokenNewLine, "\n"},
 
-      {toml98::TokenTableStart, "["},
+      {toml98::TokenTableKeyStart, "["},
       {toml98::TokenWord, "servers"},
       {toml98::TokenDot, "."},
       {toml98::TokenWord, "beta"},
-      {toml98::TokenTableEnd, "]"},
+      {toml98::TokenTableKeyEnd, "]"},
       {toml98::TokenNewLine, "\n"},
 
       {toml98::TokenWord, "ip"},
