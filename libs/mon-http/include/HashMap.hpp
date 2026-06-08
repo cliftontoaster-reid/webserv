@@ -15,10 +15,10 @@ namespace mon_http {
 template <typename Key, typename T>
 class HashMap {
  public:
-  explicit HashMap<Key, T>(size_t initial_size = HASHMAP_DEFAULT_BUCKETS);
-  HashMap<Key, T>(const HashMap<Key, T>& other);
-  HashMap<Key, T>& operator=(const HashMap<Key, T>& other);
-  ~HashMap<Key, T>();
+  explicit HashMap(size_t initial_size = HASHMAP_DEFAULT_BUCKETS);
+  HashMap(const HashMap& other);
+  HashMap& operator=(const HashMap& other);
+  ~HashMap();
 
   struct Entry {
     Key key;

@@ -76,6 +76,8 @@ const char* HttpVersion::toString() {
       return "HTTP/1.1";
     case HttpVersion2_0:
       return "HTTP/2.0";
+    default:
+      return "unknown HTTP version";
   }
 }
 
