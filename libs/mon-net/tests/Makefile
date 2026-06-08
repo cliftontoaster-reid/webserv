@@ -10,8 +10,6 @@
 #                                                                              #
 # **************************************************************************** #
 
-CCX = clang++
-
 CCX_FLAGS ?= -Wall -Wextra -Werror -std=c++11 -pipe -MMD -MP
 LDX_FLAGS ?= 
 
@@ -19,13 +17,14 @@ DEBUG_CFLAGS	 = -g3 -O0 -fno-omit-frame-pointer -D_GLIBCXX_DEBUG \
 								 -fsanitize=address,undefined -fstack-protector-strong
 DEBUG_LDFLAGS	= -fsanitize=address,undefined
 
-COVERAGE_CFLAGS  = -O0 -g -fprofile-instr-generate -fcoverage-mapping
-COVERAGE_LDFLAGS = -fprofile-instr-generate
+COVERAGE_CFLAGS  = -O0 -g --coverage
+COVERAGE_LDFLAGS = --coverage
 
 RELEASE_CFLAGS = -O3 -DNDEBUG -D_FORTIFY_SOURCE=2 \
 								 -fstack-protector-strong -ffunction-sections -fdata-sections
 RELEASE_LDFLAGS = -Wl,--gc-sections -Wl,-z,relro -Wl,-z,now
 
+CCX = clang++
 ifeq ($(shell which clang++),)
 	CCX = g++
 endif

@@ -16,6 +16,7 @@ jobs:
     env:
       MODE: ${{ matrix.mode }}
       TARGET_ROOT: ${{ github.workspace }}/target/${{ matrix.mode }}
+      CCX: ${{ matrix.mode == 'coverage' && 'g++' || 'clang++' }}
     steps:
       - uses: actions/checkout@v6
 
@@ -35,82 +36,57 @@ jobs:
         if: matrix.mode == 'coverage'
         run: sudo apt-get install -y lcov
 
-      - name: Create profraw directory
-        if: matrix.mode == 'coverage'
-        run: mkdir -p "$TARGET_ROOT/profraw"
-
       - name: Build toml98 tests
         working-directory: libs/toml98
-        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/toml98"
+        run: make test CCX="$CCX" MODE="$MODE" TARGET_DIR="$TARGET_ROOT/toml98"
 
       - name: Run toml98 tests
         working-directory: libs/toml98/tests
         run: ./toml98_test --verbose
-        env:
-          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/${{ matrix.mode }}/profraw/toml98_test.profraw
 
       - name: Build mon-cgi tests
         working-directory: libs/mon-cgi
-        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-cgi"
+        run: make test CCX="$CCX" MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-cgi"
 
       - name: Run mon-cgi tests
         working-directory: libs/mon-cgi/tests
         run: ./mon_cgi_test --verbose
-        env:
-          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/${{ matrix.mode }}/profraw/mon_cgi_test.profraw
 
       - name: Build mon-http tests
         working-directory: libs/mon-http
-        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-http"
+        run: make test CCX="$CCX" MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-http"
 
       - name: Run mon-http tests
         working-directory: libs/mon-http/tests
         run: ./mon_http_test --verbose
-        env:
-          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/${{ matrix.mode }}/profraw/mon_http_test.profraw
 
       - name: Build mon-net tests
         working-directory: libs/mon-net
-        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-net"
+        run: make test CCX="$CCX" MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-net"
 
       - name: Run mon-net tests
         working-directory: libs/mon-net/tests
         run: ./mon_net_test --verbose
-        env:
-          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/${{ matrix.mode }}/profraw/mon_net_test.profraw
 
       - name: Build mon-router tests
         working-directory: libs/mon-router
-        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-router"
+        run: make test CCX="$CCX" MODE="$MODE" TARGET_DIR="$TARGET_ROOT/mon-router"
 
       - name: Run mon-router tests
         working-directory: libs/mon-router/tests
         run: ./mon_router_test --verbose
-        env:
-          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/${{ matrix.mode }}/profraw/mon_router_test.profraw
 
       - name: Build webserv tests
-        run: make test MODE="$MODE" TARGET_DIR="$TARGET_ROOT/webserv"
+        run: make test CCX="$CCX" MODE="$MODE" TARGET_DIR="$TARGET_ROOT/webserv"
 
       - name: Run webserv tests
         working-directory: tests
         run: ./webserv_test --verbose
-        env:
-          LLVM_PROFILE_FILE: ${{ github.workspace }}/target/${{ matrix.mode }}/profraw/webserv_test.profraw
 
       - name: Generate coverage report
         if: matrix.mode == 'coverage'
         run: |
-          export PATH="/usr/lib/llvm-18/bin:$PATH"
-          mkdir -p target/coverage/profraw
-          llvm-profdata merge -sparse target/coverage/profraw/*.profraw -o target/coverage/coverage.profdata
-          for bin in toml98_test mon_cgi_test mon_http_test mon_net_test mon_router_test webserv_test; do
-            path=$(find target/coverage -name "$bin" -type f)
-            if [ -n "$path" ]; then
-              llvm-cov export "$path" -instr-profile=target/coverage/coverage.profdata \
-                -format=lcov >> target/coverage/coverage_raw.info
-            fi
-          done
+          lcov --capture --directory . --output-file target/coverage/coverage_raw.info
           lcov --remove target/coverage/coverage_raw.info -o coverage.info \
             '/usr/*' '*/criterion/*' '*/tests/*'
 
