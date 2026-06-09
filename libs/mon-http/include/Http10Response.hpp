@@ -3,15 +3,15 @@
 
 #include <sys/types.h>
 
-#include <stdexcept>
 #include <string>
 
+#include "AHttpResponse.hpp"
 #include "HeaderMap.hpp"
 #include "HttpVersion.hpp"
 
 namespace mon_http {
 
-class Http10Response {
+class Http10Response : AHttpResponse {
  public:
   Http10Response();
   Http10Response(const Http10Response& other);

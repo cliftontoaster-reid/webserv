@@ -18,8 +18,9 @@ class AHttpStreamParser {
     _buffer.reserve(_buffer.size() + source.size());
     _buffer.insert(_buffer.end(), source.begin(), source.end());
   }
-  virtual AHttpRequest* end();
+
   virtual AHttpRequest* pull();
+  virtual bool canPull();
 
  protected:
   std::vector<char> _buffer;

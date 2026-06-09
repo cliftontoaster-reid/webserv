@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 
+#include "AHttpRequest.hpp"
 #include "HttpMethod.hpp"
 #include "HttpVersion.hpp"
 
@@ -122,18 +123,16 @@ Http10Request& Http10Request::operator=(const Http10Request& other) {
 }
 Http10Request::~Http10Request() {}
 
-Http10Request Http10Request::parse(const std::vector<char>& data) {
+void Http10Request::parse(const std::vector<char>& data) {
   if (HttpVersion::sniffHttpVersion(data).value !=
       HttpVersion::HttpVersion1_0) {
     throw std::runtime_error("Received wrong version of HTTP");
   }
-
-  Http10Request ret;
   size_t pos = 0;
 
   std::pair<HttpMethod, std::string> headerLine = _parseHeaderLine(data, pos);
-  ret._method = headerLine.first;
-  ret._path = headerLine.second;
+  this->_method = headerLine.first;
+  this->_path = headerLine.second;
 
   while (pos < data.size()) {
     std::vector<char>::const_iterator lineStart = data.begin() + pos;
@@ -146,16 +145,16 @@ Http10Request Http10Request::parse(const std::vector<char>& data) {
     std::string line(lineStart, lineEnd);
 
     std::pair<std::string, std::string> header = _parseHeaderLine(line);
-    ret._headers.insert(header.first, header.second);
+    this->_headers.insert(header.first, header.second);
 
     pos = _newPos(lineEnd, data);
   }
 
   if (pos < data.size()) {
-    ret._body.assign(data.begin() + pos, data.end());
+    this->_body.assign(data.begin() + pos, data.end());
   }
-  if (ret.hasHeader("Content-Length")) {
-    std::string lengthStr = ret.header("Content-Length");
+  if (this->hasHeader("Content-Length")) {
+    std::string lengthStr = this->header("Content-Length");
     std::stringstream ssStr(lengthStr);
     size_t claimedLength = 0;
 
@@ -166,13 +165,14 @@ Http10Request Http10Request::parse(const std::vector<char>& data) {
           "Malformed HTTP request: malformed Content-Length header");
     }
 
-    if (ret._body.size() != claimedLength) {
-      throw std::runtime_error(
-          "Malformed HTTP request: body size does not match Content-Length");
+    if (this->_body.size() != claimedLength) {
+      throw EndedTooEarly();
+    }
+  } else {
+    if (!_body.empty()) {
+      throw std::runtime_error("Cannot have a body without Content-Length");
     }
   }
-
-  return ret;
 }
 
 // NOLINTNEXTLINE
@@ -212,5 +212,19 @@ const std::string& Http10Request::header(const std::string& key) {
 }
 
 HeaderMap& Http10Request::headers() { return _headers; }
+
+bool Http10Request::isFullRequest(std::vector<char> data) {
+  char needle_arr[] = {
+      '\r',
+      '\n',
+      '\r',
+      '\n',
+  };
+  std::vector<char>::iterator found =
+      std::search(data.begin(), data.end(), needle_arr,
+                  needle_arr + (sizeof(needle_arr) / sizeof(needle_arr[0])));
+
+  return found != data.end();
+}
 
 }  // namespace mon_http
