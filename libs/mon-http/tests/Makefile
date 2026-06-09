@@ -14,7 +14,7 @@ CCX_FLAGS ?= -Wall -Wextra -Werror -std=c++11 -pipe -MMD -MP
 LDX_FLAGS ?= 
 
 DEBUG_CFLAGS	 = -g3 -O0 -fno-omit-frame-pointer -D_GLIBCXX_DEBUG \
-								 -fsanitize=address,undefined -fstack-protector-strong
+								 -fsanitize=address,undefined -fno-sanitize=vptr -fstack-protector-strong
 DEBUG_LDFLAGS	= -fsanitize=address,undefined
 
 COVERAGE_CFLAGS  = -O0 -g --coverage
@@ -93,6 +93,7 @@ SRCS = \
 	$(SRC_DIR)/HttpVersionTests.cpp \
 	$(SRC_DIR)/Http10ResponseTests.cpp \
 	$(SRC_DIR)/Http10RequestTests.cpp \
+	$(SRC_DIR)/Http10StreamParserTests.cpp \
 
 BOBJ ?=
 OBJ  := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))

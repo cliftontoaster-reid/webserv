@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "AHttpRequest.hpp"
 #include "Http10Request.hpp"
 #include "HttpVersion.hpp"
 
@@ -17,7 +18,7 @@ Test(http10_request, copy_construction) {
   std::string data = "GET / HTTP/1.0\r\n\r\n";
   std::vector<char> raw(data.begin(), data.end());
   mon_http::Http10Request req;
-  req = req.parse(raw);
+  req.parse(raw);
 
   mon_http::Http10Request copy(req);
   cr_assert_eq(copy.method().getType(), mon_http::HttpMethod::HttpMethodGet);
@@ -27,7 +28,7 @@ Test(http10_request, assignment_operator) {
   std::string data = "POST /resource HTTP/1.0\r\n\r\n";
   std::vector<char> raw(data.begin(), data.end());
   mon_http::Http10Request req;
-  req = req.parse(raw);
+  req.parse(raw);
 
   mon_http::Http10Request assigned;
   assigned = req;
@@ -45,7 +46,7 @@ Test(http10_request, parse_simple_get) {
   std::vector<char> raw(data.begin(), data.end());
 
   mon_http::Http10Request req;
-  req = req.parse(raw);
+  req.parse(raw);
 
   cr_assert_eq(req.method().getType(), mon_http::HttpMethod::HttpMethodGet);
   cr_assert_eq(req.path(), "/");
@@ -56,7 +57,7 @@ Test(http10_request, parse_with_path) {
   std::vector<char> raw(data.begin(), data.end());
 
   mon_http::Http10Request req;
-  req = req.parse(raw);
+  req.parse(raw);
 
   cr_assert_eq(req.path(), "/index.html");
 }
@@ -70,7 +71,7 @@ Test(http10_request, parse_with_headers) {
   std::vector<char> raw(data.begin(), data.end());
 
   mon_http::Http10Request req;
-  req = req.parse(raw);
+  req.parse(raw);
 
   cr_assert_eq(req.method().getType(), mon_http::HttpMethod::HttpMethodGet);
   cr_assert_eq(req.path(), "/");
@@ -85,7 +86,7 @@ Test(http10_request, parse_with_body) {
   std::vector<char> raw(data.begin(), data.end());
 
   mon_http::Http10Request req;
-  req = req.parse(raw);
+  req.parse(raw);
 
   cr_assert_eq(req.method().getType(), mon_http::HttpMethod::HttpMethodPost);
   cr_assert_eq(req.path(), "/submit");
@@ -128,7 +129,7 @@ Test(http10_request, method_accessor) {
   std::vector<char> raw(data.begin(), data.end());
 
   mon_http::Http10Request req;
-  req = req.parse(raw);
+  req.parse(raw);
 
   cr_assert_eq(req.method().getType(),
                mon_http::HttpMethod::HttpMethodDelete);
@@ -142,7 +143,7 @@ Test(http10_request, has_header_after_parse) {
   std::vector<char> raw(data.begin(), data.end());
 
   mon_http::Http10Request req;
-  req = req.parse(raw);
+  req.parse(raw);
 
   cr_assert_eq(req.hasHeader("Host"), true);
   cr_assert_eq(req.header("Host"), "example.com");
@@ -156,7 +157,7 @@ Test(http10_request, has_header_case_insensitive) {
   std::vector<char> raw(data.begin(), data.end());
 
   mon_http::Http10Request req;
-  req = req.parse(raw);
+  req.parse(raw);
 
   cr_assert_eq(req.hasHeader("x-custom-header"), true);
   cr_assert_eq(req.header("X-Custom-Header"), "my-value");
@@ -185,7 +186,7 @@ Test(http10_request, headers_returns_reference) {
   std::vector<char> raw(data.begin(), data.end());
 
   mon_http::Http10Request req;
-  req = req.parse(raw);
+  req.parse(raw);
 
   mon_http::HeaderMap& h = req.headers();
   cr_assert_eq(h.at("Host"), "example.com");
@@ -200,5 +201,5 @@ Test(http10_request, body_content_length_mismatch_throws) {
   std::vector<char> raw(data.begin(), data.end());
 
   mon_http::Http10Request req;
-  cr_assert_throw(req.parse(raw), std::runtime_error);
+  cr_assert_throw(req.parse(raw), mon_http::EndedTooEarly);
 }

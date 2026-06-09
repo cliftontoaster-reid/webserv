@@ -1,6 +1,9 @@
 #include "Http10StreamParser.hpp"
 
+#include <stdexcept>
+
 #include "Http10Request.hpp"
+#include "HttpVersion.hpp"
 
 namespace mon_http {
 
@@ -21,6 +24,10 @@ Http10StreamParser::~Http10StreamParser() {}
 AHttpRequest* Http10StreamParser::pull() {
   if (!canPull()) {
     return NULL;
+  }
+  if (HttpVersion::sniffHttpVersion(_buffer).value !=
+      HttpVersion::HttpVersion1_0) {
+    throw std::runtime_error("Invalid header");
   }
 
   Http10Request* ret = new Http10Request();

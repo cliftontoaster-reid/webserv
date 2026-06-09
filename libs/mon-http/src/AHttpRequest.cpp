@@ -6,6 +6,10 @@
 
 namespace mon_http {
 
+HttpVersion AHttpRequest::version() const {
+  return HttpVersion(HttpVersion::HttpVersionUnknown);
+}
+
 struct HeaderPrinter {
   std::ostream& oStr;  // NOLINT
   explicit HeaderPrinter(std::ostream& oSt) : oStr(oSt) {}

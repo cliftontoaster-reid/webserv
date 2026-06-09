@@ -27,14 +27,17 @@ class Http10Response : AHttpResponse {
   int statusCode() const;
   void setStatusCode(int code);
   bool hasBody() const;
+  const std::string& body() const;
+  std::string& body();
   bool hasHeader(const std::string& key);
   const std::string& header(const std::string& key);
+  HeaderMap& headers();
 
   std::string statusMessage;
-  std::string body;
-  HeaderMap headers;
 
  private:
+  std::string _body;
+  HeaderMap _headers;
   int _code;
 };
 

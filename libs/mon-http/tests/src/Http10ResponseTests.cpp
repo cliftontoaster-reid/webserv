@@ -15,13 +15,13 @@ Test(http10_response, copy_construction) {
   mon_http::Http10Response res;
   res.setStatusCode(STATUS_OK);
   res.statusMessage = "OK";
-  res.body = "hello";
-  res.headers.insert("Host", "example.com");
+  res.body() = "hello";
+  res.headers().insert("Host", "example.com");
 
   mon_http::Http10Response copy(res);
   cr_assert_eq(copy.statusCode(), 200);
   cr_assert_eq(copy.statusMessage, "OK");
-  cr_assert_eq(copy.body, "hello");
+  cr_assert_eq(copy.body(), "hello");
   cr_assert_eq(copy.header("Host"), "example.com");
 }
 
@@ -29,14 +29,14 @@ Test(http10_response, assignment_operator) {
   mon_http::Http10Response res;
   res.setStatusCode(STATUS_Not_Found);
   res.statusMessage = "Not Found";
-  res.body = "error";
-  res.headers.insert("Content-Type", "text/plain");
+  res.body() = "error";
+  res.headers().insert("Content-Type", "text/plain");
 
   mon_http::Http10Response copy;
   copy = res;
   cr_assert_eq(copy.statusCode(), 404);
   cr_assert_eq(copy.statusMessage, "Not Found");
-  cr_assert_eq(copy.body, "error");
+  cr_assert_eq(copy.body(), "error");
   cr_assert_eq(copy.header("Content-Type"), "text/plain");
 }
 
@@ -73,7 +73,7 @@ Test(http10_response, has_body_empty) {
 
 Test(http10_response, has_body_non_empty) {
   mon_http::Http10Response res;
-  res.body = "hello";
+  res.body() = "hello";
   cr_assert_eq(res.hasBody(), true);
 }
 
@@ -84,7 +84,7 @@ Test(http10_response, has_header_without_headers) {
 
 Test(http10_response, has_header_with_header) {
   mon_http::Http10Response res;
-  res.headers.insert("Host", "example.com");
+  res.headers().insert("Host", "example.com");
   cr_assert_eq(res.hasHeader("Host"), true);
 }
 
@@ -108,7 +108,7 @@ Test(http10_response, encode_with_body) {
   mon_http::Http10Response res;
   res.setStatusCode(STATUS_OK);
   res.statusMessage = "OK";
-  res.body = "hello world";
+  res.body() = "hello world";
 
   std::vector<char> encoded = res.encode();
   std::string result(encoded.begin(), encoded.end());
@@ -121,8 +121,8 @@ Test(http10_response, encode_with_headers_no_body) {
   mon_http::Http10Response res;
   res.setStatusCode(STATUS_OK);
   res.statusMessage = "OK";
-  res.headers.insert("Host", "example.com");
-  res.headers.insert("Content-Type", "text/plain");
+  res.headers().insert("Host", "example.com");
+  res.headers().insert("Content-Type", "text/plain");
 
   std::vector<char> encoded = res.encode();
   std::string result(encoded.begin(), encoded.end());
@@ -136,8 +136,8 @@ Test(http10_response, encode_with_headers_and_body) {
   mon_http::Http10Response res;
   res.setStatusCode(STATUS_Created);
   res.statusMessage = "Created";
-  res.body = "{\"id\": 1}";
-  res.headers.insert("Content-Type", "application/json");
+  res.body() = "{\"id\": 1}";
+  res.headers().insert("Content-Type", "application/json");
 
   std::vector<char> encoded = res.encode();
   std::string result(encoded.begin(), encoded.end());

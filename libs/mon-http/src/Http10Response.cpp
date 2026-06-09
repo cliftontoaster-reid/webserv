@@ -21,14 +21,14 @@ struct Http10HeaderPrinter {
 Http10Response::Http10Response() : _code(0) {}
 Http10Response::Http10Response(const Http10Response& other)
     : statusMessage(other.statusMessage),
-      body(other.body),
-      headers(other.headers),
+      _body(other._body),
+      _headers(other._headers),
       _code(other._code) {}
 Http10Response& Http10Response::operator=(const Http10Response& other) {
   if (this != &other) {
     statusMessage = other.statusMessage;
-    body = other.body;
-    headers = other.headers;
+    _body = other._body;
+    _headers = other._headers;
     _code = other._code;
   }
   return *this;
@@ -46,18 +46,18 @@ std::vector<char> Http10Response::encode() {
   ost << statusMessage << "\r\n";
 
   if (hasBody()) {
-    std::string& len = headers["Content-Length"];
+    std::string& len = _headers["Content-Length"];
     std::stringstream sstr;
 
-    sstr << body.length();
+    sstr << _body.length();
     len = sstr.str();
   }
 
-  headers.iter(Http10HeaderPrinter(ost));
+  _headers.iter(Http10HeaderPrinter(ost));
 
   if (hasBody()) {
     ost << "\r\n" << "\r\n";
-    ost << body;
+    ost << _body;
   }
 
   std::string result = ost.str();
@@ -78,11 +78,17 @@ void Http10Response::setStatusCode(int code) {
   _code = code;
 }
 
-bool Http10Response::hasBody() const { return !body.empty(); }
+bool Http10Response::hasBody() const { return !_body.empty(); }
+
+const std::string& Http10Response::body() const { return _body; }
+
+std::string& Http10Response::body() { return _body; }
+
+HeaderMap& Http10Response::headers() { return _headers; }
 
 bool Http10Response::hasHeader(const std::string& key) {
   try {
-    headers.at(key);
+    _headers.at(key);
     return true;
   } catch (std::out_of_range& err) {
     (void)err;
@@ -91,7 +97,7 @@ bool Http10Response::hasHeader(const std::string& key) {
 }
 
 const std::string& Http10Response::header(const std::string& key) {
-  return headers.at(key);
+  return _headers.at(key);
 }
 
 }  // namespace mon_http
