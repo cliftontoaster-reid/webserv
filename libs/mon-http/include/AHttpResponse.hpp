@@ -26,6 +26,7 @@
 #define STATUS_Not_Implemented 501
 #define STATUS_Bad_Gateway 502
 #define STATUS_Service_Unavailable 503
+#define STATUS_Version_Not_Supported 505
 
 namespace mon_http {
 
