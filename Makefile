@@ -210,7 +210,8 @@ $(MON_NET_ARCHIVE): $(MON_NET_SRCS) $(MON_NET_HDRS) $(MON_NET_DEPO)/Makefile $(M
 	@printf "$(BOLD)Building mon-net library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 	MODE="$(MODE)" \
-	$(MAKE) -C $(MON_NET_DEPO) TARGET_DIR="$(abspath $(MON_NET_TARGET_DIR))" all
+	$(MAKE) -C $(MON_NET_DEPO) TARGET_DIR="$(abspath $(MON_NET_TARGET_DIR))" \
+		OFFICE_DIR="$(abspath $(ORIGIN_DIR))/$(MODE)" all
 	@printf "$(BOLD)Built mon-net:$(RESET) $(GREEN)$(MON_NET_ARCHIVE)$(RESET)\n"
 
 # -----------

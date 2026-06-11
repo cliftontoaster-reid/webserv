@@ -70,7 +70,7 @@ struct BufferedData {
 template <int MaxEvents>
 class Listener {
  public:
-  Listener<MaxEvents>();
+  Listener();
 
   std::vector<Event> poll(int timeout);
   void write(const std::vector<char>& data, int fd);

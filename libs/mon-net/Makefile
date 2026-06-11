@@ -72,7 +72,7 @@ all: lib$(NAME).a lib$(NAME).so
 
 LIBS_DIR	 =	..
 ORIGIN_DIR =	./target
-OFFICE_DIR =	$(ORIGIN_DIR)/$(MODE)
+OFFICE_DIR ?=	$(ORIGIN_DIR)/$(MODE)
 TARGET_DIR ?= $(OFFICE_DIR)/$(NAME)
 OBJ_DIR		 =	$(TARGET_DIR)/obj
 TOBJ_DIR	 =	$(TARGET_DIR)/tobj
@@ -213,7 +213,7 @@ $(BIN_DIR)/$(NAME).a: $(OBJ) $(LIBS_ARCHIVES)
 
 $(BIN_DIR)/$(NAME).so: $(OBJ) $(LIBS_ARCHIVES)
 	@mkdir -p $(BIN_DIR)
-	@$(CCX) -shared $(LDFLAGS) $(LIB_RPATH_FLAGS) -o "$@" $(OBJ) $(LIBS_ARCHIVES)
+	@$(CCX) -shared $(LDFLAGS) $(LIB_RPATH_FLAGS) -Wl,-soname,$(NAME).so -o "$@" $(OBJ) $(LIBS_ARCHIVES)
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME).so$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
 lib$(NAME).a: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).a
