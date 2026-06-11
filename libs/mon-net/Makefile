@@ -87,6 +87,7 @@ FILES = \
  ../../assets/html/413.html \
  ../../assets/html/414.html \
  ../../assets/html/500.html \
+ ../../assets/html/501.html \
  ../../assets/html/505.html \
  \
  ../../assets/html/hello.html \
@@ -97,6 +98,7 @@ STD_PAGE_404 \
 STD_PAGE_413 \
 STD_PAGE_414 \
 STD_PAGE_500 \
+STD_PAGE_501 \
 STD_PAGE_505 \
 STD_PAGE_HELLO \
 
