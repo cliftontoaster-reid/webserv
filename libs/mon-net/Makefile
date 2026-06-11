@@ -176,7 +176,7 @@ $(MON_ROUTER_ARCHIVE):
 
 $(EMB_FILE): $(FILES)
 	@mkdir -p $(BUILD_DIR)
-	@python ../../scripts/embed.py "$(EMB_FILE)" "$(FILES)" "$(VARS)"
+	@python3 ../../scripts/embed.py "$(EMB_FILE)" "$(FILES)" "$(VARS)"
 	@printf "$(BOLD)Compiled$(RESET) $(BLUE)$(FILES)$(RESET) -> $(GREEN)$(EMB_FILE)$(RESET)\n"
 
 compile_commands.json: Makefile $(SRCS)
