@@ -10,3 +10,6 @@
 *__pycache__*
 
 *.profraw
+
+*.vgcore
+callgrind.out.*
