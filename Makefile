@@ -48,6 +48,16 @@ else
 	BLUE =
 endif
 
+# ---------
+# Version
+# ---------
+VERSION_MAJOR = 0
+VERSION_MINOR = 1
+VERSION_PATCH = 0
+VERSION_BUILD := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+VERSION := $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)+$(VERSION_BUILD)
+CCX_FLAGS += -DWEBSERV_VERSION=\"$(VERSION)\"
+
 MODE ?= debug
 CFLAGS =
 ifeq ($(MODE),release)
@@ -124,7 +134,7 @@ toml98: $(TOML98_ARCHIVE)
 $(TOML98_ARCHIVE): $(TOML98_SRCS) $(TOML98_HDRS) $(TOML98_DEPO)/Makefile
 	@printf "$(BOLD)Building toml98 library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	MODE="$(MODE)" \
+	MODE="$(MODE)" VERSION="$(VERSION)" \
 	$(MAKE) -C $(TOML98_DEPO) TARGET_DIR="$(abspath $(TOML98_TARGET_DIR))" all
 	@printf "$(BOLD)Built toml98:$(RESET) $(GREEN)$(TOML98_ARCHIVE)$(RESET)\n"
 
@@ -152,7 +162,7 @@ mon-cgi: $(MON_CGI_ARCHIVE)
 $(MON_CGI_ARCHIVE): $(MON_CGI_SRCS) $(MON_CGI_HDRS) $(MON_CGI_DEPO)/Makefile
 	@printf "$(BOLD)Building mon-cgi library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	MODE="$(MODE)" \
+	MODE="$(MODE)" VERSION="$(VERSION)" \
 	$(MAKE) -C $(MON_CGI_DEPO) TARGET_DIR="$(abspath $(MON_CGI_TARGET_DIR))" all
 	@printf "$(BOLD)Built mon-cgi:$(RESET) $(GREEN)$(MON_CGI_ARCHIVE)$(RESET)\n"
 
@@ -180,7 +190,7 @@ mon-http: $(MON_HTTP_ARCHIVE)
 $(MON_HTTP_ARCHIVE): $(MON_HTTP_SRCS) $(MON_HTTP_HDRS) $(MON_HTTP_DEPO)/Makefile
 	@printf "$(BOLD)Building mon-http library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	MODE="$(MODE)" \
+	MODE="$(MODE)" VERSION="$(VERSION)" \
 	$(MAKE) -C $(MON_HTTP_DEPO) TARGET_DIR="$(abspath $(MON_HTTP_TARGET_DIR))" all
 	@printf "$(BOLD)Built mon-http:$(RESET) $(GREEN)$(MON_HTTP_ARCHIVE)$(RESET)\n"
 
@@ -209,7 +219,7 @@ mon-net: $(MON_NET_ARCHIVE)
 $(MON_NET_ARCHIVE): $(MON_NET_SRCS) $(MON_NET_HDRS) $(MON_NET_DEPO)/Makefile $(MON_NET_ASSETS)
 	@printf "$(BOLD)Building mon-net library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	MODE="$(MODE)" \
+	MODE="$(MODE)" VERSION="$(VERSION)" \
 	$(MAKE) -C $(MON_NET_DEPO) TARGET_DIR="$(abspath $(MON_NET_TARGET_DIR))" \
 		OFFICE_DIR="$(abspath $(ORIGIN_DIR))/$(MODE)" all
 	@printf "$(BOLD)Built mon-net:$(RESET) $(GREEN)$(MON_NET_ARCHIVE)$(RESET)\n"
@@ -238,7 +248,7 @@ mon-router: $(MON_ROUTER_ARCHIVE)
 $(MON_ROUTER_ARCHIVE): $(MON_ROUTER_SRCS) $(MON_ROUTER_HDRS) $(MON_ROUTER_DEPO)/Makefile
 	@printf "$(BOLD)Building mon-router library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" MODE="$(MODE)" VERSION="$(VERSION)" \
 	$(MAKE) -C $(MON_ROUTER_DEPO) all
 	@printf "$(BOLD)Built mon-router:$(RESET) $(GREEN)$(MON_ROUTER_ARCHIVE)$(RESET)\n"
 
@@ -248,7 +258,7 @@ $(MON_ROUTER_ARCHIVE): $(MON_ROUTER_SRCS) $(MON_ROUTER_HDRS) $(MON_ROUTER_DEPO)/
 test: $(LIBS_ARCHIVES)
 	@printf "$(BOLD)Building tests...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(TARGET_DIR)" MODE="$(MODE)" \
+	TARGET_DIR="$(TARGET_DIR)" MODE="$(MODE)" VERSION="$(VERSION)" \
 	BOBJ="$(OBJ)" BINC="$(INC)" \
 	LIBS_ARCHIVES="$(abspath $(LIBS_ARCHIVES))" \
 	LIB_RPATH_FLAGS="$(LIB_RPATH_FLAGS)" \

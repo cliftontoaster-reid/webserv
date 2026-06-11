@@ -49,6 +49,16 @@ else
 	BLUE =
 endif
 
+# ---------
+# Version
+# ---------
+VERSION_MAJOR ?= 0
+VERSION_MINOR ?= 0
+VERSION_PATCH ?= 0
+VERSION_BUILD ?= unknown
+VERSION ?= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)+$(VERSION_BUILD)
+CCX_FLAGS += -DWEBSERV_VERSION=\"$(VERSION)\"
+
 MODE ?= debug
 CFLAGS =
 ifeq ($(MODE),release)
@@ -146,7 +156,7 @@ mon-http: $(MON_HTTP_ARCHIVE)
 $(MON_HTTP_ARCHIVE):
 	@printf "$(BOLD)Building mon-http library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	MODE="$(MODE)" \
+	MODE="$(MODE)" VERSION="$(VERSION)" \
 	$(MAKE) -C $(MON_HTTP_DEPO) TARGET_DIR="$(abspath $(MON_HTTP_TARGET_DIR))" all
 	@printf "$(BOLD)Built mon-http:$(RESET) $(GREEN)$(MON_HTTP_ARCHIVE)$(RESET)\n"
 
@@ -172,7 +182,7 @@ mon-router: $(MON_ROUTER_ARCHIVE)
 $(MON_ROUTER_ARCHIVE):
 	@printf "$(BOLD)Building mon-router library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	MODE="$(MODE)" \
+	MODE="$(MODE)" VERSION="$(VERSION)" \
 	$(MAKE) -C $(MON_ROUTER_DEPO) TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" all
 	@printf "$(BOLD)Built mon-router:$(RESET) $(GREEN)$(MON_ROUTER_ARCHIVE)$(RESET)\n"
 
@@ -230,7 +240,7 @@ lib$(NAME).so: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).so
 test: lib$(NAME).a
 	@printf "$(BOLD)Building tests...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(abspath $(TARGET_DIR))" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(TARGET_DIR))" MODE="$(MODE)" VERSION="$(VERSION)" \
 	BOBJ="$(OBJ)" LIBS_ARCHIVES="$(abspath ./lib$(NAME).a) $(abspath $(LIBS_ARCHIVES))" \
 	LIB_RPATH_FLAGS="$(LIB_RPATH_FLAGS)" \
 	$(MAKE) -C $(TEST_DIR) TARGET_DIR="$(abspath $(TARGET_DIR))" all --silent

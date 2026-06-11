@@ -47,6 +47,16 @@ else
 	BLUE =
 endif
 
+# ---------
+# Version
+# ---------
+VERSION_MAJOR ?= 0
+VERSION_MINOR ?= 0
+VERSION_PATCH ?= 0
+VERSION_BUILD ?= unknown
+VERSION ?= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)+$(VERSION_BUILD)
+CCX_FLAGS += -DWEBSERV_VERSION=\"$(VERSION)\"
+
 MODE ?= debug
 CFLAGS =
 ifeq ($(MODE),release)

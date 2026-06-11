@@ -48,6 +48,16 @@ else
 	BLUE =
 endif
 
+# ---------
+# Version
+# ---------
+VERSION_MAJOR ?= 0
+VERSION_MINOR ?= 0
+VERSION_PATCH ?= 0
+VERSION_BUILD ?= unknown
+VERSION ?= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)+$(VERSION_BUILD)
+CCX_FLAGS += -DWEBSERV_VERSION=\"$(VERSION)\"
+
 MODE ?= debug
 CFLAGS =
 ifeq ($(MODE),release)
@@ -150,7 +160,7 @@ lib$(NAME).so: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).so
 test: lib$(NAME).a
 	@printf "$(BOLD)Building tests...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(abspath $(TARGET_DIR))" MODE="$(MODE)" \
+	TARGET_DIR="$(abspath $(TARGET_DIR))" MODE="$(MODE)" VERSION="$(VERSION)" \
 	BOBJ="$(OBJ)" LIBS_ARCHIVES="../lib$(NAME).a $(LIBS_ARCHIVES)" \
 	LIB_RPATH_FLAGS="$(LIB_RPATH_FLAGS)" \
 	$(MAKE) -C $(TEST_DIR) all --silent

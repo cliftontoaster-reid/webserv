@@ -72,8 +72,6 @@ std::vector<char> Http10Response::encode() {
   if (hasBody()) {
     buf.push_back('\r');
     buf.push_back('\n');
-    buf.push_back('\r');
-    buf.push_back('\n');
     buf.insert(buf.end(), _body.begin(), _body.end());
   }
 

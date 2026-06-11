@@ -11,7 +11,12 @@
 #include "HttpMethod.hpp"
 #include "HttpVersion.hpp"
 
+#ifndef WEBSERV_VERSION
+#define WEBSERV_VERSION __TIMESTAMP__
+#endif
+
 namespace mon_http {
+
 struct IsLineTerminator {
   bool operator()(char c) const { return c == '\r' || c == '\n'; }
 };
@@ -106,7 +111,9 @@ static inline std::pair<std::string, std::string> _parseHeaderLine(
   return std::make_pair(key, value);
 }
 
-Http10Request::Http10Request() {}
+Http10Request::Http10Request() {
+  _headers.insert("Server", "WebFloof/" WEBSERV_VERSION);
+}
 Http10Request::Http10Request(const Http10Request& other)
     : _method(other._method),
       _path(other._path),
