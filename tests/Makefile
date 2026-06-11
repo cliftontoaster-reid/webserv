@@ -99,7 +99,7 @@ dirs:
 	@$(foreach d, $(DIRS), mkdir -p "$(d)";)
 
 LIBRARIES := criterion
-LIBS_ARCHIVES :=
+LIBS_ARCHIVES ?=
 
 # -------
 # Criterion
@@ -154,6 +154,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 $(BIN_DIR)/$(NAME): $(LIBS_ARCHIVES) $(OBJ)
 	@mkdir -p "$(@D)"
 	@$(CCX) -o "$@" $(LDX_FLAGS) $(LDFLAGS) \
+		$(LIB_RPATH_FLAGS) \
 		-Wl,-rpath,'$$ORIGIN/$(CRITERION_BIN_DIR)/lib' \
 		$(OBJ) $(LIBS_ARCHIVES)
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME)$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"

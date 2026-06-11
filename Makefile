@@ -86,9 +86,10 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
+	$(SRC_DIR)/main.cpp \
 
-OBJ := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
-DEP := $(patsubst $(SRC_DIR)/%.c,$(DEP_DIR)/%.d,$(SRCS))
+OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
+DEP := $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(SRCS))
 INC := -I$(INC_DIR)
 DIRS = $(OBJ_DIR) $(TOBJ_DIR) $(DEP_DIR) $(BIN_DIR)
 
@@ -97,6 +98,7 @@ dirs:
 
 LIBRARIES := toml98 mon-cgi mon-http mon-net mon-router
 LIBS_ARCHIVES :=
+LIB_RPATH_FLAGS := 
 
 # -------
 # TOML98
@@ -109,14 +111,17 @@ TOML98_DEP_DIR		= $(TOML98_TARGET_DIR)/dep
 TOML98_BIN_DIR		= $(TOML98_TARGET_DIR)/bin
 TOML98_DIRS			  = $(TOML98_OBJ_DIR) $(TOML98_TOBJ_DIR) \
 										$(TOML98_DEP_DIR) $(TOML98_BIN_DIR)
-TOML98_ARCHIVE		= $(TOML98_BIN_DIR)/libtoml98.a
+TOML98_ARCHIVE		= $(TOML98_BIN_DIR)/toml98.so
+TOML98_SRCS			:= $(shell find $(TOML98_DEPO)/src     -name '*.cpp' 2>/dev/null)
+TOML98_HDRS			:= $(shell find $(TOML98_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
 TOML98_INC_DIR		= $(TOML98_DEPO)/include
 
 LIBS_ARCHIVES += $(TOML98_ARCHIVE)
 INC += -I$(TOML98_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(TOML98_BIN_DIR))'
 
 toml98: $(TOML98_ARCHIVE)
-$(TOML98_ARCHIVE):
+$(TOML98_ARCHIVE): $(TOML98_SRCS) $(TOML98_HDRS) $(TOML98_DEPO)/Makefile
 	@printf "$(BOLD)Building toml98 library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 	TARGET_DIR="$(abspath $(TOML98_TARGET_DIR))" MODE="$(MODE)" \
@@ -134,14 +139,17 @@ MON_CGI_DEP_DIR		 = $(MON_CGI_TARGET_DIR)/dep
 MON_CGI_BIN_DIR		 = $(MON_CGI_TARGET_DIR)/bin
 MON_CGI_DIRS			 = $(MON_CGI_OBJ_DIR) $(MON_CGI_TOBJ_DIR) \
 										 $(MON_CGI_DEP_DIR) $(MON_CGI_BIN_DIR)
-MON_CGI_ARCHIVE		= $(MON_CGI_BIN_DIR)/libmon_cgi.a
+MON_CGI_ARCHIVE		= $(MON_CGI_BIN_DIR)/mon-cgi.so
+MON_CGI_SRCS			:= $(shell find $(MON_CGI_DEPO)/src     -name '*.cpp' 2>/dev/null)
+MON_CGI_HDRS			:= $(shell find $(MON_CGI_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
 MON_CGI_INC_DIR		= $(MON_CGI_DEPO)/include
 
-LIBS_ARCHIVES += $(MON_CGI_ARCHIVE)
+# LIBS_ARCHIVES += $(MON_CGI_ARCHIVE)
 INC += -I$(MON_CGI_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_CGI_BIN_DIR))'
 
 mon-cgi: $(MON_CGI_ARCHIVE)
-$(MON_CGI_ARCHIVE):
+$(MON_CGI_ARCHIVE): $(MON_CGI_SRCS) $(MON_CGI_HDRS) $(MON_CGI_DEPO)/Makefile
 	@printf "$(BOLD)Building mon-cgi library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 	TARGET_DIR="$(abspath $(MON_CGI_TARGET_DIR))" MODE="$(MODE)" \
@@ -159,14 +167,17 @@ MON_HTTP_DEP_DIR		= $(MON_HTTP_TARGET_DIR)/dep
 MON_HTTP_BIN_DIR		= $(MON_HTTP_TARGET_DIR)/bin
 MON_HTTP_DIRS			  = $(MON_HTTP_OBJ_DIR) $(MON_HTTP_TOBJ_DIR) \
 											$(MON_HTTP_DEP_DIR) $(MON_HTTP_BIN_DIR)
-MON_HTTP_ARCHIVE		= $(MON_HTTP_BIN_DIR)/libmon_http.a
+MON_HTTP_ARCHIVE		= $(MON_HTTP_BIN_DIR)/mon-http.so
+MON_HTTP_SRCS			:= $(shell find $(MON_HTTP_DEPO)/src     -name '*.cpp' 2>/dev/null)
+MON_HTTP_HDRS			:= $(shell find $(MON_HTTP_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
 MON_HTTP_INC_DIR		= $(MON_HTTP_DEPO)/include
 
 LIBS_ARCHIVES += $(MON_HTTP_ARCHIVE)
 INC += -I$(MON_HTTP_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_HTTP_BIN_DIR))'
 
 mon-http: $(MON_HTTP_ARCHIVE)
-$(MON_HTTP_ARCHIVE):
+$(MON_HTTP_ARCHIVE): $(MON_HTTP_SRCS) $(MON_HTTP_HDRS) $(MON_HTTP_DEPO)/Makefile
 	@printf "$(BOLD)Building mon-http library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 	TARGET_DIR="$(abspath $(MON_HTTP_TARGET_DIR))" MODE="$(MODE)" \
@@ -184,14 +195,18 @@ MON_NET_DEP_DIR		 = $(MON_NET_TARGET_DIR)/dep
 MON_NET_BIN_DIR		 = $(MON_NET_TARGET_DIR)/bin
 MON_NET_DIRS			 = $(MON_NET_OBJ_DIR) $(MON_NET_TOBJ_DIR) \
 										 $(MON_NET_DEP_DIR) $(MON_NET_BIN_DIR)
-MON_NET_ARCHIVE		= $(MON_NET_BIN_DIR)/libmon_net.a
+MON_NET_ARCHIVE		= $(MON_NET_BIN_DIR)/mon-net.so
+MON_NET_SRCS			:= $(shell find $(MON_NET_DEPO)/src     -name '*.cpp' 2>/dev/null)
+MON_NET_HDRS			:= $(shell find $(MON_NET_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
+MON_NET_ASSETS		:= assets/html/400.html assets/html/404.html assets/html/413.html assets/html/414.html assets/html/500.html assets/html/505.html assets/html/hello.html
 MON_NET_INC_DIR		= $(MON_NET_DEPO)/include
 
 LIBS_ARCHIVES += $(MON_NET_ARCHIVE)
 INC += -I$(MON_NET_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_NET_BIN_DIR))'
 
 mon-net: $(MON_NET_ARCHIVE)
-$(MON_NET_ARCHIVE):
+$(MON_NET_ARCHIVE): $(MON_NET_SRCS) $(MON_NET_HDRS) $(MON_NET_DEPO)/Makefile $(MON_NET_ASSETS)
 	@printf "$(BOLD)Building mon-net library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 	TARGET_DIR="$(abspath $(MON_NET_TARGET_DIR))" MODE="$(MODE)" \
@@ -209,14 +224,17 @@ MON_ROUTER_DEP_DIR		= $(MON_ROUTER_TARGET_DIR)/dep
 MON_ROUTER_BIN_DIR		= $(MON_ROUTER_TARGET_DIR)/bin
 MON_ROUTER_DIRS			  = $(MON_ROUTER_OBJ_DIR) $(MON_ROUTER_TOBJ_DIR) \
 												$(MON_ROUTER_DEP_DIR) $(MON_ROUTER_BIN_DIR)
-MON_ROUTER_ARCHIVE		= $(MON_ROUTER_BIN_DIR)/libmon_router.a
+MON_ROUTER_ARCHIVE		= $(MON_ROUTER_BIN_DIR)/mon-router.so
+MON_ROUTER_SRCS			:= $(shell find $(MON_ROUTER_DEPO)/src     -name '*.cpp' 2>/dev/null)
+MON_ROUTER_HDRS			:= $(shell find $(MON_ROUTER_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
 MON_ROUTER_INC_DIR		= $(MON_ROUTER_DEPO)/include
 
-LIBS_ARCHIVES += $(MON_ROUTER_ARCHIVE)
+# LIBS_ARCHIVES += $(MON_ROUTER_ARCHIVE)
 INC += -I$(MON_ROUTER_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_ROUTER_BIN_DIR))'
 
 mon-router: $(MON_ROUTER_ARCHIVE)
-$(MON_ROUTER_ARCHIVE):
+$(MON_ROUTER_ARCHIVE): $(MON_ROUTER_SRCS) $(MON_ROUTER_HDRS) $(MON_ROUTER_DEPO)/Makefile
 	@printf "$(BOLD)Building mon-router library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 	TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" MODE="$(MODE)" \
@@ -230,7 +248,9 @@ test:
 	@printf "$(BOLD)Building tests...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
 	TARGET_DIR="$(TARGET_DIR)" MODE="$(MODE)" \
-	BOBJ="$(OBJ)" BINC="$(INC)" LIBS_ARCHIVES="$(LIBS_ARCHIVES)" \
+	BOBJ="$(OBJ)" BINC="$(INC)" \
+	LIBS_ARCHIVES="$(abspath $(LIBS_ARCHIVES))" \
+	LIB_RPATH_FLAGS="$(LIB_RPATH_FLAGS)" \
 	$(MAKE) -C $(TEST_DIR) all --silent
 	@printf "$(BOLD)Built tests$(RESET)\n"
 
@@ -288,7 +308,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@printf "$(BOLD)Compiled$(RESET) $(BLUE)$<$(RESET) -> $(GREEN)$@$(RESET) $(BOLD)$(RED)$(DEP_DIR)/$*.d$(RESET)\n"
 
 $(BIN_DIR)/$(NAME): $(OBJ) $(LIBS_ARCHIVES)
+	@mkdir -p $(@D)
 	@$(CCX) -o "$@" $(LDX_FLAGS) $(LDFLAGS) \
+		$(LIB_RPATH_FLAGS) \
 		$(OBJ) $(LIBS_ARCHIVES)
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME)$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
