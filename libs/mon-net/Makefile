@@ -14,6 +14,7 @@ CCX = clang++
 
 CCX_FLAGS ?= -Wall -Wextra -Werror -std=c++98 -pipe -fPIC -MMD -MP
 LDX_FLAGS ?= 
+EMBEDER = ../../scripts/embed.py
 
 DEBUG_CFLAGS	 = -g3 -O0 -fno-omit-frame-pointer -D_GLIBCXX_DEBUG \
 								 -fsanitize=address,undefined -fstack-protector-strong
@@ -69,7 +70,7 @@ endif
 NAME = mon-net
 all: lib$(NAME).a lib$(NAME).so
 
-LIBS_DIR	 =	./libs
+LIBS_DIR	 =	..
 ORIGIN_DIR =	./target
 OFFICE_DIR =	$(ORIGIN_DIR)/$(MODE)
 TARGET_DIR ?= $(OFFICE_DIR)/$(NAME)
@@ -77,6 +78,27 @@ OBJ_DIR		 =	$(TARGET_DIR)/obj
 TOBJ_DIR	 =	$(TARGET_DIR)/tobj
 DEP_DIR		 =	$(TARGET_DIR)/dep
 BIN_DIR		 =	$(TARGET_DIR)/bin
+BUILD_DIR	 =	$(TARGET_DIR)/build
+EMB_FILE   =  $(BUILD_DIR)/emb.hpp
+
+FILES = \
+ ../../assets/html/400.html \
+ ../../assets/html/404.html \
+ ../../assets/html/413.html \
+ ../../assets/html/414.html \
+ ../../assets/html/500.html \
+ ../../assets/html/505.html \
+ \
+ ../../assets/html/hello.html \
+
+VARS = \
+STD_PAGE_400 \
+STD_PAGE_404 \
+STD_PAGE_413 \
+STD_PAGE_414 \
+STD_PAGE_500 \
+STD_PAGE_505 \
+STD_PAGE_HELLO \
 
 INC_DIR		= ./include
 SRC_DIR		= ./src
@@ -86,19 +108,76 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
+	$(SRC_DIR)/Server.cpp \
 
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 DEP := $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(SRCS))
 INC := -I$(INC_DIR)
-DIRS = $(OBJ_DIR) $(TOBJ_DIR) $(DEP_DIR) $(BIN_DIR)
+DIRS = $(OBJ_DIR) $(TOBJ_DIR) $(DEP_DIR) $(BIN_DIR) $(BUILD_DIR)
 
 dirs:
 	@$(foreach d, $(DIRS), mkdir -p "$(d)";)
 
 LIBRARIES :=
 LIBS_ARCHIVES :=
+LIB_RPATH_FLAGS :=
 
-# TODO: tests
+# ---------
+# MON-HTTP
+# ---------
+MON_HTTP_DEPO			  = $(LIBS_DIR)/mon-http
+MON_HTTP_TARGET_DIR = $(OFFICE_DIR)/mon-http
+MON_HTTP_OBJ_DIR		= $(MON_HTTP_TARGET_DIR)/obj
+MON_HTTP_TOBJ_DIR	  = $(MON_HTTP_TARGET_DIR)/tobj
+MON_HTTP_DEP_DIR		= $(MON_HTTP_TARGET_DIR)/dep
+MON_HTTP_BIN_DIR		= $(MON_HTTP_TARGET_DIR)/bin
+MON_HTTP_DIRS			  = $(MON_HTTP_OBJ_DIR) $(MON_HTTP_TOBJ_DIR) \
+											$(MON_HTTP_DEP_DIR) $(MON_HTTP_BIN_DIR)
+MON_HTTP_ARCHIVE		= $(MON_HTTP_BIN_DIR)/mon-http.so
+MON_HTTP_INC_DIR		= $(MON_HTTP_DEPO)/include
+
+LIBS_ARCHIVES += $(MON_HTTP_ARCHIVE)
+INC += -I$(MON_HTTP_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_HTTP_BIN_DIR))'
+
+mon-http: $(MON_HTTP_ARCHIVE)
+$(MON_HTTP_ARCHIVE):
+	@printf "$(BOLD)Building mon-http library...$(RESET)\n"
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	TARGET_DIR="$(abspath $(MON_HTTP_TARGET_DIR))" MODE="$(MODE)" \
+	$(MAKE) -C $(MON_HTTP_DEPO) all
+	@printf "$(BOLD)Built mon-http:$(RESET) $(GREEN)$(MON_HTTP_ARCHIVE)$(RESET)\n"
+
+# -----------
+# MON-ROUTER
+# -----------
+MON_ROUTER_DEPO			  = $(LIBS_DIR)/mon-router
+MON_ROUTER_TARGET_DIR = $(OFFICE_DIR)/mon-router
+MON_ROUTER_OBJ_DIR		= $(MON_ROUTER_TARGET_DIR)/obj
+MON_ROUTER_TOBJ_DIR	  = $(MON_ROUTER_TARGET_DIR)/tobj
+MON_ROUTER_DEP_DIR		= $(MON_ROUTER_TARGET_DIR)/dep
+MON_ROUTER_BIN_DIR		= $(MON_ROUTER_TARGET_DIR)/bin
+MON_ROUTER_DIRS			  = $(MON_ROUTER_OBJ_DIR) $(MON_ROUTER_TOBJ_DIR) \
+												$(MON_ROUTER_DEP_DIR) $(MON_ROUTER_BIN_DIR)
+MON_ROUTER_ARCHIVE		= $(MON_ROUTER_BIN_DIR)/mon-router.so
+MON_ROUTER_INC_DIR		= $(MON_ROUTER_DEPO)/include
+
+# LIBS_ARCHIVES += $(MON_ROUTER_ARCHIVE)
+INC += -I$(MON_ROUTER_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_ROUTER_BIN_DIR))'
+
+mon-router: $(MON_ROUTER_ARCHIVE)
+$(MON_ROUTER_ARCHIVE):
+	@printf "$(BOLD)Building mon-router library...$(RESET)\n"
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" MODE="$(MODE)" \
+	$(MAKE) -C $(MON_ROUTER_DEPO) all
+	@printf "$(BOLD)Built mon-router:$(RESET) $(GREEN)$(MON_ROUTER_ARCHIVE)$(RESET)\n"
+
+$(EMB_FILE): $(FILES)
+	@mkdir -p $(BUILD_DIR)
+	@python ../../scripts/embed.py "$(EMB_FILE)" "$(FILES)" "$(VARS)"
+	@printf "$(BOLD)Compiled$(RESET) $(BLUE)$(FILES)$(RESET) -> $(GREEN)$(EMB_FILE)$(RESET)\n"
 
 compile_commands.json: Makefile $(SRCS)
 	@echo "Generating compile_commands.json ..."
@@ -119,9 +198,9 @@ compile_commands.json: Makefile $(SRCS)
 	@$(RM) -f .linkflag_*
 	@touch $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(EMB_FILE)
 	@mkdir -p $(@D) $(dir $(DEP_DIR)/$*.d)
-	@$(CCX) $(CCX_FLAGS) $(CFLAGS) \
+	@$(CCX) $(CCX_FLAGS) $(CFLAGS) -I '$(abspath $(BUILD_DIR))' \
 		-MF $(DEP_DIR)/$*.d -c $< -o $@ $(INC)
 	@printf "$(BOLD)Compiled$(RESET) $(BLUE)$<$(RESET) -> $(GREEN)$@$(RESET) $(BOLD)$(RED)$(DEP_DIR)/$*.d$(RESET)\n"
 
@@ -132,7 +211,7 @@ $(BIN_DIR)/$(NAME).a: $(OBJ) $(LIBS_ARCHIVES)
 
 $(BIN_DIR)/$(NAME).so: $(OBJ) $(LIBS_ARCHIVES)
 	@mkdir -p $(BIN_DIR)
-	@$(CCX) -shared $(LDFLAGS) -o "$@" $(OBJ) $(LIBS_ARCHIVES)
+	@$(CCX) -shared $(LDFLAGS) $(LIB_RPATH_FLAGS) -o "$@" $(OBJ) $(LIBS_ARCHIVES)
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME).so$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
 lib$(NAME).a: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).a
@@ -151,6 +230,7 @@ test: lib$(NAME).a
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
 	TARGET_DIR="$(abspath $(TARGET_DIR))" MODE="$(MODE)" \
 	BOBJ="$(OBJ)" LIBS_ARCHIVES="../lib$(NAME).a $(LIBS_ARCHIVES)" \
+	LIB_RPATH_FLAGS="$(LIB_RPATH_FLAGS)" \
 	$(MAKE) -C $(TEST_DIR) all --silent
 	@printf "$(BOLD)Built tests$(RESET)\n"
 
