@@ -1,6 +1,6 @@
 #include "Http10Response.hpp"
 
-#include <sstream>
+#include <cstdio>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -10,11 +10,15 @@
 namespace mon_http {
 
 struct Http10HeaderPrinter {
-  std::ostringstream& oStr;  // NOLINT
-  explicit Http10HeaderPrinter(std::ostringstream& oSt) : oStr(oSt) {}
+  std::vector<char>& buf;
+  explicit Http10HeaderPrinter(std::vector<char>& b) : buf(b) {}
 
   void operator()(const std::string& key, const std::string& value) const {
-    oStr << key << ':' << value << "\r\n";
+    buf.insert(buf.end(), key.begin(), key.end());
+    buf.push_back(':');
+    buf.insert(buf.end(), value.begin(), value.end());
+    buf.push_back('\r');
+    buf.push_back('\n');
   }
 };
 
@@ -36,32 +40,44 @@ Http10Response& Http10Response::operator=(const Http10Response& other) {
 Http10Response::~Http10Response() {}
 
 std::vector<char> Http10Response::encode() {
-  std::ostringstream ost;
+  std::vector<char> buf;
 
   if (statusMessage.empty()) {
     throw std::runtime_error("Empty status message.");
   }
-  ost << version().toString() << " ";
-  ost << statusCode() << " ";
-  ost << statusMessage << "\r\n";
+
+  {
+    const std::string s = version().toString();
+    buf.insert(buf.end(), s.begin(), s.end());
+  }
+  buf.push_back(' ');
+  {
+    char tmp[12];
+    int n = std::sprintf(tmp, "%d", _code);
+    buf.insert(buf.end(), tmp, tmp + n);
+  }
+  buf.push_back(' ');
+  buf.insert(buf.end(), statusMessage.begin(), statusMessage.end());
+  buf.push_back('\r');
+  buf.push_back('\n');
 
   if (hasBody()) {
-    std::string& len = _headers["Content-Length"];
-    std::stringstream sstr;
-
-    sstr << _body.length();
-    len = sstr.str();
+    char tmp[64];
+    int n = std::sprintf(tmp, "content-length:%zu\r\n", _body.length());
+    buf.insert(buf.end(), tmp, tmp + n);
   }
 
-  _headers.iter(Http10HeaderPrinter(ost));
+  _headers.iter(Http10HeaderPrinter(buf));
 
   if (hasBody()) {
-    ost << "\r\n" << "\r\n";
-    ost << _body;
+    buf.push_back('\r');
+    buf.push_back('\n');
+    buf.push_back('\r');
+    buf.push_back('\n');
+    buf.insert(buf.end(), _body.begin(), _body.end());
   }
 
-  std::string result = ost.str();
-  return std::vector<char>(result.begin(), result.end());
+  return buf;
 }
 
 // NOLINTNEXTLINE
@@ -91,13 +107,7 @@ std::string& Http10Response::body() { return _body; }
 HeaderMap& Http10Response::headers() { return _headers; }
 
 bool Http10Response::hasHeader(const std::string& key) {
-  try {
-    _headers.at(key);
-    return true;
-  } catch (std::out_of_range& err) {
-    (void)err;
-    return false;
-  }
+  return _headers.contains(key);
 }
 
 const std::string& Http10Response::header(const std::string& key) {

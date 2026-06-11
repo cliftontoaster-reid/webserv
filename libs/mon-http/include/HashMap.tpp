@@ -64,10 +64,17 @@ static inline u_int32_t murmurHash(const T& key, u_int32_t seed) {
 }
 
 inline u_int32_t random() {
-  std::ifstream file("/dev/random", std::ios::binary);
-  u_int32_t randomValue = 0;
-  file.read(reinterpret_cast<char*>(&randomValue), sizeof(randomValue));
-  return randomValue;
+  static unsigned char buf[2048];
+  static size_t pos = sizeof(buf);
+  if (pos + sizeof(u_int32_t) > sizeof(buf)) {
+    std::ifstream file("/dev/urandom", std::ios::binary);
+    file.read(reinterpret_cast<char*>(buf), sizeof(buf));
+    pos = 0;
+  }
+  u_int32_t val;
+  std::memcpy(&val, buf + pos, sizeof(val));
+  pos += sizeof(val);
+  return val;
 }
 
 template <typename Key, typename T>
@@ -99,6 +106,19 @@ template <typename Key, typename T>
 HashMap<Key, T>::~HashMap() {}
 
 template <typename Key, typename T>
+bool HashMap<Key, T>::contains(const Key& key) const {
+  u_int32_t hash = murmurHash(key, _seed);
+  u_int32_t idx = hash & (_store.size() - 1);
+
+  for (size_t i = 0; i < _store[idx].size(); ++i) {
+    if (_store[idx][i].occupied && _store[idx][i].key == key) {
+      return true;
+    }
+  }
+  return false;
+}
+
+template <typename Key, typename T>
 void HashMap<Key, T>::clear() {
   for (size_t i = 0; i < _store.size(); ++i) {
     _store[i].clear();
@@ -109,7 +129,7 @@ void HashMap<Key, T>::clear() {
 template <typename Key, typename T>
 T& HashMap<Key, T>::at(const Key& key) {
   u_int32_t hash = murmurHash(key, _seed);
-  u_int32_t idx = hash % _store.size();
+  u_int32_t idx = hash & (_store.size() - 1);
 
   for (size_t i = 0; i < _store[idx].size(); ++i) {
     if (_store[idx][i].occupied && _store[idx][i].key == key) {
@@ -123,21 +143,37 @@ T& HashMap<Key, T>::at(const Key& key) {
 template <typename Key, typename T>
 T& HashMap<Key, T>::operator[](const Key& key) {
   u_int32_t hash = murmurHash(key, _seed);
-  u_int32_t idx = hash % _store.size();
+  u_int32_t idx = hash & (_store.size() - 1);
 
   for (size_t i = 0; i < _store[idx].size(); ++i) {
     if (_store[idx][i].occupied && _store[idx][i].key == key) {
       return _store[idx][i].value;
     }
   }
-  insert(key, T());
-  return at(key);
+
+  _store[idx].push_back(Entry());
+  _store[idx].back().key = key;
+  _store[idx].back().occupied = true;
+
+  _size++;
+  if ((static_cast<float>(_size) / _store.size()) > _load_factor_threshold) {
+    resize(_store.size() * 2);
+    hash = murmurHash(key, _seed);
+    idx = hash & (_store.size() - 1);
+    for (size_t i = 0; i < _store[idx].size(); ++i) {
+      if (_store[idx][i].occupied && _store[idx][i].key == key) {
+        return _store[idx][i].value;
+      }
+    }
+  }
+
+  return _store[idx].back().value;
 }
 
 template <typename Key, typename T>
 void HashMap<Key, T>::insert(const Key& key, const T& value) {
   u_int32_t hash = murmurHash(key, _seed);
-  u_int32_t idx = hash % _store.size();
+  u_int32_t idx = hash & (_store.size() - 1);
 
   for (size_t i = 0; i < _store[idx].size(); ++i) {
     if (_store[idx][i].occupied && _store[idx][i].key == key) {
@@ -161,7 +197,7 @@ void HashMap<Key, T>::insert(const Key& key, const T& value) {
 template <typename Key, typename T>
 void HashMap<Key, T>::remove(const Key& key) {
   u_int32_t hash = murmurHash(key, _seed);
-  u_int32_t idx = hash % _store.size();
+  u_int32_t idx = hash & (_store.size() - 1);
 
   for (size_t i = 0; i < _store[idx].size(); ++i) {
     if (_store[idx][i].occupied && _store[idx][i].key == key) {
@@ -174,8 +210,8 @@ void HashMap<Key, T>::remove(const Key& key) {
 
 template <typename Key, typename T>
 void HashMap<Key, T>::resize(u_int64_t newSize) {
-  std::vector<std::vector<Entry> > oldStore = _store;
-  _store.clear();
+  std::vector<std::vector<Entry> > oldStore;
+  oldStore.swap(_store);
   _store.resize(newSize);
   for (size_t i = 0; i < oldStore.size(); ++i) {
     for (size_t j = 0; j < oldStore[i].size(); ++j) {

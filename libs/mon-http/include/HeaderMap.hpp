@@ -18,6 +18,8 @@ class HeaderMap {
   std::string& at(const std::string& key);
   std::string& operator[](const std::string& key);
 
+  bool contains(const std::string& key);
+
   void clear();
 
   void insert(const std::string& key, const std::string& value);
@@ -27,7 +29,7 @@ class HeaderMap {
   void iter(F func);
 
  private:
-  static std::string _normalize(const std::string& key);
+  static std::string _normalize(std::string key);
 
   HashMap<std::string, std::string> _store;
 };

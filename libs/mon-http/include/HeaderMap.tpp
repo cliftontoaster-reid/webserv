@@ -29,6 +29,10 @@ inline std::string& HeaderMap::operator[](const std::string& key) {
   return _store[_normalize(key)];
 }
 
+inline bool HeaderMap::contains(const std::string& key) {
+  return _store.contains(_normalize(key));
+}
+
 inline void HeaderMap::clear() { _store.clear(); }
 
 inline void HeaderMap::insert(const std::string& key,
@@ -45,12 +49,13 @@ inline void HeaderMap::iter(F func) {
   _store.iter(func);
 }
 
-inline std::string HeaderMap::_normalize(const std::string& key) {
-  std::string copy(key);
-  for (size_t i = 0; i < copy.length(); i++) {
-    copy[i] = static_cast<char>(std::tolower(copy[i]));
+inline std::string HeaderMap::_normalize(std::string key) {
+  for (size_t i = 0; i < key.length(); i++) {
+    if (key[i] >= 'A' && key[i] <= 'Z') {
+      key[i] += 'a' - 'A';
+    }
   }
-  return copy;
+  return key;
 }
 
 }  // namespace mon_http

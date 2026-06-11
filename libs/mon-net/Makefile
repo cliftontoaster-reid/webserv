@@ -146,8 +146,8 @@ mon-http: $(MON_HTTP_ARCHIVE)
 $(MON_HTTP_ARCHIVE):
 	@printf "$(BOLD)Building mon-http library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	TARGET_DIR="$(abspath $(MON_HTTP_TARGET_DIR))" MODE="$(MODE)" \
-	$(MAKE) -C $(MON_HTTP_DEPO) all
+	MODE="$(MODE)" \
+	$(MAKE) -C $(MON_HTTP_DEPO) TARGET_DIR="$(abspath $(MON_HTTP_TARGET_DIR))" all
 	@printf "$(BOLD)Built mon-http:$(RESET) $(GREEN)$(MON_HTTP_ARCHIVE)$(RESET)\n"
 
 # -----------
@@ -172,8 +172,8 @@ mon-router: $(MON_ROUTER_ARCHIVE)
 $(MON_ROUTER_ARCHIVE):
 	@printf "$(BOLD)Building mon-router library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" MODE="$(MODE)" \
-	$(MAKE) -C $(MON_ROUTER_DEPO) all
+	MODE="$(MODE)" \
+	$(MAKE) -C $(MON_ROUTER_DEPO) TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" all
 	@printf "$(BOLD)Built mon-router:$(RESET) $(GREEN)$(MON_ROUTER_ARCHIVE)$(RESET)\n"
 
 $(EMB_FILE): $(FILES)
@@ -231,9 +231,9 @@ test: lib$(NAME).a
 	@printf "$(BOLD)Building tests...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
 	TARGET_DIR="$(abspath $(TARGET_DIR))" MODE="$(MODE)" \
-	BOBJ="$(OBJ)" LIBS_ARCHIVES="../lib$(NAME).a $(LIBS_ARCHIVES)" \
+	BOBJ="$(OBJ)" LIBS_ARCHIVES="$(abspath ./lib$(NAME).a) $(abspath $(LIBS_ARCHIVES))" \
 	LIB_RPATH_FLAGS="$(LIB_RPATH_FLAGS)" \
-	$(MAKE) -C $(TEST_DIR) all --silent
+	$(MAKE) -C $(TEST_DIR) TARGET_DIR="$(abspath $(TARGET_DIR))" all --silent
 	@printf "$(BOLD)Built tests$(RESET)\n"
 
 format:

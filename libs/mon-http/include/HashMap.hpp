@@ -29,6 +29,8 @@ class HashMap {
   T& at(const Key& key);
   T& operator[](const Key& key);
 
+  bool contains(const Key& key) const;
+
   void clear();
 
   void insert(const Key& key, const T& value);
