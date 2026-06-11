@@ -2,6 +2,7 @@
 #ifndef MON_HTTP_INCLUDE_AHTTPSTREAMPARSER_HTTP
 #define MON_HTTP_INCLUDE_AHTTPSTREAMPARSER_HTTP
 
+#include <string>
 #include <vector>
 
 #include "AHttpRequest.hpp"
@@ -16,6 +17,10 @@ class AHttpStreamParser {
 
   virtual void append(const std::vector<char>& source) {
     _buffer.reserve(_buffer.size() + source.size());
+    _buffer.insert(_buffer.end(), source.begin(), source.end());
+  }
+  virtual void append(const std::string& source) {
+    _buffer.reserve(_buffer.size() + source.length());
     _buffer.insert(_buffer.end(), source.begin(), source.end());
   }
 

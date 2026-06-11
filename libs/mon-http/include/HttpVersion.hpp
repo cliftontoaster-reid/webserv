@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 
+#include <string>
 #include <vector>
 
 namespace mon_http {
@@ -25,6 +26,8 @@ class HttpVersion {
   HttpVersion& operator=(const HttpVersion& other);
 
   static HttpVersion sniffHttpVersion(const std::vector<char>& data);
+  static HttpVersion sniffHttpVersion(const std::string& data);
+  static HttpVersion sniffHttpVersion(const char* data, size_t size);
   const char* toString();
 
   Type value;

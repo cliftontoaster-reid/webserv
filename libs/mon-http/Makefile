@@ -105,6 +105,7 @@ dirs:
 
 LIBRARIES :=
 LIBS_ARCHIVES :=
+LIB_RPATH_FLAGS :=
 
 # TODO: tests
 
@@ -140,7 +141,7 @@ $(BIN_DIR)/$(NAME).a: $(OBJ) $(LIBS_ARCHIVES)
 
 $(BIN_DIR)/$(NAME).so: $(OBJ) $(LIBS_ARCHIVES)
 	@mkdir -p $(BIN_DIR)
-	@$(CCX) -shared $(LDFLAGS) -o "$@" $(OBJ) $(LIBS_ARCHIVES)
+	@$(CCX) -shared $(LDFLAGS) $(LIB_RPATH_FLAGS) -o "$@" $(OBJ) $(LIBS_ARCHIVES)
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME).so$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
 lib$(NAME).a: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).a
@@ -159,6 +160,7 @@ test: lib$(NAME).a
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
 	TARGET_DIR="$(abspath $(TARGET_DIR))" MODE="$(MODE)" \
 	BOBJ="$(OBJ)" LIBS_ARCHIVES="../lib$(NAME).a $(LIBS_ARCHIVES)" \
+	LIB_RPATH_FLAGS="$(LIB_RPATH_FLAGS)" \
 	$(MAKE) -C $(TEST_DIR) all --silent
 	@printf "$(BOLD)Built tests$(RESET)\n"
 

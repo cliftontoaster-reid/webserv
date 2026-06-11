@@ -11,7 +11,7 @@
 
 namespace mon_http {
 
-class Http10Response : AHttpResponse {
+class Http10Response : public AHttpResponse {
  public:
   Http10Response();
   Http10Response(const Http10Response& other);
@@ -28,6 +28,8 @@ class Http10Response : AHttpResponse {
   void setStatusCode(int code);
   bool hasBody() const;
   const std::string& body() const;
+  void setBody(const std::string& body);
+  void appendBody(const std::string& str);
   std::string& body();
   bool hasHeader(const std::string& key);
   const std::string& header(const std::string& key);

@@ -21,43 +21,61 @@ HttpVersion& HttpVersion::operator=(const HttpVersion& other) {
 }
 
 HttpVersion HttpVersion::sniffHttpVersion(const std::vector<char>& data) {
-  static const std::string HTTP_09 = "GET ";
-  static const std::string HTTP_20 = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n";
-  static const std::string HTTP_11 = "HTTP/1.1";
-  static const std::string HTTP_10 = "HTTP/1.0";
+  return sniffHttpVersion(data.empty() ? NULL : &data[0], data.size());
+}
+HttpVersion HttpVersion::sniffHttpVersion(const std::string& data) {
+  return sniffHttpVersion(data.data(), data.length());
+}
+HttpVersion HttpVersion::sniffHttpVersion(const char* data, size_t size) {
+  // Define string constants and their lengths explicitly for C++98
+  static const char HTTP_09[] = "GET /";
+  static const size_t HTTP_09_LEN = sizeof(HTTP_09) - 1;
 
-  if (data.size() >= HTTP_20.size() &&
-      std::memcmp(&data[0], HTTP_20.data(), HTTP_20.size()) == 0) {
+  static const char HTTP_20[] = "PRI * HTTP/2.0\r\n";
+  static const size_t HTTP_20_LEN = sizeof(HTTP_20) - 1;
+
+  static const char HTTP_11[] = "HTTP/1.1";
+  static const size_t HTTP_11_LEN = sizeof(HTTP_11) - 1;
+
+  static const char HTTP_10[] = "HTTP/1.0";
+  static const size_t HTTP_10_LEN = sizeof(HTTP_10) - 1;
+
+  static const char TARGET_RN[] = "\r\n";
+  static const size_t TARGET_RN_LEN = sizeof(TARGET_RN) - 1;
+
+  // 1. Check for HTTP/2.0
+  if (size >= HTTP_20_LEN && std::memcmp(data, HTTP_20, HTTP_20_LEN) == 0) {
     return HttpVersion(HttpVersion2_0);
   }
 
-  const std::string TARGET_RN = "\r\n";
+  // 2. Find the first occurrence of "\r\n"
+  const char* data_end = data + size;
+  const char* iter =
+      std::search(data, data_end, TARGET_RN, TARGET_RN + TARGET_RN_LEN);
 
-  std::vector<char>::const_iterator iter =
-      std::search(data.begin(), data.end(), TARGET_RN.begin(), TARGET_RN.end());
-
-  if (iter == data.end()) {
+  if (iter == data_end) {
     return HttpVersion(HttpVersionUnknown);
   }
 
-  if (std::distance(data.begin(), iter) >=
-      static_cast<std::ptrdiff_t>(HTTP_11.length())) {
-    std::vector<char>::const_iterator version_start =
-        iter - static_cast<std::ptrdiff_t>(HTTP_11.length());
+  // Calculate the offset of "\r\n" from the start
+  size_t rn_offset = static_cast<size_t>(iter - data);
 
-    if (std::equal(HTTP_11.begin(), HTTP_11.end(), version_start)) {
+  // 3. Check for HTTP/1.1 or HTTP/1.0 right before the "\r\n"
+  if (rn_offset >= HTTP_11_LEN) {
+    const char* version_start = iter - HTTP_11_LEN;
+
+    if (std::memcmp(version_start, HTTP_11, HTTP_11_LEN) == 0) {
       return HttpVersion(HttpVersion1_1);
     }
 
-    if (std::equal(HTTP_10.begin(), HTTP_10.end(), version_start)) {
+    if (std::memcmp(version_start, HTTP_10, HTTP_10_LEN) == 0) {
       return HttpVersion(HttpVersion1_0);
     }
   }
 
-  if (data.size() >= HTTP_09.length() &&
-      std::equal(HTTP_09.begin(), HTTP_09.end(), data.begin()) &&
-      std::distance(data.begin(), iter) >
-          static_cast<std::ptrdiff_t>(HTTP_09.length())) {
+  // 4. Check for HTTP/0.9
+  if (size >= HTTP_09_LEN && std::memcmp(data, HTTP_09, HTTP_09_LEN) == 0 &&
+      rn_offset > HTTP_09_LEN) {
     return HttpVersion(HttpVersion0_9);
   }
 

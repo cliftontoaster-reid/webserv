@@ -1,6 +1,7 @@
 #include "Http10StreamParser.hpp"
 
 #include <stdexcept>
+#include <string>
 
 #include "Http10Request.hpp"
 #include "HttpVersion.hpp"
@@ -8,6 +9,7 @@
 namespace mon_http {
 
 Http10StreamParser::Http10StreamParser() {}
+Http10StreamParser::Http10StreamParser(const std::string& str) { append(str); }
 Http10StreamParser::Http10StreamParser(const Http10StreamParser& other)
     : AHttpStreamParser(other) {
   (void)other;

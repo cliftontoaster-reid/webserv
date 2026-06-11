@@ -82,6 +82,10 @@ bool Http10Response::hasBody() const { return !_body.empty(); }
 
 const std::string& Http10Response::body() const { return _body; }
 
+void Http10Response::setBody(const std::string& body) { _body = body; }
+
+void Http10Response::appendBody(const std::string& str) { _body.append(str); }
+
 std::string& Http10Response::body() { return _body; }
 
 HeaderMap& Http10Response::headers() { return _headers; }

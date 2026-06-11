@@ -126,6 +126,7 @@ dirs:
 
 LIBRARIES := criterion
 LIBS_ARCHIVES ?=
+LIB_RPATH_FLAGS ?=
 
 # -------
 # Criterion
@@ -191,7 +192,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 $(BIN_DIR)/$(NAME): $(LIBS_ARCHIVES) $(OBJ)
 	@mkdir -p "$(@D)"
 	$(CCX) -o "$@" $(LDX_FLAGS) $(LDFLAGS) \
-		$(CRITERION_RPATH) \
+		$(CRITERION_RPATH) $(LIB_RPATH_FLAGS) \
 		$(OBJ) $(LIBS_ARCHIVES)
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME)$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
