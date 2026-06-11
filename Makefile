@@ -237,14 +237,14 @@ mon-router: $(MON_ROUTER_ARCHIVE)
 $(MON_ROUTER_ARCHIVE): $(MON_ROUTER_SRCS) $(MON_ROUTER_HDRS) $(MON_ROUTER_DEPO)/Makefile
 	@printf "$(BOLD)Building mon-router library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	MODE="$(MODE)" \
-	$(MAKE) -C $(MON_ROUTER_DEPO) TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" all
+	TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" MODE="$(MODE)" \
+	$(MAKE) -C $(MON_ROUTER_DEPO) all
 	@printf "$(BOLD)Built mon-router:$(RESET) $(GREEN)$(MON_ROUTER_ARCHIVE)$(RESET)\n"
 
 # -----
 # Tests
 # -----
-test:
+test: $(LIBS_ARCHIVES)
 	@printf "$(BOLD)Building tests...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
 	TARGET_DIR="$(TARGET_DIR)" MODE="$(MODE)" \
