@@ -7,6 +7,10 @@
 
 #include "HttpVersion.hpp"
 
+#ifndef WEBSERV_VERSION
+#define WEBSERV_VERSION __TIMESTAMP__
+#endif
+
 namespace mon_http {
 
 struct Http10HeaderPrinter {
@@ -22,7 +26,9 @@ struct Http10HeaderPrinter {
   }
 };
 
-Http10Response::Http10Response() : _code(0) {}
+Http10Response::Http10Response() : _code(0) {
+  _headers.insert("Server", "WebFloof/" WEBSERV_VERSION);
+}
 Http10Response::Http10Response(const Http10Response& other)
     : statusMessage(other.statusMessage),
       _body(other._body),

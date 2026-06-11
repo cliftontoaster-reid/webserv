@@ -101,7 +101,8 @@ Test(http10_response, encode_basic) {
   std::vector<char> encoded = res.encode();
   std::string result(encoded.begin(), encoded.end());
 
-  cr_assert_eq(result, "HTTP/1.0 200 OK\r\n");
+  cr_assert(result.find("HTTP/1.0 200 OK") != std::string::npos);
+  cr_assert(result.find("server:WebFloof/") != std::string::npos);
 }
 
 Test(http10_response, encode_with_body) {
@@ -113,8 +114,10 @@ Test(http10_response, encode_with_body) {
   std::vector<char> encoded = res.encode();
   std::string result(encoded.begin(), encoded.end());
 
-  cr_assert_eq(result,
-               "HTTP/1.0 200 OK\r\ncontent-length:11\r\n\r\n\r\nhello world");
+  cr_assert(result.find("HTTP/1.0 200 OK") != std::string::npos);
+  cr_assert(result.find("server:WebFloof/") != std::string::npos);
+  cr_assert(result.find("content-length:11") != std::string::npos);
+  cr_assert(result.find("hello world") != std::string::npos);
 }
 
 Test(http10_response, encode_with_headers_no_body) {
