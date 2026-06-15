@@ -87,6 +87,29 @@ OBJ_DIR		 =	$(TARGET_DIR)/obj
 TOBJ_DIR	 =	$(TARGET_DIR)/tobj
 DEP_DIR		 =	$(TARGET_DIR)/dep
 BIN_DIR		 =	$(TARGET_DIR)/bin
+BUILD_DIR	 =	$(TARGET_DIR)/build
+EMB_FILE   =  $(BUILD_DIR)/emb.hpp
+
+FILES = \
+ ../../assets/html/400.html \
+ ../../assets/html/404.html \
+ ../../assets/html/413.html \
+ ../../assets/html/414.html \
+ ../../assets/html/500.html \
+ ../../assets/html/501.html \
+ ../../assets/html/505.html \
+ \
+ ../../assets/html/hello.html \
+
+VARS = \
+STD_PAGE_400 \
+STD_PAGE_404 \
+STD_PAGE_413 \
+STD_PAGE_414 \
+STD_PAGE_500 \
+STD_PAGE_501 \
+STD_PAGE_505 \
+STD_PAGE_HELLO \
 
 INC_DIR		= ./include
 SRC_DIR		= ./src
@@ -107,8 +130,8 @@ SRCS = \
 
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 DEP := $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(SRCS))
-INC := -I$(INC_DIR)
-DIRS = $(OBJ_DIR) $(TOBJ_DIR) $(DEP_DIR) $(BIN_DIR)
+INC := -I$(INC_DIR) -I'$(abspath $(BUILD_DIR))'
+DIRS = $(OBJ_DIR) $(TOBJ_DIR) $(DEP_DIR) $(BIN_DIR) $(BUILD_DIR)
 
 dirs:
 	@$(foreach d, $(DIRS), mkdir -p "$(d)";)
@@ -117,7 +140,10 @@ LIBRARIES :=
 LIBS_ARCHIVES :=
 LIB_RPATH_FLAGS :=
 
-# TODO: tests
+$(EMB_FILE): $(FILES)
+	@mkdir -p $(BUILD_DIR)
+	@python3 ../../scripts/embed.py "$(EMB_FILE)" "$(FILES)" "$(VARS)"
+	@printf "$(BOLD)Compiled$(RESET) $(BLUE)$(FILES)$(RESET) -> $(GREEN)$(EMB_FILE)$(RESET)\n"
 
 compile_commands.json: Makefile $(SRCS)
 	@echo "Generating compile_commands.json ..."
@@ -138,7 +164,7 @@ compile_commands.json: Makefile $(SRCS)
 	@$(RM) -f .linkflag_*
 	@touch $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(EMB_FILE)
 	@mkdir -p $(@D) $(dir $(DEP_DIR)/$*.d)
 	@$(CCX) $(CCX_FLAGS) $(CFLAGS) \
 		-MF $(DEP_DIR)/$*.d -c $< -o $@ $(INC)

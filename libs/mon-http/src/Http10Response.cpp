@@ -5,7 +5,9 @@
 #include <string>
 #include <vector>
 
+#include "AHttpResponse.hpp"
 #include "HttpVersion.hpp"
+#include "emb.hpp"
 
 #ifndef WEBSERV_VERSION
 #define WEBSERV_VERSION __TIMESTAMP__
@@ -116,6 +118,18 @@ bool Http10Response::hasHeader(const std::string& key) {
 
 const std::string& Http10Response::header(const std::string& key) {
   return _headers.at(key);
+}
+
+void Http10Response::error500() {
+  _code = STATUS_Internal_Server_Error;
+  statusMessage = "Internal Server Error";
+  _body = std::string(STD_PAGE_500_raw);
+
+  _headers.clear();
+  _headers.insert("Cache-Control", "no-store, no-cache, must-revalidate");
+  _headers.insert("Content-Type", "text/html");
+  _headers.insert("Connection", "close");
+  _headers.insert("Retry-After", "60");
 }
 
 }  // namespace mon_http

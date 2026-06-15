@@ -5,6 +5,7 @@
 #include <sys/types.h>
 
 #include <ostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -44,6 +45,8 @@ class AHttpResponse {
   virtual bool hasHeader(const std::string& key) = 0;
   virtual const std::string& header(const std::string& key) = 0;
   virtual HeaderMap& headers() = 0;
+
+  virtual void error500() = 0;
 };
 
 std::ostream& operator<<(std::ostream& oStr, AHttpResponse& use);

@@ -22,7 +22,6 @@ class Http10Response : public AHttpResponse {
 
   std::vector<char> encode();
 
-  // NOLINTNEXTLINE
   HttpVersion version() const;
   int statusCode() const;
   void setStatusCode(int code);
@@ -35,7 +34,9 @@ class Http10Response : public AHttpResponse {
   const std::string& header(const std::string& key);
   HeaderMap& headers();
 
-  std::string statusMessage;
+  std::string statusMessage;  // NOLINT
+
+  void error500();
 
  private:
   std::string _body;
