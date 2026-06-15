@@ -10,7 +10,6 @@
 #include "Http10StreamParser.hpp"
 #include "HttpVersion.hpp"
 #include "Listener.hpp"
-#include "emb.hpp"
 
 namespace mon_net {
 
@@ -67,7 +66,7 @@ bool Server::readVersion(Context& ctx, const Event& event) {
         mon_http::Http10Response res = mon_http::Http10Response();
         res.setStatusCode(STATUS_OK);
         res.statusMessage = "OK";
-        res.setBody(STD_PAGE_HELLO_raw);
+        // res.setBody(STD_PAGE_HELLO_raw);
         _listener.markClose(ctx.fd);
         _listener.write(res, ctx.fd);
         return true;
@@ -77,7 +76,7 @@ bool Server::readVersion(Context& ctx, const Event& event) {
         mon_http::Http10Response res = mon_http::Http10Response();
         res.setStatusCode(STATUS_Version_Not_Supported);
         res.statusMessage = "HTTP Version Not Supported";
-        res.setBody(STD_PAGE_505_raw);
+        // res.setBody(STD_PAGE_505_raw);
         _listener.markClose(ctx.fd);
         _listener.write(res, event.fd);
         close(ctx.fd);

@@ -80,7 +80,7 @@ NAME = mon-router
 all: lib$(NAME).a lib$(NAME).so
 
 LIBS_DIR	 =	..
-ORIGIN_DIR =	./target
+ORIGIN_DIR ?=	./target
 OFFICE_DIR =	$(ORIGIN_DIR)/$(MODE)
 TARGET_DIR ?= $(OFFICE_DIR)/$(NAME)
 OBJ_DIR		 =	$(TARGET_DIR)/obj
@@ -136,7 +136,7 @@ $(MON_HTTP_ARCHIVE): $(MON_HTTP_SRCS) $(MON_HTTP_HDRS) $(MON_HTTP_DEPO)/Makefile
 	@printf "$(BOLD)Building mon-http library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 	MODE="$(MODE)" VERSION="$(VERSION)" \
-	$(MAKE) -C $(MON_HTTP_DEPO) TARGET_DIR="$(abspath $(MON_HTTP_TARGET_DIR))" all
+	$(MAKE) -C $(MON_HTTP_DEPO) ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" all
 	@printf "$(BOLD)Built mon-http:$(RESET) $(GREEN)$(MON_HTTP_ARCHIVE)$(RESET)\n"
 
 # -------
@@ -164,8 +164,7 @@ $(MON_NET_ARCHIVE): $(MON_NET_SRCS) $(MON_NET_HDRS) $(MON_NET_DEPO)/Makefile
 	@printf "$(BOLD)Building mon-net library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 	MODE="$(MODE)" VERSION="$(VERSION)" \
-	$(MAKE) -C $(MON_NET_DEPO) TARGET_DIR="$(abspath $(MON_NET_TARGET_DIR))" \
-		OFFICE_DIR="$(abspath $(ORIGIN_DIR))/$(MODE)" all
+	$(MAKE) -C $(MON_NET_DEPO) ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" all
 	@printf "$(BOLD)Built mon-net:$(RESET) $(GREEN)$(MON_NET_ARCHIVE)$(RESET)\n"
 
 compile_commands.json: Makefile $(SRCS)
@@ -217,7 +216,7 @@ lib$(NAME).so: .linkflag_$(MODE) $(BIN_DIR)/$(NAME).so
 test: lib$(NAME).a
 	@printf "$(BOLD)Building tests...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
-	TARGET_DIR="$(abspath $(TARGET_DIR))" MODE="$(MODE)" VERSION="$(VERSION)" \
+	ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" MODE="$(MODE)" VERSION="$(VERSION)" \
 	BOBJ="$(OBJ)" LIBS_ARCHIVES="../lib$(NAME).a $(LIBS_ARCHIVES)" \
 	LIB_RPATH_FLAGS="$(LIB_RPATH_FLAGS)" \
 	$(MAKE) -C $(TEST_DIR) all --silent

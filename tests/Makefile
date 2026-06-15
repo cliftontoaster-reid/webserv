@@ -80,7 +80,7 @@ NAME = webserv_test
 all: $(NAME)
 
 LIBS_DIR	 =	./libs
-ORIGIN_DIR =	./target
+ORIGIN_DIR ?=	./target
 OFFICE_DIR =	$(ORIGIN_DIR)/$(MODE)
 TARGET_DIR ?= $(OFFICE_DIR)/$(NAME)
 OBJ_DIR		 =	$(TARGET_DIR)/obj
