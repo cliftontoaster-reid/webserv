@@ -16,13 +16,13 @@ CCX_FLAGS ?= -Wall -Wextra -Werror -std=c++98 -pipe -MMD -MP
 LDX_FLAGS ?= 
 
 DEBUG_CFLAGS	 = -g3 -O0 -fno-omit-frame-pointer -D_GLIBCXX_DEBUG \
-								 -fsanitize=address,undefined -fstack-protector-strong
-DEBUG_LDFLAGS	= -fsanitize=address,undefined
+                   -fsanitize=address,undefined -fstack-protector-strong
+DEBUG_LDFLAGS	 = -fsanitize=address,undefined
 
 COVERAGE_CFLAGS  = -O0 -g --coverage
 COVERAGE_LDFLAGS = --coverage
 
-RELEASE_CFLAGS = -O3 -DNDEBUG -D_FORTIFY_SOURCE=2 \
+RELEASE_CFLAGS  = -O3 -DNDEBUG -D_FORTIFY_SOURCE=2 \
 								 -fstack-protector-strong -ffunction-sections -fdata-sections
 RELEASE_LDFLAGS = -Wl,--gc-sections -Wl,-z,relro -Wl,-z,now
 
@@ -208,7 +208,6 @@ MON_NET_DIRS			 = $(MON_NET_OBJ_DIR) $(MON_NET_TOBJ_DIR) \
 MON_NET_ARCHIVE		= $(MON_NET_BIN_DIR)/mon-net.so
 MON_NET_SRCS			:= $(shell find $(MON_NET_DEPO)/src     -name '*.cpp' 2>/dev/null)
 MON_NET_HDRS			:= $(shell find $(MON_NET_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
-MON_NET_ASSETS		:= assets/html/400.html assets/html/404.html assets/html/413.html assets/html/414.html assets/html/500.html assets/html/505.html assets/html/hello.html
 MON_NET_INC_DIR		= $(MON_NET_DEPO)/include
 
 LIBS_ARCHIVES += $(MON_NET_ARCHIVE)
@@ -240,7 +239,7 @@ MON_ROUTER_SRCS			:= $(shell find $(MON_ROUTER_DEPO)/src     -name '*.cpp' 2>/de
 MON_ROUTER_HDRS			:= $(shell find $(MON_ROUTER_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
 MON_ROUTER_INC_DIR		= $(MON_ROUTER_DEPO)/include
 
-# LIBS_ARCHIVES += $(MON_ROUTER_ARCHIVE)
+LIBS_ARCHIVES += $(MON_ROUTER_ARCHIVE)
 INC += -I$(MON_ROUTER_INC_DIR)
 LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_ROUTER_BIN_DIR))'
 

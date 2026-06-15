@@ -169,9 +169,9 @@ compile_commands.json: Makefile $(SRCS)
 	@$(RM) -f .linkflag_*
 	@touch $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(EMB_FILE)
 	@mkdir -p $(@D) $(dir $(DEP_DIR)/$*.d)
-	@$(CCX) $(CCX_FLAGS) $(CFLAGS) \
+	@$(CCX) $(CCX_FLAGS) $(CFLAGS) -I '$(abspath $(BUILD_DIR))' \
 		-MF $(DEP_DIR)/$*.d -c $< -o $@ $(INC)
 	@printf "$(BOLD)Compiled$(RESET) $(YELLOW)test$(RESET) $(BLUE)$<$(RESET) -> $(GREEN)$@$(RESET) $(BOLD)$(RED)$(DEP_DIR)/$*.d$(RESET)\n"
 
