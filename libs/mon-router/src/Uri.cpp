@@ -231,13 +231,9 @@ void Uri::_parseURI(const std::string& uri) {
       size_t path_end_pos = uri.find_first_of("?#", itUri);
       std::string path;
       if (path_end_pos != std::string::npos) {
-        if (uri.begin() + itUri + 1 <= uri.begin() + path_end_pos) {
-          path = "/";
-        }
+        path = uri.substr(itUri, path_end_pos - itUri);
       } else {
-        if (uri.begin() + itUri + 1 <= uri.end()) {
-          path = "/";
-        }
+        path = uri.substr(itUri);
       }
 
       this->_path.swap(path);
