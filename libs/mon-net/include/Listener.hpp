@@ -65,6 +65,12 @@ struct BufferedData {
   bool is_empty() const;
   void clear();
   ssize_t flush(int fd);
+  void attach_file(FILE* filePtr) {
+    if (file != NULL) {
+      std::fclose(file);  // NOLINT
+    }
+    file = filePtr;
+  }
 };
 
 template <int MaxEvents>
@@ -75,7 +81,7 @@ class Listener {
   std::vector<Event> poll(int timeout);
   void write(const std::vector<char>& data, int fd);
   void write(mon_http::AHttpResponse& data, int fd);
-  void write(const FILE& file, int fd);
+  void write(FILE* file, int fd);
 
   void registerPort(u_int16_t port);
   void markClose(int fd);

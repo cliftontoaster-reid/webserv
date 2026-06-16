@@ -47,10 +47,6 @@ void BufferedData::clear() {
 }
 
 ssize_t BufferedData::flush(int fd) {
-  if (is_empty()) {
-    return 0;
-  }
-
   if (file != NULL && buffer.size() < 4096) {
     char tmp[4096] = {0};
 
@@ -69,6 +65,10 @@ ssize_t BufferedData::flush(int fd) {
         buffer.insert(buffer.end(), tmp, tmp + readCount);
       }
     }
+  }
+
+  if (is_empty()) {
+    return 0;
   }
 
   ssize_t sent = send(fd, &buffer[offset], buffer.size() - offset, 0);
@@ -121,6 +121,13 @@ void Listener<MaxEvents>::write(const std::vector<char>& data, int fd) {
     return;
   }
 
+  typename std::map<int, BufferedData>::iterator iter = _writeBuffer.find(fd);
+  if (iter != _writeBuffer.end()) {
+    BufferedData& entry = iter->second;
+    entry.append(data.data(), data.size());
+    return;
+  }
+
   ssize_t sent = send(fd, data.data(), data.size(), 0);
 
   if (sent == -1) {
@@ -146,6 +153,31 @@ void Listener<MaxEvents>::write(const std::vector<char>& data, int fd) {
 template <int MaxEvents>
 void Listener<MaxEvents>::write(mon_http::AHttpResponse& data, int fd) {
   write(data.encode(), fd);
+}
+
+template <int MaxEvents>
+void Listener<MaxEvents>::write(FILE* file, int fd) {
+  if (file == NULL) {
+    return;
+  }
+
+  typename std::map<int, BufferedData>::iterator iter = _writeBuffer.find(fd);
+
+  if (iter != _writeBuffer.end()) {
+    if (iter->second.file != NULL) {
+      std::fclose(file);  // NOLINT
+      throw std::runtime_error(
+          "An active file stream is already attached to this FD");
+    }
+    iter->second.attach_file(file);
+    return;
+  }
+
+  BufferedData newBuffer;
+  newBuffer.attach_file(file);
+
+  _writeBuffer.insert(std::make_pair(fd, newBuffer));
+  ask_write(fd);
 }
 
 template <int MaxEvents>

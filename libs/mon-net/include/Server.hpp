@@ -4,6 +4,7 @@
 #include <sys/types.h>
 
 #include "Listener.hpp"
+#include "Router.hpp"
 namespace mon_net {
 
 class Server {
@@ -15,9 +16,11 @@ class Server {
   void registerPort(u_int16_t port);
   void run();
 
+  mon_router::Router& router() { return _router; }
+
  private:
   Listener<1024> _listener;
-  // Router _router;
+  mon_router::Router _router;
 
   bool readVersion(Context& ctx, const Event& event);
   void readCtx(Context& ctx);

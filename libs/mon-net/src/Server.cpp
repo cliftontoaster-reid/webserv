@@ -62,13 +62,23 @@ bool Server::readVersion(Context& ctx, const Event& event) {
       case mon_http::HttpVersion::HttpVersion1_1: {
         ctx.version = ver;
         ctx.parser = new mon_http::Http10StreamParser();
+        ctx.parser->append(ctx.buffer);
         ctx.buffer.clear();
-        mon_http::Http10Response res = mon_http::Http10Response();
-        res.setStatusCode(STATUS_OK);
-        res.statusMessage = "OK";
-        // res.setBody(STD_PAGE_HELLO_raw);
-        _listener.markClose(ctx.fd);
-        _listener.write(res, ctx.fd);
+        try {
+          if (ctx.parser->canPull()) {
+            mon_http::AHttpRequest* req = ctx.parser->pull();
+            _router.handle(*req, ctx.fd, _listener);
+            delete req;
+          } else {
+            throw std::runtime_error("Bad Request");
+          }
+        } catch (std::exception& err) {
+          mon_http::Http10Response res;
+          res.statusMessage = err.what();
+          res.setStatusCode(STATUS_Bad_Request);
+          _listener.markClose(ctx.fd);
+          _listener.write(res, ctx.fd);
+        }
         return true;
       }
       case mon_http::HttpVersion::HttpVersion0_9:
@@ -76,7 +86,6 @@ bool Server::readVersion(Context& ctx, const Event& event) {
         mon_http::Http10Response res = mon_http::Http10Response();
         res.setStatusCode(STATUS_Version_Not_Supported);
         res.statusMessage = "HTTP Version Not Supported";
-        // res.setBody(STD_PAGE_505_raw);
         _listener.markClose(ctx.fd);
         _listener.write(res, event.fd);
         close(ctx.fd);
