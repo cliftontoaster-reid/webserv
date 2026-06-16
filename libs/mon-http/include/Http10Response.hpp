@@ -36,7 +36,9 @@ class Http10Response : public AHttpResponse {
 
   std::string statusMessage;  // NOLINT
 
-  void error500();
+  void error500(const std::string& message = "");
+  void error404();
+  void ok200();
 
  private:
   std::string _body;

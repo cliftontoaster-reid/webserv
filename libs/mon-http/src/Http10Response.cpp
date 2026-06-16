@@ -77,9 +77,10 @@ std::vector<char> Http10Response::encode() {
 
   _headers.iter(Http10HeaderPrinter(buf));
 
+  buf.push_back('\r');
+  buf.push_back('\n');
+
   if (hasBody()) {
-    buf.push_back('\r');
-    buf.push_back('\n');
     buf.insert(buf.end(), _body.begin(), _body.end());
   }
 
@@ -120,10 +121,37 @@ const std::string& Http10Response::header(const std::string& key) {
   return _headers.at(key);
 }
 
-void Http10Response::error500() {
+void Http10Response::error500(const std::string& message) {
   _code = STATUS_Internal_Server_Error;
   statusMessage = "Internal Server Error";
   _body = std::string(STD_PAGE_500_raw);
+
+  size_t pos = _body.find("{{ERR_MSG}}");
+  if (pos != std::string::npos)
+    _body.replace(pos, 11, message);
+
+  _headers.clear();
+  _headers.insert("Cache-Control", "no-store, no-cache, must-revalidate");
+  _headers.insert("Content-Type", "text/html");
+  _headers.insert("Connection", "close");
+  _headers.insert("Retry-After", "60");
+}
+
+void Http10Response::error404() {
+  _code = STATUS_Not_Found;
+  statusMessage = "Not Found";
+  _body = std::string(STD_PAGE_404_raw);
+
+  _headers.clear();
+  _headers.insert("Cache-Control", "no-store, no-cache, must-revalidate");
+  _headers.insert("Content-Type", "text/html");
+  _headers.insert("Connection", "close");
+  _headers.insert("Retry-After", "60");
+}
+
+void Http10Response::ok200() {
+  _code = STATUS_OK;
+  statusMessage = "OK";
 
   _headers.clear();
   _headers.insert("Cache-Control", "no-store, no-cache, must-revalidate");

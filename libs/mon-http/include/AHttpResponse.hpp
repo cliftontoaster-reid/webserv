@@ -46,7 +46,9 @@ class AHttpResponse {
   virtual const std::string& header(const std::string& key) = 0;
   virtual HeaderMap& headers() = 0;
 
-  virtual void error500() = 0;
+  virtual void error500(const std::string& message) = 0;
+  virtual void error404() = 0;
+  virtual void ok200() = 0;
 };
 
 std::ostream& operator<<(std::ostream& oStr, AHttpResponse& use);
