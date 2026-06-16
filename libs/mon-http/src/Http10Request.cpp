@@ -131,8 +131,8 @@ Http10Request& Http10Request::operator=(const Http10Request& other) {
 Http10Request::~Http10Request() {}
 
 void Http10Request::parse(const std::vector<char>& data) {
-  if (HttpVersion::sniffHttpVersion(data).value !=
-      HttpVersion::HttpVersion1_0) {
+  HttpVersion::Type ver = HttpVersion::sniffHttpVersion(data).value;
+  if (ver != HttpVersion::HttpVersion1_0 && ver != HttpVersion::HttpVersion1_1) {
     throw std::runtime_error("Received wrong version of HTTP");
   }
   size_t pos = 0;

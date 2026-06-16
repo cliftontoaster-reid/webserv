@@ -27,8 +27,8 @@ AHttpRequest* Http10StreamParser::pull() {
   if (!canPull()) {
     return NULL;
   }
-  if (HttpVersion::sniffHttpVersion(_buffer).value !=
-      HttpVersion::HttpVersion1_0) {
+  HttpVersion::Type ver = HttpVersion::sniffHttpVersion(_buffer).value;
+  if (ver != HttpVersion::HttpVersion1_0 && ver != HttpVersion::HttpVersion1_1) {
     throw std::runtime_error("Invalid header");
   }
 
