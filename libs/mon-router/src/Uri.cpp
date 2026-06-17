@@ -10,8 +10,8 @@
 #include <utility>
 #include <vector>
 
-#include "HashMap.hpp"
 #include "Detect.hpp"
+#include "HashMap.hpp"
 
 namespace {
 
@@ -34,8 +34,8 @@ std::string uriDecode(const std::string& src) {
 
   for (std::size_t i = 0; i < src.size(); ++i) {
     if (src[i] == '%' && i + 2 < src.size() &&
-        std::isxdigit(static_cast<unsigned char>(src[i + 1])) &&
-        std::isxdigit(static_cast<unsigned char>(src[i + 2]))) {
+        (std::isxdigit(static_cast<unsigned char>(src[i + 1])) != 0) &&
+        (std::isxdigit(static_cast<unsigned char>(src[i + 2])) != 0)) {
       try {
         unsigned char high = hexVal(src[i + 1]);
         unsigned char low = hexVal(src[i + 2]);

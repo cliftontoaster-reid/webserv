@@ -11,5 +11,5 @@
 
 *.profraw
 
-*.vgcore
+vgcore.*
 callgrind.out.*

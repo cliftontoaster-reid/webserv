@@ -7,7 +7,6 @@
 #include <cstddef>
 #include <cstdio>
 #include <exception>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -63,11 +62,11 @@ Router::~Router() {}
 
 void Router::addRoute(const std::string& prefix, const std::string& path,
                       u_int16_t port) {
-  Route r;
-  r.preffix = prefix;
-  r.path = path;
-  r.port = port;
-  _paths.push_back(r);
+  Route route;
+  route.preffix = prefix;
+  route.path = path;
+  route.port = port;
+  _paths.push_back(route);
 }
 
 template <int MaxEvents>
