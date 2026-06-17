@@ -71,8 +71,15 @@ ssize_t BufferedData::flush(int fd) {
     return 0;
   }
 
+#ifdef OS_LINUX
+  ssize_t sent = send(fd, &buffer[offset], buffer.size() - offset, MSG_NOSIGNAL);
+#else
   ssize_t sent = send(fd, &buffer[offset], buffer.size() - offset, 0);
+#endif
 
+  if (sent == -1 && errno != EAGAIN && errno != EWOULDBLOCK) {
+    return -1;
+  }
   if (sent > 0) {
     offset += sent;
     if (offset > (buffer.size() / 2)) {
@@ -128,10 +135,18 @@ void Listener<MaxEvents>::write(const std::vector<char>& data, int fd) {
     return;
   }
 
+#ifdef OS_LINUX
+  ssize_t sent = send(fd, data.data(), data.size(), MSG_NOSIGNAL);
+#else
   ssize_t sent = send(fd, data.data(), data.size(), 0);
+#endif
 
   if (sent == -1) {
-    throw std::runtime_error("Could not write to FD");
+    if (errno == EPIPE || errno == ECONNRESET) {
+      closeFd(fd);
+      _writeBuffer.erase(fd);
+      return;
+    }
   }
   if (static_cast<unsigned long>(sent) != data.size()) {
     typename std::map<int, BufferedData>::iterator iter = _writeBuffer.find(fd);
@@ -277,13 +292,24 @@ void Listener<MaxEvents>::flush_buffer(int fd) {
   ssize_t sent = entry.flush(fd);
 
   if (sent == -1 && errno != EAGAIN && errno != EWOULDBLOCK) {
+    _close(fd);
     close(fd);
+    _connections.erase(fd);
     _writeBuffer.erase(iter);
     return;
   }
   if (sent == 0) {
-    close(fd);
-    _writeBuffer.erase(iter);
+    if (_connections[fd].closeAfterWrite) {
+      _close(fd);
+      close(fd);
+      _connections.erase(fd);
+      _writeBuffer.erase(iter);
+    } else {
+      struct epoll_event epollEvent;
+      epollEvent.events = EPOLLIN;
+      epollEvent.data.fd = fd;
+      epoll_ctl(epoll_fd, EPOLL_CTL_MOD, fd, &epollEvent);
+    }
     return;
   }
 

@@ -1,8 +1,11 @@
+#include <csignal>
 #include <iostream>
 
 #include "Server.hpp"
 
 int main() {
+  std::signal(SIGPIPE, SIG_IGN);  // NOLINT
+
   mon_net::Server serv;
 
   std::cout << "   ▖  ▖  ▌ ▐▘▜     ▐▘  ▄▖▄▖▄▖" << '\n';
