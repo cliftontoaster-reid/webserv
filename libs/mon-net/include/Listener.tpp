@@ -72,7 +72,8 @@ ssize_t BufferedData::flush(int fd) {
   }
 
 #ifdef OS_LINUX
-  ssize_t sent = send(fd, &buffer[offset], buffer.size() - offset, MSG_NOSIGNAL);
+  ssize_t sent =
+      send(fd, &buffer[offset], buffer.size() - offset, MSG_NOSIGNAL);
 #else
   ssize_t sent = send(fd, &buffer[offset], buffer.size() - offset, 0);
 #endif
