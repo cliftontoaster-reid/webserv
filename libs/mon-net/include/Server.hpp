@@ -22,7 +22,7 @@ class Server {
   Listener<1024> _listener;
   mon_router::Router _router;
 
-  bool readVersion(Context& ctx, const Event& event);
+  bool readVersion(Context& ctx);
   void readCtx(Context& ctx);
 };
 

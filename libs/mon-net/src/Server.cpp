@@ -34,7 +34,42 @@ void Server::run() {
       if (event.type == Event::EVENT_TYPE_IN_OK) {
         try {
           Context& ctx = _listener.connContext(event.fd);
-          if (readVersion(ctx, event)) {
+          if (readVersion(ctx)) {
+            switch (ctx.version.value) {
+              case mon_http::HttpVersion::HttpVersion1_0:
+              case mon_http::HttpVersion::HttpVersion1_1: {
+                ctx.parser = new mon_http::Http10StreamParser();
+                ctx.parser->append(ctx.buffer);
+                ctx.buffer.clear();
+                try {
+                  if (ctx.parser->canPull()) {
+                    mon_http::AHttpRequest* req = ctx.parser->pull();
+                    _router.handle(*req, ctx.fd, _listener);
+                    delete req;
+                  } else {
+                    throw std::runtime_error("Bad Request");
+                  }
+                } catch (std::exception& err) {
+                  mon_http::Http10Response res;
+                  res.statusMessage = err.what();
+                  res.setStatusCode(STATUS_Bad_Request);
+                  _listener.markClose(ctx.fd);
+                  _listener.write(res, ctx.fd);
+                }
+                break;
+              }
+
+              case mon_http::HttpVersion::HttpVersionUnknown:
+              case mon_http::HttpVersion::HttpVersion0_9:
+              case mon_http::HttpVersion::HttpVersion2_0:
+                mon_http::Http10Response res = mon_http::Http10Response();
+                res.setStatusCode(STATUS_Version_Not_Supported);
+                res.statusMessage = "HTTP Version Not Supported";
+                _listener.markClose(ctx.fd);
+                _listener.write(res, event.fd);
+                close(ctx.fd);
+                break;
+            }
           }
         } catch (std::exception& e) {
           mon_http::Http10Response res = mon_http::Http10Response();
@@ -46,54 +81,25 @@ void Server::run() {
   }
 }
 
-bool Server::readVersion(Context& ctx, const Event& event) {
+bool Server::readVersion(Context& ctx) {
   readCtx(ctx);
   if (ctx.version.value == mon_http::HttpVersion::HttpVersionUnknown &&
       ctx.canSniffVersion()) {
     mon_http::HttpVersion ver =
         mon_http::HttpVersion::sniffHttpVersion(ctx.buffer);
+    ctx.version = ver;
 
     switch (ver.value) {
       case mon_http::HttpVersion::HttpVersionUnknown:
-        close(event.fd);
-        break;
-
+        return false;
       case mon_http::HttpVersion::HttpVersion1_0:
-      case mon_http::HttpVersion::HttpVersion1_1: {
-        ctx.version = ver;
-        ctx.parser = new mon_http::Http10StreamParser();
-        ctx.parser->append(ctx.buffer);
-        ctx.buffer.clear();
-        try {
-          if (ctx.parser->canPull()) {
-            mon_http::AHttpRequest* req = ctx.parser->pull();
-            _router.handle(*req, ctx.fd, _listener);
-            delete req;
-          } else {
-            throw std::runtime_error("Bad Request");
-          }
-        } catch (std::exception& err) {
-          mon_http::Http10Response res;
-          res.statusMessage = err.what();
-          res.setStatusCode(STATUS_Bad_Request);
-          _listener.markClose(ctx.fd);
-          _listener.write(res, ctx.fd);
-        }
-        return true;
-      }
+      case mon_http::HttpVersion::HttpVersion1_1:
       case mon_http::HttpVersion::HttpVersion0_9:
       case mon_http::HttpVersion::HttpVersion2_0:
-        mon_http::Http10Response res = mon_http::Http10Response();
-        res.setStatusCode(STATUS_Version_Not_Supported);
-        res.statusMessage = "HTTP Version Not Supported";
-        _listener.markClose(ctx.fd);
-        _listener.write(res, event.fd);
-        close(ctx.fd);
-        break;
+        return true;
     }
   }
-
-  return false;
+  return ctx.version.value != mon_http::HttpVersion::HttpVersionUnknown;
 }
 
 void Server::readCtx(Context& ctx) {
