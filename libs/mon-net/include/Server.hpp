@@ -12,6 +12,7 @@ class Server {
   Server();
   Server(const Server& other);
   Server& operator=(const Server& other);
+  ~Server();
 
   void registerPort(u_int16_t port);
   void run();

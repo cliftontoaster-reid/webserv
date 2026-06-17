@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "HashMap.hpp"
-#include "endian_detect.hpp"
+#include "Detect.hpp"
 
 namespace {
 

@@ -9,6 +9,17 @@ namespace mon_net {
 template <typename A, typename B>
 class DualMap {
  public:
+  DualMap() {}
+  DualMap(const DualMap& other) : north(other.north), south(other.south) {}
+  DualMap& operator=(const DualMap& other) {
+    if (this != &other) {
+      this->north = other.north;
+      this->south = other.south;
+    }
+    return *this;
+  }
+  ~DualMap() {}
+
   // Returns true if insertion was successful
   bool insert(const A& a, const B& b) {
     if (north.count(a) || south.count(b)) {

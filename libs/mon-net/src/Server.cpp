@@ -21,6 +21,7 @@ Server& Server::operator=(const Server& other) {
   }
   return *this;
 }
+Server::~Server() {}
 
 void Server::registerPort(u_int16_t port) { _listener.registerPort(port); }
 
