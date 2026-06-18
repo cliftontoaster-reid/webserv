@@ -21,6 +21,9 @@
 #include <sys/epoll.h>
 #endif
 
+#define BUFFER_SIZE 4096
+#define BUFFER_READ_MIN 1024
+
 namespace mon_net {
 
 struct Event {

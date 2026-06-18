@@ -47,12 +47,12 @@ void BufferedData::clear() {
 }
 
 ssize_t BufferedData::flush(int fd) {
-  if (file != NULL && buffer.size() < 4096) {
-    char tmp[4096] = {0};
+  if (file != NULL && buffer.size() < BUFFER_SIZE) {
+    char tmp[BUFFER_SIZE] = {0};
 
-    size_t want = 4096 - buffer.size();
+    size_t want = BUFFER_SIZE - buffer.size();
 
-    if (want >= 1024) {
+    if (want >= BUFFER_READ_MIN) {
       size_t toRead = (want < sizeof(tmp)) ? want : sizeof(tmp);
       size_t readCount = std::fread(tmp, 1, toRead, file);
 
@@ -72,7 +72,8 @@ ssize_t BufferedData::flush(int fd) {
   }
 
 #ifdef OS_LINUX
-  ssize_t sent = send(fd, &buffer[offset], buffer.size() - offset, MSG_NOSIGNAL);
+  ssize_t sent =
+      send(fd, &buffer[offset], buffer.size() - offset, MSG_NOSIGNAL);
 #else
   ssize_t sent = send(fd, &buffer[offset], buffer.size() - offset, 0);
 #endif

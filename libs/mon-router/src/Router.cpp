@@ -39,9 +39,10 @@ inline std::string get_mime_type(const std::string& path) {
   }
 
   std::string ext = path.substr(dot_idx);
-  std::map<std::string, std::string>::const_iterator it = mime_types.find(ext);
-  if (it != mime_types.end()) {
-    return it->second;
+  std::map<std::string, std::string>::const_iterator iter =
+      mime_types.find(ext);
+  if (iter != mime_types.end()) {
+    return iter->second;
   }
 
   return "application/octet-stream";
@@ -104,15 +105,15 @@ void Router::handle(mon_http::AHttpRequest& request, int client_fd,
     if (file == NULL) {
       throw std::runtime_error("Could not read file");
     }
-    std::fseek(file, 0, SEEK_END);
+    std::fseek(file, 0, SEEK_END);  // NOLINT(cert-err33-c)
     long fsize = std::ftell(file);
-    std::fseek(file, 0, SEEK_SET);
+    std::fseek(file, 0, SEEK_SET);  // NOLINT(cert-err33-c)
     std::string body(fsize, '\0');
     if (fsize > 0 && std::fread(&body[0], 1, fsize, file) == 0) {
-      std::fclose(file);
+      std::fclose(file);  // NOLINT(cert-err33-c)
       throw std::runtime_error("Could not read file content");
     }
-    std::fclose(file);
+    std::fclose(file);  // NOLINT(cert-err33-c)
     res.setBody(body);
 
     listener.write(res, client_fd);
@@ -128,8 +129,8 @@ void Router::handle(mon_http::AHttpRequest& request, int client_fd,
   }
 }
 
-template void Router::handle<1024>(mon_http::AHttpRequest& request,
-                                   int client_fd,
-                                   mon_net::Listener<1024>& listener);
+template void Router::handle<MAX_EVENTS>(
+    mon_http::AHttpRequest& request, int client_fd,
+    mon_net::Listener<MAX_EVENTS>& listener);
 
 }  // namespace mon_router

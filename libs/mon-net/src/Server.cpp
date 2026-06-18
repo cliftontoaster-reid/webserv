@@ -256,7 +256,7 @@ bool Server::readVersion(Context& ctx) {
 }
 
 void Server::readCtx(Context& ctx) {
-  char tmp[1024];
+  char tmp[MAX_EVENTS];
 
   while (true) {
     ssize_t readCount = read(ctx.fd, tmp, sizeof(tmp));

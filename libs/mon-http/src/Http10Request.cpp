@@ -27,7 +27,7 @@ static inline std::vector<char>::const_iterator findLine(
   return std::find_if(begin, end, IsLineTerminator());
 }
 
-static inline size_t _newPos(std::vector<char>::const_iterator lineEnd,
+static inline size_t _newPos(const std::vector<char>::const_iterator& lineEnd,
                              const std::vector<char>& data) {
   size_t termLen = 1;
 

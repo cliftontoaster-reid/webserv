@@ -5,6 +5,7 @@
 
 #include "Listener.hpp"
 #include "Router.hpp"
+
 namespace mon_net {
 
 class Server {
@@ -20,11 +21,11 @@ class Server {
   mon_router::Router& router() { return _router; }
 
  private:
-  Listener<1024> _listener;
+  Listener<MAX_EVENTS> _listener;
   mon_router::Router _router;
 
-  bool readVersion(Context& ctx);
-  void readCtx(Context& ctx);
+  static bool readVersion(Context& ctx);
+  static void readCtx(Context& ctx);
 
   void handleRequest(Event& event);
 

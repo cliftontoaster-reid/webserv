@@ -10,6 +10,8 @@
 #include "AHttpRequest.hpp"
 #include "Listener.hpp"
 
+#define MAX_EVENTS 1024
+
 namespace mon_router {
 
 struct Route {
@@ -60,7 +62,8 @@ class Router {
   Router& operator=(const Router& other);
   ~Router();
 
-  void addRoute(const std::string& prefix, const std::string& path, u_int16_t port);
+  void addRoute(const std::string& prefix, const std::string& path,
+                u_int16_t port);
   void ready() { std::sort(_paths.begin(), _paths.end()); }
 
   template <int MaxEvents>
