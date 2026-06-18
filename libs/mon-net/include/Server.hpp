@@ -25,6 +25,16 @@ class Server {
 
   bool readVersion(Context& ctx);
   void readCtx(Context& ctx);
+
+  void handleRequest(Event& event);
+
+  void handleV0_9(Event& event, Context& ctx, mon_http::AHttpRequest& req);
+  void handleV1_0(Event& event, Context& ctx, mon_http::AHttpRequest& req);
+  void handleV1_1(Event& event, Context& ctx, mon_http::AHttpRequest& req);
+  void handleV2_0(Event& event, Context& ctx, mon_http::AHttpRequest& req);
+
+  void handleGetV1_0(Context& ctx, mon_http::AHttpRequest& req);
+  void handleGetV1_1(Context& ctx, mon_http::AHttpRequest& req);
 };
 
 }  // namespace mon_net
