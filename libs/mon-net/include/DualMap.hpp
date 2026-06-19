@@ -1,5 +1,5 @@
-#ifndef MON_NET_INCLUDE_DUALMAP_HTTP
-#define MON_NET_INCLUDE_DUALMAP_HTTP
+#ifndef MON_NET_INCLUDE_DUALMAP_HPP
+#define MON_NET_INCLUDE_DUALMAP_HPP
 
 #include <map>
 #include <stdexcept>

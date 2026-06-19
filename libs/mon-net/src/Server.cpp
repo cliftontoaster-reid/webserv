@@ -7,6 +7,7 @@
 #include <exception>
 
 #include "AHttpResponse.hpp"
+#include "Form.hpp"
 #include "Http10Response.hpp"
 #include "Http10StreamParser.hpp"
 #include "HttpVersion.hpp"
@@ -104,7 +105,7 @@ void Server::handleV0_9(Event& event, Context& ctx,
     case mon_http::HttpMethod::HttpMethodPatch:
       mon_http::Http10Response res = mon_http::Http10Response();
       res.setStatusCode(STATUS_Version_Not_Supported);
-      res.statusMessage = "HTTP Version Not Supported";
+      res.statusMessage = "HTTP Version Not Supported ";
       _listener.markClose(ctx.fd);
       _listener.write(res, event.fd);
       close(ctx.fd);
@@ -117,9 +118,11 @@ void Server::handleV1_0(Event& event, Context& ctx,
     case mon_http::HttpMethod::HttpMethodGet:
       handleGetV1_0(ctx, req);
       break;
+    case mon_http::HttpMethod::HttpMethodPost:
+      handlePostV1_0(ctx, req);
+      break;
     case mon_http::HttpMethod::HttpMethodUnknown:
     case mon_http::HttpMethod::HttpMethodHead:
-    case mon_http::HttpMethod::HttpMethodPost:
     case mon_http::HttpMethod::HttpMethodPut:
     case mon_http::HttpMethod::HttpMethodDelete:
     case mon_http::HttpMethod::HttpMethodConnect:
@@ -141,9 +144,11 @@ void Server::handleV1_1(Event& event, Context& ctx,
     case mon_http::HttpMethod::HttpMethodGet:
       handleGetV1_1(ctx, req);
       break;
+    case mon_http::HttpMethod::HttpMethodPost:
+      handlePostV1_1(ctx, req);
+      break;
     case mon_http::HttpMethod::HttpMethodUnknown:
     case mon_http::HttpMethod::HttpMethodHead:
-    case mon_http::HttpMethod::HttpMethodPost:
     case mon_http::HttpMethod::HttpMethodPut:
     case mon_http::HttpMethod::HttpMethodDelete:
     case mon_http::HttpMethod::HttpMethodConnect:
@@ -205,6 +210,39 @@ void Server::handleGetV1_1(Context& ctx, mon_http::AHttpRequest& req) {
     } else {
       throw std::runtime_error("Bad Request");
     }
+  } catch (std::exception& err) {
+    mon_http::Http10Response res;
+    res.statusMessage = err.what();
+    res.setStatusCode(STATUS_Bad_Request);
+    _listener.markClose(ctx.fd);
+    _listener.write(res, ctx.fd);
+  }
+}
+
+void Server::handlePostV1_0(Context& ctx, mon_http::AHttpRequest& req) {
+  (void)ctx;
+  (void)req;
+  try {
+    mon_http::Form form(req.header("Content-Type"));
+
+    form.parse(req.body());
+    // TODO(cliftontoaster-reod)
+  } catch (std::exception& err) {
+    mon_http::Http10Response res;
+    res.statusMessage = err.what();
+    res.setStatusCode(STATUS_Bad_Request);
+    _listener.markClose(ctx.fd);
+    _listener.write(res, ctx.fd);
+  }
+}
+void Server::handlePostV1_1(Context& ctx, mon_http::AHttpRequest& req) {
+  (void)ctx;
+  (void)req;
+  try {
+    mon_http::Form form(req.header("Content-Type"));
+
+    form.parse(req.body());
+    // TODO(cliftontoaster-reod)
   } catch (std::exception& err) {
     mon_http::Http10Response res;
     res.statusMessage = err.what();

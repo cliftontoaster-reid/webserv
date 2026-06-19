@@ -1,5 +1,5 @@
-#ifndef MON_NET_INCLUDE_DETECT_HTTP
-#define MON_NET_INCLUDE_DETECT_HTTP
+#ifndef MON_NET_INCLUDE_DETECT_HPP
+#define MON_NET_INCLUDE_DETECT_HPP
 
 #if defined(_WIN32) || defined(_WIN64)  // Windows (32-bit and 64-bit)
 #define OS_WINDOWS

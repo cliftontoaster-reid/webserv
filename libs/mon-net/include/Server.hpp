@@ -1,5 +1,5 @@
-#ifndef MON_NET_INCLUDE_SERVER_HTTP
-#define MON_NET_INCLUDE_SERVER_HTTP
+#ifndef MON_NET_INCLUDE_SERVER_HPP
+#define MON_NET_INCLUDE_SERVER_HPP
 
 #include <sys/types.h>
 
@@ -36,6 +36,9 @@ class Server {
 
   void handleGetV1_0(Context& ctx, mon_http::AHttpRequest& req);
   void handleGetV1_1(Context& ctx, mon_http::AHttpRequest& req);
+
+  void handlePostV1_0(Context& ctx, mon_http::AHttpRequest& req);
+  void handlePostV1_1(Context& ctx, mon_http::AHttpRequest& req);
 };
 
 }  // namespace mon_net
