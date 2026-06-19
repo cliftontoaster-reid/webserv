@@ -122,6 +122,7 @@ SRCS = \
 	$(SRC_DIR)/AHttpRequest.cpp \
 	$(SRC_DIR)/AHttpResponse.cpp \
 	$(SRC_DIR)/AHttpStreamParser.cpp \
+	$(SRC_DIR)/Form.cpp \
 	$(SRC_DIR)/Http10Request.cpp \
 	$(SRC_DIR)/Http10Response.cpp \
 	$(SRC_DIR)/Http10StreamParser.cpp \
