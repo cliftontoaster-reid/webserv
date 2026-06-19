@@ -183,6 +183,9 @@ void FormData::_parseContentDisposition(const std::string& value) {
       }
       if (headers.contains("Content-Disposition")) {
         _parseContentDisposition(headers.at("Content-Disposition"));
+      } else {
+        throw std::invalid_argument(
+            "Content-Disposition: Invalid number of parts");
       }
     }
   }
