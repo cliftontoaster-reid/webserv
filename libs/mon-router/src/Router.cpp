@@ -6,16 +6,59 @@
 
 #include <cstddef>
 #include <cstdio>
+#include <cstring>
 #include <exception>
+#include <fstream>
 #include <stdexcept>
 #include <string>
 
+#include "Detect.hpp"
 #include "Http10Response.hpp"
 #include "Listener.hpp"
 #include "Path.hpp"
 #include "Uri.hpp"
 
 namespace {
+
+std::string random(size_t len) {
+  static unsigned char buf[2048];
+  static size_t pos = sizeof(buf);
+
+  const std::string charset =
+      "abcdefghijklmnopqrstuvwxyz"
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      "0123456789";
+
+  std::string result;
+  result.reserve(len);
+
+  while (result.length() < len) {
+    if (pos >= sizeof(buf)) {
+      std::ifstream file("/dev/urandom", std::ios::binary);
+      if (!file.is_open()) {
+        throw std::runtime_error("Failed to open /dev/urandom");
+      }
+      file.read(reinterpret_cast<char*>(buf), sizeof(buf));
+      pos = 0;
+    }
+
+    unsigned char randomByte = buf[pos++];
+    result += charset[randomByte % charset.length()];
+  }
+
+  return result;
+}
+
+inline std::string getNewFileName(const std::string& file_name) {
+  size_t last_slash = file_name.find_last_of(PATH_SEPARATOR);
+
+  if (last_slash == std::string::npos) {
+    return random(16) + "_" + file_name;
+  }
+
+  return file_name.substr(0, last_slash + sizeof(PATH_SEPARATOR)) + random(16) +
+         "_" + file_name.substr(last_slash + sizeof(PATH_SEPARATOR));
+}
 
 inline std::string get_mime_type(const std::string& path) {
   static std::map<std::string, std::string> mime_types;

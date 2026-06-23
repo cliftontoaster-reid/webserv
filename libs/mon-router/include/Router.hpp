@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "AHttpRequest.hpp"
+#include "Form.hpp"
 #include "Listener.hpp"
 
 #define MAX_EVENTS 1024
@@ -50,9 +51,20 @@ struct Route {
   }
 };
 
-struct Handler {
+struct CgiHandler {
   std::string glob;
   std::string cgiBin;
+};
+
+struct HandlerResponse {
+  int code;
+  std::string message;
+  std::string body;
+};
+
+struct Handler {
+  std::string path;
+  HandlerResponse func(mon_http::Form& form_data);
 };
 
 class Router {
@@ -72,7 +84,8 @@ class Router {
 
  private:
   std::vector<Route> _paths;
-  std::vector<Handler> _handler;
+  std::vector<CgiHandler> _cgi_handlers;
+  std::vector<Handler> _handlers;
 
   const Route* find_match(const std::string& request_path) const {
     for (size_t i = 0; i < _paths.size(); ++i) {
