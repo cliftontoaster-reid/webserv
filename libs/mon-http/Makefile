@@ -126,6 +126,7 @@ SRCS = \
 	$(SRC_DIR)/Http10Request.cpp \
 	$(SRC_DIR)/Http10Response.cpp \
 	$(SRC_DIR)/Http10StreamParser.cpp \
+	$(SRC_DIR)/HttpException.cpp \
 	$(SRC_DIR)/HttpMethod.cpp \
 	$(SRC_DIR)/HttpVersion.cpp \
 
