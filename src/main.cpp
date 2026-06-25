@@ -1,7 +1,16 @@
 #include <csignal>
 #include <iostream>
 
+#include "AHttpResponse.hpp"
 #include "Server.hpp"
+
+mon_router::HandlerResponse hello(mon_http::AHttpRequest& request,
+                                  mon_http::Form& form_data) {
+  (void)request;
+  (void)form_data;
+  mon_router::HandlerResponse res = {STATUS_OK, "OK", "Hello from /api/hello!"};
+  return res;
+}
 
 int main() {
   std::signal(SIGPIPE, SIG_IGN);  // NOLINT
@@ -21,6 +30,7 @@ int main() {
   serv.registerPort(1998);
   serv.router().addRoute("/", "assets/html", 1998);
   serv.router().addRoute("/imgs", "/usr/share/pixmaps/", 1998);
+  serv.router().addHandler("/api/hello", hello);
   serv.router().ready();
 
   std::cout << "=================================" << '\n';
