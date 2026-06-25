@@ -127,6 +127,20 @@ void HashMap<Key, T>::clear() {
 }
 
 template <typename Key, typename T>
+const T& HashMap<Key, T>::at(const Key& key) const {
+  u_int32_t hash = murmurHash(key, _seed);
+  u_int32_t idx = hash & (_store.size() - 1);
+
+  for (size_t i = 0; i < _store[idx].size(); ++i) {
+    if (_store[idx][i].occupied && _store[idx][i].key == key) {
+      return _store[idx][i].value;
+    }
+  }
+
+  throw std::out_of_range("Key not found");
+}
+
+template <typename Key, typename T>
 T& HashMap<Key, T>::at(const Key& key) {
   u_int32_t hash = murmurHash(key, _seed);
   u_int32_t idx = hash & (_store.size() - 1);

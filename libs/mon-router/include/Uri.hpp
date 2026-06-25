@@ -16,14 +16,19 @@ class Uri {
   Uri& operator=(const Uri& other);
 
   std::string& scheme();
+  const std::string& scheme() const;
   bool hasScheme() const;
   std::string& authority();
+  const std::string& authority() const;
   bool hasAuthority() const;
   std::string& path();
+  const std::string& path() const;
   bool hasPath() const;
   mon_http::HashMap<std::string, std::string>& query();
+  const mon_http::HashMap<std::string, std::string>& query() const;
   bool hasQuery() const;
   std::string& fragment();
+  const std::string& fragment() const;
   bool hasFragment() const;
 
  private:

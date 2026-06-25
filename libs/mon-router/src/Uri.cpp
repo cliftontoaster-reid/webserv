@@ -137,29 +137,63 @@ std::string& Uri::scheme() {
   }
   return _scheme;
 }
+const std::string& Uri::scheme() const {
+  if (!_has_scheme) {
+    throw std::runtime_error("URI does not have a scheme");
+  }
+  return _scheme;
+}
 bool Uri::hasScheme() const { return _has_scheme; }
+
 std::string& Uri::authority() {
   if (!_has_authority) {
     throw std::runtime_error("URI does not have an authority");
   }
   return _authority;
 }
+const std::string& Uri::authority() const {
+  if (!_has_authority) {
+    throw std::runtime_error("URI does not have an authority");
+  }
+  return _authority;
+}
 bool Uri::hasAuthority() const { return _has_authority; }
+
 std::string& Uri::path() {
   if (!_has_path) {
     throw std::runtime_error("URI does not have a path");
   }
   return _path;
 }
+const std::string& Uri::path() const {
+  if (!_has_path) {
+    throw std::runtime_error("URI does not have a path");
+  }
+  return _path;
+}
 bool Uri::hasPath() const { return _has_path; }
+
 mon_http::HashMap<std::string, std::string>& Uri::query() {
   if (!_has_query) {
     throw std::runtime_error("URI does not have queries");
   }
   return _query;
 }
+const mon_http::HashMap<std::string, std::string>& Uri::query() const {
+  if (!_has_query) {
+    throw std::runtime_error("URI does not have queries");
+  }
+  return _query;
+}
 bool Uri::hasQuery() const { return _has_query; }
+
 std::string& Uri::fragment() {
+  if (!_has_fragment) {
+    throw std::runtime_error("URI does not have a fragment");
+  }
+  return _fragment;
+}
+const std::string& Uri::fragment() const {
   if (!_has_fragment) {
     throw std::runtime_error("URI does not have a fragment");
   }
