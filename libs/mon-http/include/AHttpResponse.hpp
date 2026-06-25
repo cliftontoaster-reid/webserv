@@ -23,6 +23,8 @@
 #define STATUS_Unauthorized 401
 #define STATUS_Forbidden 403
 #define STATUS_Not_Found 404
+#define STATUS_Request_Entity_Too_Large 413
+#define STATUS_Request_URI_Too_Long 414
 #define STATUS_Internal_Server_Error 500
 #define STATUS_Not_Implemented 501
 #define STATUS_Bad_Gateway 502
