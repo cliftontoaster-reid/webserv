@@ -1,3 +1,6 @@
+#ifndef MON_ROUTER_INCLUDE_PATH_HPP
+#define MON_ROUTER_INCLUDE_PATH_HPP
+
 #include <sys/stat.h>
 
 #include <cstddef>
@@ -73,3 +76,5 @@ class Path {
 };
 
 }  // namespace mon_router
+
+#endif
