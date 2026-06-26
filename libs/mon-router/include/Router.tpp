@@ -27,7 +27,20 @@ void Router::handle(mon_http::AHttpRequest& request, int client_fd,
         return;
       }
     }
+
     const Route& route = find_match(uri.path());
+    if (_cgiHandler.isCgi(uri)) {
+      Path fsPath(route.path);
+      fsPath.append(uri.path().substr(route.preffix.length()));
+      std::string fullPath;
+      if (!fsPath.resolve(fullPath)) {
+        throw mon_http::HttpException(STATUS_Not_Found, "Not Found");
+      }
+      Handler cgiH = {fullPath, NULL};
+      _cgiHandler.handleCgi(cgiH, request, client_fd, listener);
+      return;
+    }
+
     serve_static_file(route, uri, client_fd, listener);
   } catch (mon_http::HttpException& e) {
     mon_http::Http10Response res;

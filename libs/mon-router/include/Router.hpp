@@ -14,8 +14,10 @@
 
 #include "AHttpRequest.hpp"
 #include "AHttpResponse.hpp"
+#include "CgiHandler.hpp"
 #include "Detect.hpp"
 #include "Form.hpp"
+#include "Handler.hpp"
 #include "HttpException.hpp"
 #include "Listener.hpp"
 #include "Uri.hpp"
@@ -100,18 +102,6 @@ struct Route {
   }
 };
 
-struct HandlerResponse {
-  int code;
-  std::string message;
-  std::string body;
-};
-
-struct Handler {
-  std::string path;
-  HandlerResponse (*func)(mon_http::AHttpRequest& request,
-                          mon_http::Form& form_data);
-};
-
 class Router {
  public:
   Router();
@@ -134,6 +124,7 @@ class Router {
  private:
   std::vector<Route> _paths;
   std::vector<Handler> _handlers;
+  mon_cgi::CgiHandler _cgiHandler;
 
   const Route& find_match(const std::string& request_path) const {
     for (size_t i = 0; i < _paths.size(); ++i) {

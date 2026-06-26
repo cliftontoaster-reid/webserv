@@ -9,9 +9,13 @@
 namespace mon_router {
 
 Router::Router() {}
-Router::Router(const Router& other) { (void)other; }
+Router::Router(const Router& other)
+    : _paths(other._paths)
+    , _handlers(other._handlers) {}
 Router& Router::operator=(const Router& other) {
   if (this != &other) {
+    _paths = other._paths;
+    _handlers = other._handlers;
   }
   return *this;
 }
