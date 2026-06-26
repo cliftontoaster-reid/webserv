@@ -79,7 +79,7 @@ endif
 NAME = mon-cgi
 all: lib$(NAME).a lib$(NAME).so
 
-LIBS_DIR	 =	./libs
+LIBS_DIR	 =	../
 ORIGIN_DIR ?=	./target
 OFFICE_DIR =	$(ORIGIN_DIR)/$(MODE)
 TARGET_DIR ?= $(OFFICE_DIR)/$(NAME)
@@ -96,6 +96,7 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
+	$(SRC_DIR)/Glob.cpp \
 
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 DEP := $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(SRCS))
@@ -109,7 +110,73 @@ LIBRARIES :=
 LIBS_ARCHIVES :=
 LIB_RPATH_FLAGS :=
 
-# TODO: tests
+# ---------
+# MON-HTTP
+# ---------
+MON_HTTP_DEPO			  = $(LIBS_DIR)/mon-http
+MON_HTTP_TARGET_DIR = $(OFFICE_DIR)/mon-http
+MON_HTTP_OBJ_DIR		= $(MON_HTTP_TARGET_DIR)/obj
+MON_HTTP_TOBJ_DIR	  = $(MON_HTTP_TARGET_DIR)/tobj
+MON_HTTP_DEP_DIR		= $(MON_HTTP_TARGET_DIR)/dep
+MON_HTTP_BIN_DIR		= $(MON_HTTP_TARGET_DIR)/bin
+MON_HTTP_DIRS			  = $(MON_HTTP_OBJ_DIR) $(MON_HTTP_TOBJ_DIR) \
+											$(MON_HTTP_DEP_DIR) $(MON_HTTP_BIN_DIR)
+MON_HTTP_ARCHIVE		= $(MON_HTTP_BIN_DIR)/mon-http.so
+MON_HTTP_SRCS			:= $(shell find $(MON_HTTP_DEPO)/src     -name '*.cpp' 2>/dev/null)
+MON_HTTP_HDRS			:= $(shell find $(MON_HTTP_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
+MON_HTTP_INC_DIR		= $(MON_HTTP_DEPO)/include
+
+LIBS_ARCHIVES += $(MON_HTTP_ARCHIVE)
+INC += -I$(MON_HTTP_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_HTTP_BIN_DIR))'
+
+# -----------
+# MON-ROUTER
+# -----------
+MON_ROUTER_DEPO			  = $(LIBS_DIR)/mon-router
+MON_ROUTER_TARGET_DIR = $(OFFICE_DIR)/mon-router
+MON_ROUTER_OBJ_DIR		= $(MON_ROUTER_TARGET_DIR)/obj
+MON_ROUTER_TOBJ_DIR	  = $(MON_ROUTER_TARGET_DIR)/tobj
+MON_ROUTER_DEP_DIR		= $(MON_ROUTER_TARGET_DIR)/dep
+MON_ROUTER_BIN_DIR		= $(MON_ROUTER_TARGET_DIR)/bin
+MON_ROUTER_DIRS			  = $(MON_ROUTER_OBJ_DIR) $(MON_ROUTER_TOBJ_DIR) \
+												$(MON_ROUTER_DEP_DIR) $(MON_ROUTER_BIN_DIR)
+MON_ROUTER_ARCHIVE		= $(MON_ROUTER_BIN_DIR)/mon-router.so
+MON_ROUTER_SRCS			:= $(shell find $(MON_ROUTER_DEPO)/src     -name '*.cpp' 2>/dev/null)
+MON_ROUTER_HDRS			:= $(shell find $(MON_ROUTER_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
+MON_ROUTER_INC_DIR		= $(MON_ROUTER_DEPO)/include
+
+LIBS_ARCHIVES += $(MON_ROUTER_ARCHIVE)
+INC += -I$(MON_ROUTER_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_ROUTER_BIN_DIR))'
+
+# -------
+# MON-NET
+# -------
+MON_NET_DEPO			 = $(LIBS_DIR)/mon-net
+MON_NET_TARGET_DIR = $(OFFICE_DIR)/mon-net
+MON_NET_OBJ_DIR		 = $(MON_NET_TARGET_DIR)/obj
+MON_NET_TOBJ_DIR	 = $(MON_NET_TARGET_DIR)/tobj
+MON_NET_DEP_DIR		 = $(MON_NET_TARGET_DIR)/dep
+MON_NET_BIN_DIR		 = $(MON_NET_TARGET_DIR)/bin
+MON_NET_DIRS			 = $(MON_NET_OBJ_DIR) $(MON_NET_TOBJ_DIR) \
+										 $(MON_NET_DEP_DIR) $(MON_NET_BIN_DIR)
+MON_NET_ARCHIVE		= $(MON_NET_BIN_DIR)/mon-net.so
+MON_NET_SRCS			:= $(shell find $(MON_NET_DEPO)/src     -name '*.cpp' 2>/dev/null)
+MON_NET_HDRS			:= $(shell find $(MON_NET_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
+MON_NET_INC_DIR		= $(MON_NET_DEPO)/include
+
+LIBS_ARCHIVES += $(MON_NET_ARCHIVE)
+INC += -I$(MON_NET_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_NET_BIN_DIR))'
+
+mon-net: $(MON_NET_ARCHIVE)
+$(MON_NET_ARCHIVE): $(MON_NET_SRCS) $(MON_NET_HDRS) $(MON_NET_DEPO)/Makefile
+	@printf "$(BOLD)Building mon-net library...$(RESET)\n"
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	MODE="$(MODE)" VERSION="$(VERSION)" \
+	$(MAKE) -C $(MON_NET_DEPO) ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" TARGET_DIR="$(abspath $(MON_NET_TARGET_DIR))" all
+	@printf "$(BOLD)Built mon-net:$(RESET) $(GREEN)$(MON_NET_ARCHIVE)$(RESET)\n"
 
 compile_commands.json: Makefile $(SRCS)
 	@echo "Generating compile_commands.json ..."
