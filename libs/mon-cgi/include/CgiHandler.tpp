@@ -17,7 +17,7 @@
 
 namespace {
 
-void freeCStrArray(char** array, size_t size) {
+inline void freeCStrArray(char** array, size_t size) {
   if (array == NULL) {
     return;
   }
@@ -27,7 +27,7 @@ void freeCStrArray(char** array, size_t size) {
   delete[] array;
 }
 
-std::string trimString(const std::string& str) {
+inline std::string trimString(const std::string& str) {
   size_t first = str.find_first_not_of(" \t\r\n");
   if (first == std::string::npos) {
     return "";
@@ -36,10 +36,11 @@ std::string trimString(const std::string& str) {
   return str.substr(first, (last - first + 1));
 }
 
-char** buildEnvironment(const std::string& scriptPath,
-                        const mon_http::HttpMethod& method,
-                        const std::string& requestBody,
-                        mon_http::HeaderMap& requestHeaders, size_t& outSize) {
+inline char** buildEnvironment(const std::string& scriptPath,
+                               const mon_http::HttpMethod& method,
+                               const std::string& requestBody,
+                               mon_http::HeaderMap& requestHeaders,
+                               size_t& outSize) {
   std::vector<std::string> envStrings;
 
   envStrings.push_back("GATEWAY_INTERFACE=CGI/1.1");
@@ -69,8 +70,8 @@ char** buildEnvironment(const std::string& scriptPath,
   return envp;
 }
 
-void handleCgiIO(int writeFd, int readFd, const std::string& requestBody,
-                 std::string& outCgiRawOutput) {
+inline void handleCgiIO(int writeFd, int readFd, const std::string& requestBody,
+                        std::string& outCgiRawOutput) {
   if (!requestBody.empty()) {
     const char* ptr = requestBody.data();
     size_t remaining = requestBody.size();
@@ -93,8 +94,8 @@ void handleCgiIO(int writeFd, int readFd, const std::string& requestBody,
   close(readFd);
 }
 
-void parseCgiResponse(const std::string& rawOutput,
-                      mon_http::AHttpResponse& outResponse) {
+inline void parseCgiResponse(const std::string& rawOutput,
+                             mon_http::AHttpResponse& outResponse) {
   size_t headerEnd = rawOutput.find("\r\n\r\n");
   if (headerEnd == std::string::npos) {
     headerEnd = rawOutput.find("\n\n");
@@ -140,11 +141,11 @@ void parseCgiResponse(const std::string& rawOutput,
   outResponse.setBody(bodyPart);
 }
 
-bool executeCgi(const std::string& scriptPath,
-                const mon_http::HttpMethod& method,
-                const std::string& requestBody,
-                mon_http::HeaderMap& requestHeaders,
-                mon_http::AHttpResponse& outResponse) {
+inline bool executeCgi(const std::string& scriptPath,
+                       const mon_http::HttpMethod& method,
+                       const std::string& requestBody,
+                       mon_http::HeaderMap& requestHeaders,
+                       mon_http::AHttpResponse& outResponse) {
   int cgiInputPipe[2];
   int cgiOutputPipe[2];
 
@@ -224,8 +225,9 @@ void CgiHandler::handleCgi(const mon_router::Handler& handler,
   listener.markClose(client_fd);
 }
 
-template void CgiHandler::handleCgi<1024>(
-    const mon_router::Handler& handler, mon_http::AHttpRequest& request,
-    int client_fd, mon_net::Listener<1024>& listener);
+template void CgiHandler::handleCgi<1024>(const mon_router::Handler& handler,
+                                          mon_http::AHttpRequest& request,
+                                          int client_fd,
+                                          mon_net::Listener<1024>& listener);
 
 }  // namespace mon_cgi
