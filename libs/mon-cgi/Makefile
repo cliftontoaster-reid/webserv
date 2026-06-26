@@ -131,6 +131,15 @@ LIBS_ARCHIVES += $(MON_HTTP_ARCHIVE)
 INC += -I$(MON_HTTP_INC_DIR)
 LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_HTTP_BIN_DIR))'
 
+mon-http: $(MON_HTTP_ARCHIVE)
+$(MON_HTTP_ARCHIVE): $(MON_HTTP_SRCS) $(MON_HTTP_HDRS) $(MON_HTTP_DEPO)/Makefile
+	@printf "$(BOLD)Building mon-http library...$(RESET)\n"
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	MODE="$(MODE)" VERSION="$(VERSION)" \
+	$(MAKE) -C $(MON_HTTP_DEPO) ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" TARGET_DIR="$(abspath $(MON_HTTP_TARGET_DIR))" all
+	@printf "$(BOLD)Built mon-http:$(RESET) $(GREEN)$(MON_HTTP_ARCHIVE)$(RESET)\n"
+
+
 # -----------
 # MON-ROUTER
 # -----------
@@ -147,9 +156,7 @@ MON_ROUTER_SRCS			:= $(shell find $(MON_ROUTER_DEPO)/src     -name '*.cpp' 2>/de
 MON_ROUTER_HDRS			:= $(shell find $(MON_ROUTER_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
 MON_ROUTER_INC_DIR		= $(MON_ROUTER_DEPO)/include
 
-LIBS_ARCHIVES += $(MON_ROUTER_ARCHIVE)
 INC += -I$(MON_ROUTER_INC_DIR)
-LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_ROUTER_BIN_DIR))'
 
 # -------
 # MON-NET
@@ -167,17 +174,7 @@ MON_NET_SRCS			:= $(shell find $(MON_NET_DEPO)/src     -name '*.cpp' 2>/dev/null
 MON_NET_HDRS			:= $(shell find $(MON_NET_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
 MON_NET_INC_DIR		= $(MON_NET_DEPO)/include
 
-LIBS_ARCHIVES += $(MON_NET_ARCHIVE)
 INC += -I$(MON_NET_INC_DIR)
-LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_NET_BIN_DIR))'
-
-mon-net: $(MON_NET_ARCHIVE)
-$(MON_NET_ARCHIVE): $(MON_NET_SRCS) $(MON_NET_HDRS) $(MON_NET_DEPO)/Makefile
-	@printf "$(BOLD)Building mon-net library...$(RESET)\n"
-	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	MODE="$(MODE)" VERSION="$(VERSION)" \
-	$(MAKE) -C $(MON_NET_DEPO) ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" TARGET_DIR="$(abspath $(MON_NET_TARGET_DIR))" all
-	@printf "$(BOLD)Built mon-net:$(RESET) $(GREEN)$(MON_NET_ARCHIVE)$(RESET)\n"
 
 compile_commands.json: Makefile $(SRCS)
 	@echo "Generating compile_commands.json ..."

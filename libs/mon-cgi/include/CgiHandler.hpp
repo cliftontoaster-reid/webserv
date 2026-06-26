@@ -3,15 +3,17 @@
 
 #include <string>
 #include <vector>
-#include "Router.hpp"
+
 #include "Glob.hpp"
+#include "Handler.hpp"
+#include "Listener.hpp"
 #include "Uri.hpp"
 
 namespace mon_cgi {
 
 struct Handle {
-	Glob glob;
-	std::string cgiBin;
+  Glob glob;
+  std::string cgiBin;
 };
 
 class CgiHandler {
@@ -27,11 +29,11 @@ class CgiHandler {
                  mon_http::AHttpRequest& request, int client_fd,
                  mon_net::Listener<MaxEvents>& listener);
 
-	void addGlober(Glob glob, const std::string& cgiBin);
-	void addGlober(const std::string& glob, const std::string& cgiBin);
+  void addGlober(Glob glob, const std::string& cgiBin);
+  void addGlober(const std::string& glob, const std::string& cgiBin);
 
  private:
-	std::vector<Handle> _handles;
+  std::vector<Handle> _handles;
 };
 
 }  // namespace mon_cgi
