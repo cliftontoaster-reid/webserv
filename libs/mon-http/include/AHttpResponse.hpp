@@ -5,7 +5,6 @@
 #include <sys/types.h>
 
 #include <ostream>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -41,8 +40,12 @@ class AHttpResponse {
 
   virtual HttpVersion version() const;
   virtual int statusCode() const;
+  virtual void setStatusCode(int code) = 0;
   virtual const std::string& statusPhrase() const;
   virtual bool hasBody() const = 0;
+  std::string& body();
+  virtual void setBody(const std::string& body) = 0;
+  virtual void appendBody(const std::string& str) = 0;
   virtual const std::string& body() const = 0;
   virtual bool hasHeader(const std::string& key) = 0;
   virtual const std::string& header(const std::string& key) = 0;
