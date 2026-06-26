@@ -96,6 +96,7 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
+	$(SRC_DIR)/CgiHandler.cpp \
 	$(SRC_DIR)/Glob.cpp \
 
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))

@@ -100,13 +100,6 @@ struct Route {
   }
 };
 
-struct CgiHandler {
-  std::string ext;        // e.g. ".php"
-  std::string cgiBin;     // e.g. "/usr/bin/php-cgi"
-  std::string pathIf;     // optional: only match under this prefix
-  std::string pathIfNot;  // optional: exclude this prefix
-};
-
 struct HandlerResponse {
   int code;
   std::string message;
@@ -140,7 +133,6 @@ class Router {
 
  private:
   std::vector<Route> _paths;
-  std::vector<CgiHandler> _cgi_handlers;
   std::vector<Handler> _handlers;
 
   const Route& find_match(const std::string& request_path) const {
