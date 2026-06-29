@@ -28,9 +28,10 @@ int main() {
   std::cout << '\n';
 
   serv.registerPort(1998);
-  serv.router().addRoute("/", "assets/html", 1998);
+  serv.router().addRoute("/", "/var/www/html", 1998);
   serv.router().addRoute("/imgs", "/usr/share/pixmaps/", 1998);
   serv.router().addHandler("/api/hello", hello);
+  serv.router().addCgi("/*.php", "/usr/bin/php-cgi");
   serv.router().ready();
 
   std::cout << "=================================" << '\n';
