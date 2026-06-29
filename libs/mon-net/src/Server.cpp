@@ -16,13 +16,6 @@
 namespace mon_net {
 
 Server::Server() {}
-Server::Server(const Server& other) : _listener(other._listener) {}
-Server& Server::operator=(const Server& other) {
-  if (this != &other) {
-    _listener = other._listener;
-  }
-  return *this;
-}
 Server::~Server() {}
 
 void Server::registerPort(u_int16_t port) { _listener.registerPort(port); }
@@ -254,6 +247,10 @@ void Server::handlePostV1_1(Context& ctx, mon_http::AHttpRequest& req) {
 
 void Server::run() {
   while (true) {
+    if (ExitNow) {
+      break;
+    }
+
     std::vector<Event> events = _listener.poll(-1);
 
     for (size_t i = 0; i < events.size(); ++i) {
@@ -270,6 +267,7 @@ void Server::run() {
       }
     }
   }
+
 }
 
 bool Server::readVersion(Context& ctx) {

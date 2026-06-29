@@ -1,6 +1,7 @@
 #include "Parser.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -56,6 +57,9 @@ Value Parser::parse(std::vector<Token> tokens) {
   _data.clear();
   _data.swap(tokens);
   _pos = 0;
+  if (_document != NULL) {
+    delete _document;
+  }
   _document = new Value(Value::createTable(std::map<std::string, Value>()));
 
   while (canPeek()) {

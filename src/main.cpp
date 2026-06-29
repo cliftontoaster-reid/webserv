@@ -17,15 +17,15 @@ int main() {
 
   mon_net::Server serv;
 
-  std::cout << "   ▖  ▖  ▌ ▐▘▜     ▐▘  ▄▖▄▖▄▖" << '\n';
-  std::cout << "   ▌▞▖▌█▌▛▌▜▘▐ ▛▌▛▌▜▘  ▌▌▚ ▚ " << '\n';
-  std::cout << "   ▛ ▝▌▙▖▙▌▐ ▐▖▙▌▙▌▐   ▙▌▄▌▄▌" << '\n';
+  std::cout << "   ▖  ▖  ▌ ▐▘▜     ▐▘  ▄▖▄▖▄▖" << std::endl;
+  std::cout << "   ▌▞▖▌█▌▛▌▜▘▐ ▛▌▛▌▜▘  ▌▌▚ ▚ " << std::endl;
+  std::cout << "   ▛ ▝▌▙▖▙▌▐ ▐▖▙▌▙▌▐   ▙▌▄▌▄▌" << std::endl;
 
-  std::cout << '\n';
-  std::cout << "Licensed under the MIT License" << '\n';
-  std::cout << "Copyright (c) 2026 Clifton Toaster Reid" << '\n';
-  std::cout << "Version: " << WEBSERV_VERSION << '\n';
-  std::cout << '\n';
+  std::cout << std::endl;
+  std::cout << "Licensed under the MIT License" << std::endl;
+  std::cout << "Copyright (c) 2026 Clifton Toaster Reid" << std::endl;
+  std::cout << "Version: " << WEBSERV_VERSION << std::endl;
+  std::cout << std::endl;
 
   serv.registerPort(1998);
   serv.router().addRoute("/", "/var/www/html", 1998);
@@ -34,9 +34,10 @@ int main() {
   serv.router().addCgi("/*.php", "/usr/bin/php-cgi");
   serv.router().ready();
 
-  std::cout << "=================================" << '\n';
-  std::cout << " Listning at http://0.0.0.0:1998" << '\n';
-  std::cout << " Go here : http://localhost:1998" << '\n';
-  std::cout << "=================================" << '\n';
+  std::cout << "=================================" << std::endl;
+  std::cout << " Listning at http://0.0.0.0:1998" << std::endl;
+  std::cout << " Go here : http://localhost:1998" << std::endl;
+  std::cout << "=================================" << std::endl;
+  std::cout.flush();
   serv.run();
 }

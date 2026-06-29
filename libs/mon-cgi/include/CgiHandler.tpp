@@ -17,6 +17,34 @@
 
 namespace {
 
+struct PipeGuard {
+  int readFd;
+  int writeFd;
+  bool valid;
+
+  PipeGuard() : readFd(-1), writeFd(-1), valid(false) {}
+
+  bool open() {
+    int fds[2];
+    if (pipe(fds) < 0) {
+      return false;
+    }
+    readFd = fds[0];
+    writeFd = fds[1];
+    valid = true;
+    return true;
+  }
+
+  void release() { valid = false; }
+
+  ~PipeGuard() {
+    if (valid) {
+      close(readFd);
+      close(writeFd);
+    }
+  }
+};
+
 inline void freeCStrArray(char** array, size_t size) {
   if (array == NULL) {
     return;
@@ -97,27 +125,50 @@ inline void handleCgiIO(int writeFd, int readFd, const std::string& requestBody,
 namespace {
 inline std::string statusPhrase(int code) {
   switch (code) {
-    case 200: return "OK";
-    case 201: return "Created";
-    case 204: return "No Content";
-    case 301: return "Moved Permanently";
-    case 302: return "Found";
-    case 304: return "Not Modified";
-    case 400: return "Bad Request";
-    case 401: return "Unauthorized";
-    case 403: return "Forbidden";
-    case 404: return "Not Found";
-    case 413: return "Request Entity Too Large";
-    case 414: return "Request-URI Too Long";
-    case 500: return "Internal Server Error";
-    case 501: return "Not Implemented";
-    case 502: return "Bad Gateway";
-    case 503: return "Service Unavailable";
-    case 505: return "HTTP Version Not Supported";
-    default:  return "";
+    case STATUS_OK:
+      return "OK";
+    case STATUS_Created:
+      return "Created";
+    case STATUS_No_Content:
+      return "No Content";
+
+    case STATUS_Moved_Permanently:
+      return "Moved Permanently";
+    case STATUS_Found:
+      return "Found";
+    case STATUS_Not_Modified:
+      return "Not Modified";
+    case STATUS_Temporary_redirect:
+      return "Temporary redirect";
+
+    case STATUS_Bad_Request:
+      return "Bad Request";
+    case STATUS_Unauthorized:
+      return "Unauthorized";
+    case STATUS_Forbidden:
+      return "Forbidden";
+    case STATUS_Not_Found:
+      return "Not Found";
+    case STATUS_Request_Entity_Too_Large:
+      return "Request Entity Too Large";
+    case STATUS_Request_URI_Too_Long:
+      return "Request-URI Too Long";
+
+    case STATUS_Internal_Server_Error:
+      return "Internal Server Error";
+    case STATUS_Not_Implemented:
+      return "Not Implemented";
+    case STATUS_Bad_Gateway:
+      return "Bad Gateway";
+    case STATUS_Service_Unavailable:
+      return "Service Unavailable";
+    case STATUS_Version_Not_Supported:
+      return "HTTP Version Not Supported";
+    default:
+      return "";
   }
 }
-}
+}  // namespace
 
 inline void parseCgiResponse(const std::string& rawOutput,
                              mon_http::AHttpResponse& outResponse) {
@@ -167,16 +218,19 @@ inline void parseCgiResponse(const std::string& rawOutput,
   outResponse.setBody(bodyPart);
 }
 
-inline bool executeCgi(const std::string& scriptPath,
-                       const std::string& cgiBin,
+inline bool executeCgi(const std::string& scriptPath, const std::string& cgiBin,
                        const mon_http::HttpMethod& method,
                        const std::string& requestBody,
                        mon_http::HeaderMap& requestHeaders,
                        mon_http::AHttpResponse& outResponse) {
-  int cgiInputPipe[2];
-  int cgiOutputPipe[2];
+  PipeGuard cgiInputPipe;
+  PipeGuard cgiOutputPipe;
 
-  if (pipe(cgiInputPipe) < 0 || pipe(cgiOutputPipe) < 0) {
+  if (!cgiInputPipe.open()) {
+    outResponse.error500("Internal Server Error: Pipe creation failed.");
+    return false;
+  }
+  if (!cgiOutputPipe.open()) {
     outResponse.error500("Internal Server Error: Pipe creation failed.");
     return false;
   }
@@ -204,15 +258,18 @@ inline bool executeCgi(const std::string& scriptPath,
     return false;
   }
 
+  cgiInputPipe.release();
+  cgiOutputPipe.release();
+
   if (pid == 0) {
     // --- CHILD PROCESS ---
-    dup2(cgiInputPipe[0], STDIN_FILENO);
-    dup2(cgiOutputPipe[1], STDOUT_FILENO);
+    dup2(cgiInputPipe.readFd, STDIN_FILENO);
+    dup2(cgiOutputPipe.writeFd, STDOUT_FILENO);
 
-    close(cgiInputPipe[1]);
-    close(cgiOutputPipe[0]);
-    close(cgiInputPipe[0]);
-    close(cgiOutputPipe[1]);
+    close(cgiInputPipe.writeFd);
+    close(cgiOutputPipe.readFd);
+    close(cgiInputPipe.readFd);
+    close(cgiOutputPipe.writeFd);
 
     execve(argv[0], argv, envp);
     std::exit(EXIT_FAILURE);
@@ -222,11 +279,12 @@ inline bool executeCgi(const std::string& scriptPath,
   freeCStrArray(argv, argc);
   freeCStrArray(envp, envSize);
 
-  close(cgiInputPipe[0]);
-  close(cgiOutputPipe[1]);
+  close(cgiInputPipe.readFd);
+  close(cgiOutputPipe.writeFd);
 
   std::string cgiRawOutput;
-  handleCgiIO(cgiInputPipe[1], cgiOutputPipe[0], requestBody, cgiRawOutput);
+  handleCgiIO(cgiInputPipe.writeFd, cgiOutputPipe.readFd, requestBody,
+              cgiRawOutput);
 
   int status = 0;
   waitpid(pid, &status, 0);

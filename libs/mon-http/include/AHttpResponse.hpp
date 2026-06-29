@@ -16,8 +16,9 @@
 #define STATUS_Accepted 202
 #define STATUS_No_Content 204
 #define STATUS_Moved_Permanently 301
-#define STATUS_Moved_Temporarily 302
+#define STATUS_Found 302
 #define STATUS_Not_Modified 304
+#define STATUS_Temporary_redirect 307
 #define STATUS_Bad_Request 400
 #define STATUS_Unauthorized 401
 #define STATUS_Forbidden 403

@@ -256,8 +256,9 @@ void Uri::_parseURI(const std::string& uri) {
           throw std::runtime_error("URI: Scheme: scheme is an empty string");
         }
 
-        authority = std::string(uri.begin() + itUri,
-                                uri.begin() + authority_end_pos - 1);
+        authority =
+            std::string(uri.begin() + itUri, uri.begin() + authority_end_pos);
+
       } else {
         if (uri.begin() + itUri == uri.end()) {
           throw std::runtime_error("URI: Scheme: scheme is an empty string");
@@ -334,7 +335,7 @@ void Uri::_parseURI(const std::string& uri) {
         throw std::runtime_error("URI: Fragment: cannot be empty and defined");
       }
 
-      this->_fragment = std::string(uri.begin() + itUri + 1, uri.end());
+      this->_fragment = std::string(uri.begin() + itUri, uri.end());
       this->_has_fragment = true;
     }
   }

@@ -6,14 +6,20 @@
 #include "Listener.hpp"
 #include "Router.hpp"
 
+bool ExitNow = false;
+
 namespace mon_net {
 
 class Server {
  public:
   Server();
+  ~Server();
+
+ private:
   Server(const Server& other);
   Server& operator=(const Server& other);
-  ~Server();
+
+ public:
 
   void registerPort(u_int16_t port);
   void run();
