@@ -39,4 +39,8 @@ void Router::addHandler(const std::string& path,
   _handlers.push_back(handler);
 }
 
+void Router::addCgi(const std::string& glob, const std::string& cgiBin) {
+  _cgiHandler.addGlober(glob, cgiBin);
+}
+
 }  // namespace mon_router

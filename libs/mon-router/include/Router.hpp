@@ -114,6 +114,7 @@ class Router {
   void addHandler(const std::string& path,
                   HandlerResponse (*func)(mon_http::AHttpRequest&,
                                           mon_http::Form&));
+  void addCgi(const std::string& glob, const std::string& cgiBin);
 
   void ready() { std::sort(_paths.begin(), _paths.end()); }
 

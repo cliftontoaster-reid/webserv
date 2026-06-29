@@ -29,7 +29,8 @@ void Router::handle(mon_http::AHttpRequest& request, int client_fd,
     }
 
     const Route& route = find_match(uri.path());
-    if (_cgiHandler.isCgi(uri)) {
+    const mon_cgi::Handle* cgiHandle = _cgiHandler.isCgi(uri);
+    if (cgiHandle) {
       Path fsPath(route.path);
       fsPath.append(uri.path().substr(route.preffix.length()));
       std::string fullPath;
@@ -37,7 +38,8 @@ void Router::handle(mon_http::AHttpRequest& request, int client_fd,
         throw mon_http::HttpException(STATUS_Not_Found, "Not Found");
       }
       Handler cgiH = {fullPath, NULL};
-      _cgiHandler.handleCgi(cgiH, request, client_fd, listener);
+      _cgiHandler.handleCgi(cgiH, cgiHandle->cgiBin, request, client_fd,
+                            listener);
       return;
     }
 
