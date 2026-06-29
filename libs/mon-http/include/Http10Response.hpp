@@ -25,6 +25,7 @@ class Http10Response : public AHttpResponse {
   HttpVersion version() const;
   int statusCode() const;
   void setStatusCode(int code);
+  void setStatusPhrase(const std::string& message);
   bool hasBody() const;
   const std::string& body() const;
   void setBody(const std::string& body);

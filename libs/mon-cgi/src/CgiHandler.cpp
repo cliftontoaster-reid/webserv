@@ -16,21 +16,21 @@ CgiHandler& CgiHandler::operator=(const CgiHandler& other) {
   return *this;
 }
 
-bool CgiHandler::isCgi(mon_router::Uri uri) {
+const Handle* CgiHandler::isCgi(mon_router::Uri uri) const {
 	for (size_t i = 0; i < _handles.size(); i++) {
 		if (!uri.hasPath()) {
 			throw mon_http::HttpException(STATUS_Bad_Request, "No Path");
 		}
 		if (_handles[i].glob.matches(uri.path())) {
-			return true;
+			return &_handles[i];
 		}
 	}
-	return false;
+	return NULL;
 }
 
 void CgiHandler::addGlober(Glob glob, const std::string& cgiBin) {
-	// TODO: Check if cgiBin exists
 	Handle res = {glob, cgiBin};
+	_handles.push_back(res);
 }
 
 void CgiHandler::addGlober(const std::string& glob, const std::string& cgiBin) {

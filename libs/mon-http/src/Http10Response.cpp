@@ -101,6 +101,10 @@ void Http10Response::setStatusCode(int code) {
   _code = code;
 }
 
+void Http10Response::setStatusPhrase(const std::string& message) {
+  statusMessage = message;
+}
+
 bool Http10Response::hasBody() const { return !_body.empty(); }
 
 const std::string& Http10Response::body() const { return _body; }

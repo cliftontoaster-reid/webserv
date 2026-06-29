@@ -112,21 +112,36 @@ bool _validSchemaChar(char c) {
 
 namespace mon_router {
 
-Uri::Uri() {}
+Uri::Uri()
+    : _has_scheme(false),
+      _has_authority(false),
+      _has_path(false),
+      _has_query(false),
+      _has_fragment(false) {}
 Uri::Uri(const std::string& uri) { _parseURI(uri); }
 Uri::Uri(const Uri& other)
     : _scheme(other._scheme),
+      _has_scheme(other._has_scheme),
       _authority(other._authority),
+      _has_authority(other._has_authority),
       _path(other._path),
+      _has_path(other._has_path),
       _query(other._query),
-      _fragment(other._fragment) {}
+      _has_query(other._has_query),
+      _fragment(other._fragment),
+      _has_fragment(other._has_fragment) {}
 Uri& Uri::operator=(const Uri& other) {
   if (this != &other) {
     this->_scheme = other._scheme;
+    this->_has_scheme = other._has_scheme;
     this->_authority = other._authority;
+    this->_has_authority = other._has_authority;
     this->_path = other._path;
+    this->_has_path = other._has_path;
     this->_query = other._query;
+    this->_has_query = other._has_query;
     this->_fragment = other._fragment;
+    this->_has_fragment = other._has_fragment;
   }
   return *this;
 }

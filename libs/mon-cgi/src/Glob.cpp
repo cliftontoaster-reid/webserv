@@ -160,14 +160,14 @@ bool Glob::compile(const std::string& pattern) {
       _program.push_back(GlobMatch(GlobMatch::Any, split, 0));
       pending.push_back(split);
     } else if (pattern[i] == '?') {
-      _program.push_back(GlobMatch(GlobMatch::Any, 0, 0));
+      _program.push_back(GlobMatch(GlobMatch::Any, pos + 1, 0));
       for (size_t j = 0; j < pending.size(); ++j) {
         _program[pending[j]].setNext2(pos);
       }
       pending.clear();
     } else if (pattern[i] == '\\' && i + 1 < pattern.size()) {
       ++i;
-      _program.push_back(GlobMatch(GlobMatch::Literal, pattern[i], 0, 0));
+      _program.push_back(GlobMatch(GlobMatch::Literal, pattern[i], pos + 1, 0));
       for (size_t j = 0; j < pending.size(); ++j) {
         _program[pending[j]].setNext2(pos);
       }
@@ -185,13 +185,13 @@ bool Glob::compile(const std::string& pattern) {
 
       if (i < pattern.size() && pattern[i] == ']') ++i;
 
-      _program.push_back(GlobMatch(GlobMatch::Bracket, parts, 0, 0));
+      _program.push_back(GlobMatch(GlobMatch::Bracket, parts, pos + 1, 0));
       for (size_t j = 0; j < pending.size(); ++j) {
         _program[pending[j]].setNext2(pos);
       }
       pending.clear();
     } else {
-      _program.push_back(GlobMatch(GlobMatch::Literal, pattern[i], 0, 0));
+      _program.push_back(GlobMatch(GlobMatch::Literal, pattern[i], pos + 1, 0));
       for (size_t j = 0; j < pending.size(); ++j) {
         _program[pending[j]].setNext2(pos);
       }
@@ -224,7 +224,7 @@ void Glob::addState(std::vector<size_t>& set, std::vector<bool>& visited,
   }
 }
 
-bool Glob::matches(const std::string& str) {
+bool Glob::matches(const std::string& str) const {
   if (_program.empty()) {
     return false;
   }

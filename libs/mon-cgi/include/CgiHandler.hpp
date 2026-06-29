@@ -22,10 +22,11 @@ class CgiHandler {
   CgiHandler(const CgiHandler& other);
   CgiHandler& operator=(const CgiHandler& other);
 
-  bool isCgi(mon_router::Uri uri);
+  const Handle* isCgi(mon_router::Uri uri) const;
 
   template <int MaxEvents>
   void handleCgi(const mon_router::Handler& handler,
+                 const std::string& cgiBin,
                  mon_http::AHttpRequest& request, int client_fd,
                  mon_net::Listener<MaxEvents>& listener);
 

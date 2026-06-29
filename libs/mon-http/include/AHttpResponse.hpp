@@ -41,6 +41,7 @@ class AHttpResponse {
   virtual HttpVersion version() const;
   virtual int statusCode() const;
   virtual void setStatusCode(int code) = 0;
+  virtual void setStatusPhrase(const std::string& message) = 0;
   virtual const std::string& statusPhrase() const;
   virtual bool hasBody() const = 0;
   std::string& body();

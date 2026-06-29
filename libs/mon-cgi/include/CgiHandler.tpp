@@ -94,6 +94,31 @@ inline void handleCgiIO(int writeFd, int readFd, const std::string& requestBody,
   close(readFd);
 }
 
+namespace {
+inline std::string statusPhrase(int code) {
+  switch (code) {
+    case 200: return "OK";
+    case 201: return "Created";
+    case 204: return "No Content";
+    case 301: return "Moved Permanently";
+    case 302: return "Found";
+    case 304: return "Not Modified";
+    case 400: return "Bad Request";
+    case 401: return "Unauthorized";
+    case 403: return "Forbidden";
+    case 404: return "Not Found";
+    case 413: return "Request Entity Too Large";
+    case 414: return "Request-URI Too Long";
+    case 500: return "Internal Server Error";
+    case 501: return "Not Implemented";
+    case 502: return "Bad Gateway";
+    case 503: return "Service Unavailable";
+    case 505: return "HTTP Version Not Supported";
+    default:  return "";
+  }
+}
+}
+
 inline void parseCgiResponse(const std::string& rawOutput,
                              mon_http::AHttpResponse& outResponse) {
   size_t headerEnd = rawOutput.find("\r\n\r\n");
@@ -138,10 +163,12 @@ inline void parseCgiResponse(const std::string& rawOutput,
   }
 
   outResponse.setStatusCode(parsedStatusCode);
+  outResponse.setStatusPhrase(statusPhrase(parsedStatusCode));
   outResponse.setBody(bodyPart);
 }
 
 inline bool executeCgi(const std::string& scriptPath,
+                       const std::string& cgiBin,
                        const mon_http::HttpMethod& method,
                        const std::string& requestBody,
                        mon_http::HeaderMap& requestHeaders,
@@ -158,10 +185,16 @@ inline bool executeCgi(const std::string& scriptPath,
   char** envp = buildEnvironment(scriptPath, method, requestBody,
                                  requestHeaders, envSize);
 
-  char** argv = new char*[2];
-  argv[0] = new char[scriptPath.size() + 1];
-  std::strcpy(argv[0], scriptPath.c_str());
-  argv[1] = NULL;
+  const std::string& execPath = cgiBin.empty() ? scriptPath : cgiBin;
+  int argc = cgiBin.empty() ? 1 : 2;
+  char** argv = new char*[argc + 1];
+  argv[0] = new char[execPath.size() + 1];
+  std::strcpy(argv[0], execPath.c_str());
+  if (!cgiBin.empty()) {
+    argv[1] = new char[scriptPath.size() + 1];
+    std::strcpy(argv[1], scriptPath.c_str());
+  }
+  argv[argc] = NULL;
 
   pid_t pid = fork();
   if (pid < 0) {
@@ -186,7 +219,7 @@ inline bool executeCgi(const std::string& scriptPath,
   }
 
   // --- PARENT PROCESS ---
-  freeCStrArray(argv, 1);
+  freeCStrArray(argv, argc);
   freeCStrArray(envp, envSize);
 
   close(cgiInputPipe[0]);
@@ -214,18 +247,20 @@ namespace mon_cgi {
 
 template <int MaxEvents>
 void CgiHandler::handleCgi(const mon_router::Handler& handler,
+                           const std::string& cgiBin,
                            mon_http::AHttpRequest& request, int client_fd,
                            mon_net::Listener<MaxEvents>& listener) {
   mon_http::Http10Response res;
 
-  executeCgi(handler.path, request.method(), request.body(), request.headers(),
-             res);
+  executeCgi(handler.path, cgiBin, request.method(), request.body(),
+             request.headers(), res);
 
   listener.write(res, client_fd);
   listener.markClose(client_fd);
 }
 
 template void CgiHandler::handleCgi<1024>(const mon_router::Handler& handler,
+                                          const std::string& cgiBin,
                                           mon_http::AHttpRequest& request,
                                           int client_fd,
                                           mon_net::Listener<1024>& listener);

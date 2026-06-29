@@ -69,7 +69,7 @@ class GlobMatch {
 class Glob {
  public:
   bool compile(const std::string& pattern);
-  bool matches(const std::string& str);
+  bool matches(const std::string& str) const;
 
  private:
   std::vector<GlobMatch> _program;
