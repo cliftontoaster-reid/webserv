@@ -14,4 +14,4 @@ COPY --from=build /app/target/release/mon-http/bin/mon-http.so ./target/release/
 COPY --from=build /app/target/release/mon-net/bin/mon-net.so ./target/release/mon-net/bin/mon-net.so
 COPY --from=build /app/target/release/mon-router/bin/mon-router.so ./target/release/mon-router/bin/mon-router.so
 EXPOSE 1998
-CMD ["./webserv"]
+CMD ["./webserv", "/etc/webserv/config.toml"]

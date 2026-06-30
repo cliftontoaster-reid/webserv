@@ -2,7 +2,10 @@
 #include <iostream>
 
 #include "AHttpResponse.hpp"
+#include "Config.hpp"
 #include "Server.hpp"
+#include "Value.hpp"
+#include "toml98.hpp"
 
 mon_router::HandlerResponse hello(mon_http::AHttpRequest& request,
                                   mon_http::Form& form_data) {
@@ -18,7 +21,7 @@ void handle_sigint(int sig) {
   std::signal(SIGINT, SIG_DFL);  // NOLINT
 }
 
-int main() {
+int main(int argc, const char* argv[]) {
   std::signal(SIGPIPE, SIG_IGN);       // NOLINT
   std::signal(SIGINT, handle_sigint);  // NOLINT
 
@@ -34,13 +37,18 @@ int main() {
   std::cout << "Version: " << WEBSERV_VERSION << '\n';
   std::cout << '\n';
 
-  serv.registerPort(1998);
-  serv.router().addRoute("/", "/var/www/html", 1998);
-  serv.router().addRoute("/imgs", "/usr/share/pixmaps/", 1998);
-  serv.router().addHandler("/api/hello", hello);
-  serv.router().addRoute("/die", "/home/creid/Downloads/", 1998);
-  serv.router().addCgi("/*.php", "/usr/bin/php-cgi");
-  serv.router().ready();
+  if (argc != 2) {
+    std::cout << "Invalid usage of webfloof." << '\n';
+    std::cout << "Usage : " << argv[0] << " [config.toml]" << '\n';
+
+    std::cout.flush();
+    return 1;
+  }
+
+  toml98::Value preconf = toml98::readTomlFile(argv[1]);
+  webserv::Config config = webserv::Config(preconf);
+
+  config.implement(serv.router(), serv.listener());
 
   std::cout << "=================================" << '\n';
   std::cout << " Listning at http://0.0.0.0:1998" << '\n';

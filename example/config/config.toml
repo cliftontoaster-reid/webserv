@@ -1,7 +1,7 @@
 #:schema ./config.schema.json
 
 [[server]]
-ports = [80]
+ports = [1998]
 
 [[server.route]]
 preffix = "/"
@@ -9,7 +9,7 @@ path = "/var/www/html"
 
 [[server.route]]
 preffix = "/imgs"
-path = "/usr/share/pixmaps/"
+path = "/usr"
 
 [[server.api]]
 uri = "/api/hello"
