@@ -10,8 +10,7 @@ namespace mon_router {
 
 Router::Router() {}
 Router::Router(const Router& other)
-    : _paths(other._paths)
-    , _handlers(other._handlers) {}
+    : _paths(other._paths), _handlers(other._handlers) {}
 Router& Router::operator=(const Router& other) {
   if (this != &other) {
     _paths = other._paths;
@@ -32,15 +31,18 @@ void Router::addRoute(const std::string& prefix, const std::string& path,
 
 void Router::addHandler(const std::string& path,
                         HandlerResponse (*func)(mon_http::AHttpRequest&,
-                                                mon_http::Form&)) {
+                                                mon_http::Form&),
+                        u_int16_t port) {
   Handler handler;
   handler.path = path;
   handler.func = func;
+  handler.port = port;
   _handlers.push_back(handler);
 }
 
-void Router::addCgi(const std::string& glob, const std::string& cgiBin) {
-  _cgiHandler.addGlober(glob, cgiBin);
+void Router::addCgi(const std::string& glob, const std::string& cgiBin,
+                    u_int16_t port) {
+  _cgiHandler.addGlober(glob, cgiBin, port);
 }
 
 }  // namespace mon_router

@@ -26,6 +26,7 @@ class Server {
   void run();
 
   mon_router::Router& router() { return _router; }
+  Listener<MAX_EVENTS>& listener() { return _listener; }
 
  private:
   Listener<MAX_EVENTS> _listener;

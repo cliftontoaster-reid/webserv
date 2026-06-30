@@ -1,3 +1,5 @@
+#include <sys/types.h>
+
 #include <exception>
 #include <string>
 
@@ -16,20 +18,20 @@
 namespace mon_router {
 
 template <int MaxEvents>
-void Router::handle(mon_http::AHttpRequest& request, int client_fd,
-                    mon_net::Listener<MaxEvents>& listener) {
+void Router::handle(mon_http::AHttpRequest& request, u_int16_t port,
+                    int client_fd, mon_net::Listener<MaxEvents>& listener) {
   try {
     Uri uri(request.path());
 
     for (size_t i = 0; i < _handlers.size(); ++i) {
-      if (_handlers[i].path == uri.path()) {
+      if (_handlers[i].port == port && _handlers[i].path == uri.path()) {
         invoke_handler(_handlers[i], request, client_fd, listener);
         return;
       }
     }
 
-    const Route& route = find_match(uri.path());
-    const mon_cgi::Handle* cgiHandle = _cgiHandler.isCgi(uri);
+    const Route& route = find_match(uri.path(), port);
+    const mon_cgi::Handle* cgiHandle = _cgiHandler.isCgi(uri, port);
     if (cgiHandle) {
       Path fsPath(route.path);
       fsPath.append(uri.path().substr(route.preffix.length()));
@@ -37,7 +39,7 @@ void Router::handle(mon_http::AHttpRequest& request, int client_fd,
       if (!fsPath.resolve(fullPath)) {
         throw mon_http::HttpException(STATUS_Not_Found, "Not Found");
       }
-      Handler cgiH = {fullPath, NULL};
+      Handler cgiH = {fullPath, NULL, port};
       _cgiHandler.handleCgi(cgiH, cgiHandle->cgiBin, request, client_fd,
                             listener);
       return;
@@ -120,7 +122,7 @@ void Router::invoke_handler(const Handler& handler,
 }
 
 template void Router::handle<MAX_EVENTS>(
-    mon_http::AHttpRequest& request, int client_fd,
+    mon_http::AHttpRequest& request, u_int16_t port, int client_fd,
     mon_net::Listener<MAX_EVENTS>& listener);
 
 template void Router::serve_static_file<MAX_EVENTS>(

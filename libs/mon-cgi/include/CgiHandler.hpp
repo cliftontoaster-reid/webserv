@@ -14,6 +14,7 @@ namespace mon_cgi {
 struct Handle {
   Glob glob;
   std::string cgiBin;
+  u_int16_t port;
 };
 
 class CgiHandler {
@@ -22,16 +23,16 @@ class CgiHandler {
   CgiHandler(const CgiHandler& other);
   CgiHandler& operator=(const CgiHandler& other);
 
-  const Handle* isCgi(mon_router::Uri uri) const;
+  const Handle* isCgi(mon_router::Uri uri, u_int16_t port) const;
 
   template <int MaxEvents>
-  void handleCgi(const mon_router::Handler& handler,
-                 const std::string& cgiBin,
+  void handleCgi(const mon_router::Handler& handler, const std::string& cgiBin,
                  mon_http::AHttpRequest& request, int client_fd,
                  mon_net::Listener<MaxEvents>& listener);
 
-  void addGlober(Glob glob, const std::string& cgiBin);
-  void addGlober(const std::string& glob, const std::string& cgiBin);
+  void addGlober(const Glob& glob, const std::string& cgiBin, u_int16_t port);
+  void addGlober(const std::string& glob, const std::string& cgiBin,
+                 u_int16_t port);
 
  private:
   std::vector<Handle> _handles;

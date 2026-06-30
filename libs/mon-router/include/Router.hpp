@@ -26,7 +26,7 @@
 
 namespace mon_router {
 
-std::string random(size_t len) {
+inline std::string random(size_t len) {
   static unsigned char buf[2048];
   static size_t pos = sizeof(buf);
 
@@ -113,13 +113,15 @@ class Router {
                 u_int16_t port);
   void addHandler(const std::string& path,
                   HandlerResponse (*func)(mon_http::AHttpRequest&,
-                                          mon_http::Form&));
-  void addCgi(const std::string& glob, const std::string& cgiBin);
+                                          mon_http::Form&),
+                  u_int16_t port);
+  void addCgi(const std::string& glob, const std::string& cgiBin,
+              u_int16_t port);
 
   void ready() { std::sort(_paths.begin(), _paths.end()); }
 
   template <int MaxEvents>
-  void handle(mon_http::AHttpRequest& request, int client_fd,
+  void handle(mon_http::AHttpRequest& request, u_int16_t port, int client_fd,
               mon_net::Listener<MaxEvents>& listener);
 
  private:
@@ -127,9 +129,10 @@ class Router {
   std::vector<Handler> _handlers;
   mon_cgi::CgiHandler _cgiHandler;
 
-  const Route& find_match(const std::string& request_path) const {
+  const Route& find_match(const std::string& request_path,
+                          u_int16_t port) const {
     for (size_t i = 0; i < _paths.size(); ++i) {
-      if (_paths[i].is_match(request_path)) {
+      if (_paths[i].port == port && _paths[i].is_match(request_path)) {
         return _paths[i];
       }
     }
