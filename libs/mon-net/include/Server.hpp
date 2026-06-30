@@ -3,10 +3,12 @@
 
 #include <sys/types.h>
 
+#include <csignal>
+
 #include "Listener.hpp"
 #include "Router.hpp"
 
-bool ExitNow = false;
+extern volatile std::sig_atomic_t stopNow;
 
 namespace mon_net {
 
@@ -20,7 +22,6 @@ class Server {
   Server& operator=(const Server& other);
 
  public:
-
   void registerPort(u_int16_t port);
   void run();
 

@@ -13,6 +13,8 @@
 #include "HttpVersion.hpp"
 #include "Listener.hpp"
 
+volatile std::sig_atomic_t stopNow = 0;
+
 namespace mon_net {
 
 Server::Server() {}
@@ -247,7 +249,7 @@ void Server::handlePostV1_1(Context& ctx, mon_http::AHttpRequest& req) {
 
 void Server::run() {
   while (true) {
-    if (ExitNow) {
+    if (stopNow == 1) {
       break;
     }
 
@@ -268,6 +270,7 @@ void Server::run() {
     }
   }
 
+  // free the gays
 }
 
 bool Server::readVersion(Context& ctx) {
