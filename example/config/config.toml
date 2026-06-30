@@ -1,23 +1,21 @@
+#:schema ./config.schema.json
+
 [[server]]
 ports = [80]
 
-[server.errors.404]
-fs = '/srv/http/404.html'
+[[server.route]]
+preffix = "/"
+path = "/var/www/html"
 
-[[server.endpoints]]
-path = '/'
-fs = '/srv/httpd/'
+[[server.route]]
+preffix = "/imgs"
+path = "/usr/share/pixmaps/"
 
-[[server.endpoints]]
-path = '/static'
-fs = '/srv/data/'
-
-[[server.cgi]]
-ext = '.php'
-if = '/'
-bin = '/php/path/here'
+[[server.api]]
+uri = "/api/hello"
+external = false
+func = "echo"
 
 [[server.cgi]]
-ext = '.page.js'
-ifnot = '/static'
-bin = '/nodejs/path/here'
+glob = "/*.php"
+bin = "/usr/bin/php-cgi"

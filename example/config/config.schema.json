@@ -1,0 +1,86 @@
+{
+  "type": "object",
+  "properties": {
+    "server": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ports": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "route": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "preffix": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "preffix",
+                "path"
+              ]
+            }
+          },
+          "api": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "uri": {
+                  "type": "string"
+                },
+                "external": {
+                  "type": "boolean"
+                },
+                "func": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "uri",
+                "external",
+                "func"
+              ]
+            }
+          },
+          "cgi": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "glob": {
+                  "type": "string"
+                },
+                "bin": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "glob",
+                "bin"
+              ]
+            }
+          }
+        },
+        "required": [
+          "ports",
+          "route",
+          "api",
+          "cgi"
+        ]
+      }
+    }
+  },
+  "required": [
+    "server"
+  ]
+}
