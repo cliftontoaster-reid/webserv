@@ -257,6 +257,9 @@ template <int MaxEvents>
 std::vector<Event> Listener<MaxEvents>::wait_for_events(int timeout) {
   int nfds = epoll_wait(epoll_fd, epoll_events.data(), MaxEvents, timeout);
   if (nfds == -1) {
+    if (errno == EINTR) {
+      return std::vector<Event>();
+    }
     throw std::runtime_error("Epoll failed");
   }
 
