@@ -6,6 +6,7 @@ ports = [1998]
 [[server.route]]
 preffix = "/"
 path = "/var/www/html"
+index = "index.php"
 
 [[server.route]]
 preffix = "/imgs"

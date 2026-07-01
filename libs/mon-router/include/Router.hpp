@@ -70,6 +70,7 @@ struct Route {
   std::string path;
   u_int16_t port;
   std::string preffix;
+  std::string index;
 
   bool operator<(const Route& other) const {
     // 1. Sort by length descending (longer prefixes first)
@@ -111,6 +112,8 @@ class Router {
 
   void addRoute(const std::string& prefix, const std::string& path,
                 u_int16_t port);
+  void addRoute(const std::string& prefix, const std::string& path,
+                u_int16_t port, const std::string& index);
   void addHandler(const std::string& path,
                   HandlerResponse (*func)(mon_http::AHttpRequest&,
                                           mon_http::Form&),
@@ -129,18 +132,10 @@ class Router {
   std::vector<Handler> _handlers;
   mon_cgi::CgiHandler _cgiHandler;
 
-  const Route& find_match(const std::string& request_path,
-                          u_int16_t port) const {
-    for (size_t i = 0; i < _paths.size(); ++i) {
-      if (_paths[i].port == port && _paths[i].is_match(request_path)) {
-        return _paths[i];
-      }
-    }
-    throw mon_http::HttpException(STATUS_Not_Found, "Not Found");
-  }
+  Route find_match(const std::string& request_path, u_int16_t port) const;
 
   template <int MaxEvents>
-  void serve_static_file(const Route& route, const Uri& uri, int client_fd,
+  void serve_static_file(const std::string& full_path, int client_fd,
                          mon_net::Listener<MaxEvents>& listener);
 
   template <int MaxEvents>

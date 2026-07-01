@@ -1,9 +1,11 @@
 #include <sys/types.h>
 
 #include <exception>
+#include <iostream>
 #include <string>
 
 #include "AHttpResponse.hpp"
+#include "Detect.hpp"
 #include "Form.hpp"
 #include "HeaderMap.hpp"
 #include "Http10Response.hpp"
@@ -14,6 +16,16 @@
 #include "Path.hpp"
 #include "Router.hpp"
 #include "Uri.hpp"
+
+static inline bool isFolder(const std::string& path) {
+  struct stat buf;
+  return stat(path.c_str(), &buf) == 0 && S_ISDIR(buf.st_mode);
+}
+
+static inline bool isFile(const std::string& path) {
+  struct stat buf;
+  return stat(path.c_str(), &buf) == 0 && S_ISREG(buf.st_mode);
+}
 
 namespace mon_router {
 
@@ -30,22 +42,38 @@ void Router::handle(mon_http::AHttpRequest& request, u_int16_t port,
       }
     }
 
-    const Route& route = find_match(uri.path(), port);
+    Route route = find_match(uri.path(), port);
+    Path path(route.path);
+    path.append(uri.path().substr(route.preffix.length()));
+    std::string full_path;
+    if (!path.resolve(full_path)) {
+      throw mon_http::HttpException(STATUS_Not_Found, "Not Found");
+    }
+
+    if (isFolder(full_path)) {
+      if (full_path.at(full_path.length() - 1) != PATH_SEPARATOR) {
+        full_path += PATH_SEPARATOR;
+      }
+      full_path += route.index;
+      if (uri.path().at(uri.path().length() - 1) != PATH_SEPARATOR) {
+        uri.path() += PATH_SEPARATOR;
+      }
+      uri.path() += route.index;
+    }
+    if (!isFile(full_path)) {
+      std::cout << "GET 404 " << full_path << std::endl;
+      throw mon_http::HttpException(STATUS_Not_Found, "Not Found");
+    }
+
     const mon_cgi::Handle* cgiHandle = _cgiHandler.isCgi(uri, port);
     if (cgiHandle) {
-      Path fsPath(route.path);
-      fsPath.append(uri.path().substr(route.preffix.length()));
-      std::string fullPath;
-      if (!fsPath.resolve(fullPath)) {
-        throw mon_http::HttpException(STATUS_Not_Found, "Not Found");
-      }
-      Handler cgiH = {fullPath, NULL, port};
+      Handler cgiH = {full_path, NULL, port};
       _cgiHandler.handleCgi(cgiH, cgiHandle->cgiBin, request, client_fd,
                             listener);
       return;
     }
 
-    serve_static_file(route, uri, client_fd, listener);
+    serve_static_file(full_path, client_fd, listener);
   } catch (mon_http::HttpException& e) {
     mon_http::Http10Response res;
     res.setError(e.statusCode(), e.what());
@@ -61,16 +89,9 @@ void Router::handle(mon_http::AHttpRequest& request, u_int16_t port,
 }
 
 template <int MaxEvents>
-void Router::serve_static_file(const Route& route, const Uri& uri,
-                               int client_fd,
+void Router::serve_static_file(const std::string& full_path, int client_fd,
                                mon_net::Listener<MaxEvents>& listener) {
-  Path path(route.path);
-  path.append(uri.path().substr(route.preffix.length()));
-  std::string full_path;
-  if (!path.resolve(full_path)) {
-    throw mon_http::HttpException(STATUS_Not_Found, "Not Found");
-  }
-
+  std::cout << "GET 200 " << full_path << std::endl;
   mon_http::Http10Response res;
   res.ok200();
   res.headers().insert("Content-Type", get_mime_type(full_path));
@@ -126,7 +147,7 @@ template void Router::handle<MAX_EVENTS>(
     mon_net::Listener<MAX_EVENTS>& listener);
 
 template void Router::serve_static_file<MAX_EVENTS>(
-    const Route& route, const Uri& uri, int client_fd,
+    const std::string& full_path, int client_fd,
     mon_net::Listener<MAX_EVENTS>& listener);
 
 template void Router::invoke_handler<MAX_EVENTS>(

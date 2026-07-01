@@ -13,26 +13,29 @@
 
 namespace {
 
-bool isFile(const std::string& path) {
-  struct stat buf;
-  return stat(path.c_str(), &buf) == 0 && S_ISREG(buf.st_mode);
-}
-
 bool isExec(const std::string& path) { return access(path.c_str(), X_OK) == 0; }
-
-bool isFolder(const std::string& path) {
-  struct stat buf;
-  return stat(path.c_str(), &buf) == 0 && S_ISDIR(buf.st_mode);
-}
 
 }  // namespace
 
 namespace webserv {
 
+static inline bool isFolder(const std::string& path) {
+  struct stat buf;
+  return stat(path.c_str(), &buf) == 0 && S_ISDIR(buf.st_mode);
+}
+
 Route::Route(const toml98::Value& v) {
   const std::map<std::string, toml98::Value>& t = *v.getTable();
   preffix = *t.find("preffix")->second.getString();
   path = *t.find("path")->second.getString();
+
+  std::map<std::string, toml98::Value>::const_iterator iterIndex =
+      t.find("index");
+  if (iterIndex != t.end()) {
+    index = *iterIndex->second.getString();
+  } else {
+    index = "index.html";
+  }
 }
 
 size_t Route::implement(mon_router::Router& router, u_int16_t port) const {
@@ -41,7 +44,7 @@ size_t Route::implement(mon_router::Router& router, u_int16_t port) const {
                                 "' is not a folder or does not exist.");
   }
 
-  router.addRoute(preffix, path, port);
+  router.addRoute(preffix, path, port, index);
   return 1;
 }
 

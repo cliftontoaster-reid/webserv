@@ -15,6 +15,7 @@ namespace webserv {
 struct Route {
   std::string preffix;
   std::string path;
+  std::string index;
 
   explicit Route(const toml98::Value&);
   size_t implement(mon_router::Router& router, u_int16_t port) const;

@@ -22,6 +22,9 @@
                 },
                 "path": {
                   "type": "string"
+                },
+                "index": {
+                  "type": "string"
                 }
               },
               "required": [

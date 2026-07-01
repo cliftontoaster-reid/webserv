@@ -22,8 +22,9 @@ void handle_sigint(int sig) {
 }
 
 int main(int argc, const char* argv[]) {
-  std::signal(SIGPIPE, SIG_IGN);       // NOLINT
-  std::signal(SIGINT, handle_sigint);  // NOLINT
+  std::signal(SIGPIPE, SIG_IGN);        // NOLINT
+  std::signal(SIGTERM, handle_sigint);  // NOLINT
+  std::signal(SIGINT, handle_sigint);   // NOLINT
 
   mon_net::Server serv;
 
