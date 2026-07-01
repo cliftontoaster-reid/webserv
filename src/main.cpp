@@ -1,4 +1,7 @@
+#include <sys/types.h>
+
 #include <csignal>
+#include <exception>
 #include <iostream>
 
 #include "AHttpResponse.hpp"
@@ -16,9 +19,21 @@ mon_router::HandlerResponse hello(mon_http::AHttpRequest& request,
 }
 
 void handle_sigint(int sig) {
-  (void)sig;
   stopNow = 1;
-  std::signal(SIGINT, SIG_DFL);  // NOLINT
+  std::signal(sig, SIG_DFL);  // NOLINT
+}
+
+void printPorts(const webserv::Config& cfg) {
+  std::vector<webserv::Server>::const_iterator iterServ;
+  for (iterServ = cfg.server.begin(); iterServ != cfg.server.end();
+       iterServ++) {
+    const webserv::Server& serv = *iterServ;
+    std::vector<u_int16_t>::const_iterator iterPorts;
+    for (iterPorts = serv.ports.begin(); iterPorts != serv.ports.end();
+         iterPorts++) {
+      std::cerr << " - http://0.0.0.0:" << *iterPorts << '\n';
+    }
+  }
 }
 
 int main(int argc, const char* argv[]) {
@@ -28,33 +43,40 @@ int main(int argc, const char* argv[]) {
 
   mon_net::Server serv;
 
-  std::cout << "   ▖  ▖  ▌ ▐▘▜     ▐▘  ▄▖▄▖▄▖" << '\n';
-  std::cout << "   ▌▞▖▌█▌▛▌▜▘▐ ▛▌▛▌▜▘  ▌▌▚ ▚ " << '\n';
-  std::cout << "   ▛ ▝▌▙▖▙▌▐ ▐▖▙▌▙▌▐   ▙▌▄▌▄▌" << '\n';
+  std::cerr << "   ▖  ▖  ▌ ▐▘▜     ▐▘  ▄▖▄▖▄▖" << '\n';
+  std::cerr << "   ▌▞▖▌█▌▛▌▜▘▐ ▛▌▛▌▜▘  ▌▌▚ ▚ " << '\n';
+  std::cerr << "   ▛ ▝▌▙▖▙▌▐ ▐▖▙▌▙▌▐   ▙▌▄▌▄▌" << '\n';
 
-  std::cout << '\n';
-  std::cout << "Licensed under the MIT License" << '\n';
-  std::cout << "Copyright (c) 2026 Clifton Toaster Reid" << '\n';
-  std::cout << "Version: " << WEBSERV_VERSION << '\n';
-  std::cout << '\n';
+  std::cerr << '\n';
+  std::cerr << "Licensed under the MIT License" << '\n';
+  std::cerr << "Copyright (c) 2026 Clifton Toaster Reid" << '\n';
+  std::cerr << "Version: " << WEBSERV_VERSION << '\n';
+  std::cerr << '\n';
 
   if (argc != 2) {
-    std::cout << "Invalid usage of webfloof." << '\n';
-    std::cout << "Usage : " << argv[0] << " [config.toml]" << '\n';
+    std::cerr << "Invalid usage of webfloof." << '\n';
+    std::cerr << "Usage : " << argv[0] << " [config.toml]" << '\n';
 
-    std::cout.flush();
+    std::cerr.flush();
     return 1;
   }
 
   toml98::Value preconf = toml98::readTomlFile(argv[1]);
   webserv::Config config = webserv::Config(preconf);
 
-  config.implement(serv.router(), serv.listener());
+  try {
+    config.implement(serv.router(), serv.listener());
+  } catch (const std::exception& err) {
+    std::cerr << "ERROR: Could not start the server." << '\n';
+    std::cerr << "==================================" << '\n' << '\n';
+    std::cerr << err.what() << '\n';
+    return 1;
+  }
 
-  std::cout << "=================================" << '\n';
-  std::cout << " Listning at http://0.0.0.0:1998" << '\n';
-  std::cout << " Go here : http://localhost:1998" << '\n';
-  std::cout << "=================================" << '\n';
-  std::cout.flush();
+  std::cerr << "=================================" << '\n';
+  std::cerr << " Listning at on :" << '\n';
+  printPorts(config);
+  std::cerr << "=================================" << '\n';
+  std::cerr.flush();
   serv.run();
 }

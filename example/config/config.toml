@@ -1,4 +1,4 @@
-#:schema ./config.schema.json
+#:schema ../../docs/config.schema.json
 
 [[server]]
 ports = [1998]
