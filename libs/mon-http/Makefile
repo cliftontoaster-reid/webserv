@@ -98,8 +98,6 @@ FILES = \
  ../../assets/html/500.html \
  ../../assets/html/501.html \
  ../../assets/html/505.html \
- \
- ../../assets/html/hello.html \
 
 VARS = \
 STD_PAGE_400 \
