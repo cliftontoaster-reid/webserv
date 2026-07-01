@@ -96,6 +96,7 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
+	$(SRC_DIR)/Config.cpp \
 	$(SRC_DIR)/main.cpp \
 
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
@@ -154,7 +155,7 @@ MON_CGI_SRCS			:= $(shell find $(MON_CGI_DEPO)/src     -name '*.cpp' 2>/dev/null
 MON_CGI_HDRS			:= $(shell find $(MON_CGI_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
 MON_CGI_INC_DIR		= $(MON_CGI_DEPO)/include
 
-# LIBS_ARCHIVES += $(MON_CGI_ARCHIVE)
+LIBS_ARCHIVES += $(MON_CGI_ARCHIVE)
 INC += -I$(MON_CGI_INC_DIR)
 LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_CGI_BIN_DIR))'
 

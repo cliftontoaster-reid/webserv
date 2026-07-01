@@ -13,16 +13,11 @@
 #include "HttpVersion.hpp"
 #include "Listener.hpp"
 
+volatile std::sig_atomic_t stopNow = 0;
+
 namespace mon_net {
 
 Server::Server() {}
-Server::Server(const Server& other) : _listener(other._listener) {}
-Server& Server::operator=(const Server& other) {
-  if (this != &other) {
-    _listener = other._listener;
-  }
-  return *this;
-}
 Server::~Server() {}
 
 void Server::registerPort(u_int16_t port) { _listener.registerPort(port); }
@@ -190,7 +185,7 @@ void Server::handleV2_0(Event& event, Context& ctx,
 void Server::handleGetV1_0(Context& ctx, mon_http::AHttpRequest& req) {
   try {
     if (ctx.parser->canPull()) {
-      _router.handle(req, ctx.fd, _listener);
+      _router.handle(req, ctx.port, ctx.fd, _listener);
     } else {
       throw std::runtime_error("Bad Request");
     }
@@ -206,7 +201,7 @@ void Server::handleGetV1_0(Context& ctx, mon_http::AHttpRequest& req) {
 void Server::handleGetV1_1(Context& ctx, mon_http::AHttpRequest& req) {
   try {
     if (ctx.parser->canPull()) {
-      _router.handle(req, ctx.fd, _listener);
+      _router.handle(req, ctx.port, ctx.fd, _listener);
     } else {
       throw std::runtime_error("Bad Request");
     }
@@ -254,6 +249,10 @@ void Server::handlePostV1_1(Context& ctx, mon_http::AHttpRequest& req) {
 
 void Server::run() {
   while (true) {
+    if (stopNow == 1) {
+      break;
+    }
+
     std::vector<Event> events = _listener.poll(-1);
 
     for (size_t i = 0; i < events.size(); ++i) {
@@ -270,6 +269,8 @@ void Server::run() {
       }
     }
   }
+
+  // free the gays
 }
 
 bool Server::readVersion(Context& ctx) {

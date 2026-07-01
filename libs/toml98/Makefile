@@ -96,6 +96,7 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
+       $(SRC_DIR)/toml98.cpp \
        $(SRC_DIR)/Value.cpp \
        $(SRC_DIR)/Lexer.cpp \
        $(SRC_DIR)/Lexer/handle_array_key.cpp \

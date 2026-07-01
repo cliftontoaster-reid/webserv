@@ -1,0 +1,15 @@
+.git
+target
+compile_commands.json
+.linkflag_*
+.cache
+.vscode
+.idea
+.nvim.lua
+callgrind.*
+vgcore.*
+*.profraw
+__pycache__
+tests
+webserv
+example

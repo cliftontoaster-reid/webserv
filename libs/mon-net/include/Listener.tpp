@@ -24,7 +24,7 @@
 
 namespace mon_net {
 
-bool Context::canSniffVersion() {
+inline bool Context::canSniffVersion() {
   const std::string TARGET_RN = "\r\n";
 
   std::string::const_iterator iter = std::search(
@@ -33,20 +33,20 @@ bool Context::canSniffVersion() {
   return iter != buffer.end();
 }
 
-BufferedData::BufferedData() : file(NULL), offset(0) {}
+inline BufferedData::BufferedData() : file(NULL), offset(0) {}
 
-void BufferedData::append(const char* data, size_t len) {
+inline void BufferedData::append(const char* data, size_t len) {
   buffer.insert(buffer.end(), data, data + len);
 }
 
-bool BufferedData::is_empty() const { return offset >= buffer.size(); }
+inline bool BufferedData::is_empty() const { return offset >= buffer.size(); }
 
-void BufferedData::clear() {
+inline void BufferedData::clear() {
   buffer.clear();
   offset = 0;
 }
 
-ssize_t BufferedData::flush(int fd) {
+inline ssize_t BufferedData::flush(int fd) {
   if (file != NULL && buffer.size() < BUFFER_SIZE) {
     char tmp[BUFFER_SIZE] = {0};
 
@@ -208,11 +208,12 @@ void Listener<MaxEvents>::markClose(int fd) {
 }
 
 #ifdef OS_LINUX
-Event Event::fromEpoll(struct epoll_event event, int port) {
+inline Event Event::fromEpoll(struct epoll_event event, int port) {
   return Event(event, port);
 }
 
-Event::Event(const struct epoll_event& EpollEvent, int port) : port(port) {
+inline Event::Event(const struct epoll_event& EpollEvent, int port)
+    : port(port) {
   if ((EpollEvent.events & EPOLLIN) != 0) {
     this->type = EVENT_TYPE_IN_OK;
   } else if ((EpollEvent.events & EPOLLOUT) != 0) {
@@ -257,6 +258,9 @@ template <int MaxEvents>
 std::vector<Event> Listener<MaxEvents>::wait_for_events(int timeout) {
   int nfds = epoll_wait(epoll_fd, epoll_events.data(), MaxEvents, timeout);
   if (nfds == -1) {
+    if (errno == EINTR) {
+      return std::vector<Event>();
+    }
     throw std::runtime_error("Epoll failed");
   }
 

@@ -99,8 +99,6 @@ FILES = \
  ../../assets/html/500.html \
  ../../assets/html/501.html \
  ../../assets/html/505.html \
- \
- ../../assets/html/hello.html \
 
 VARS = \
 STD_PAGE_400 \
@@ -185,6 +183,14 @@ $(MON_ROUTER_ARCHIVE):
 	MODE="$(MODE)" VERSION="$(VERSION)" \
 	$(MAKE) -C $(MON_ROUTER_DEPO) ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" all
 	@printf "$(BOLD)Built mon-router:$(RESET) $(GREEN)$(MON_ROUTER_ARCHIVE)$(RESET)\n"
+
+# ---------
+# MON-CGI
+# ---------
+MON_CGI_DEPO			= $(LIBS_DIR)/mon-cgi
+MON_CGI_INC_DIR		= $(MON_CGI_DEPO)/include
+
+INC += -I$(MON_CGI_INC_DIR)
 
 $(EMB_FILE): $(FILES)
 	@mkdir -p $(BUILD_DIR)

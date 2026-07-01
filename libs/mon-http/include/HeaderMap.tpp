@@ -25,11 +25,19 @@ inline std::string& HeaderMap::at(const std::string& key) {
   return _store.at(_normalize(key));
 }
 
+inline const std::string& HeaderMap::at(const std::string& key) const {
+  return _store.at(_normalize(key));
+}
+
 inline std::string& HeaderMap::operator[](const std::string& key) {
   return _store[_normalize(key)];
 }
 
-inline bool HeaderMap::contains(const std::string& key) {
+inline const std::string& HeaderMap::operator[](const std::string& key) const {
+  return _store.at(_normalize(key));
+}
+
+inline bool HeaderMap::contains(const std::string& key) const {
   return _store.contains(_normalize(key));
 }
 

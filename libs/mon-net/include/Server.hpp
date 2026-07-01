@@ -3,22 +3,30 @@
 
 #include <sys/types.h>
 
+#include <csignal>
+
 #include "Listener.hpp"
 #include "Router.hpp"
+
+extern volatile std::sig_atomic_t stopNow;
 
 namespace mon_net {
 
 class Server {
  public:
   Server();
-  Server(const Server& other);
-  Server& operator=(const Server& other);
   ~Server();
 
+ private:
+  Server(const Server& other);
+  Server& operator=(const Server& other);
+
+ public:
   void registerPort(u_int16_t port);
   void run();
 
   mon_router::Router& router() { return _router; }
+  Listener<MAX_EVENTS>& listener() { return _listener; }
 
  private:
   Listener<MAX_EVENTS> _listener;

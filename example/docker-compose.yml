@@ -1,0 +1,10 @@
+services:
+  webserv:
+    build:
+      context: ../
+      dockerfile: example/Dockerfile
+    ports:
+      - "1998:1998"
+    volumes:
+      - ./public:/var/www/html:Z
+      - ./config:/etc/webserv:Z

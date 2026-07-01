@@ -46,6 +46,13 @@ struct Event {
 };
 
 struct Context {
+  ~Context() {
+    if (parser != NULL) {
+      delete parser;
+      parser = NULL;
+    }
+  }
+
   int fd;
   int port;
   bool closeAfterWrite;
@@ -59,6 +66,13 @@ struct Context {
 };
 
 struct BufferedData {
+  ~BufferedData() {
+    if (file != NULL) {
+      fclose(file);
+      file = NULL;
+    }
+  }
+
   std::vector<char> buffer;
   FILE* file;
   size_t offset;
@@ -81,6 +95,37 @@ class Listener {
  public:
   Listener();
 
+ private:
+  Listener(const Listener<MaxEvents>& other);
+  Listener& operator=(const Listener<MaxEvents>& other);
+
+ public:
+  ~Listener() {
+    // Free & Close contexts
+    for (std::map<int, Context>::iterator omegaIter = _connections.begin();
+         omegaIter != _connections.end(); ++omegaIter) {
+      Context& ctx = omegaIter->second;
+
+      close(ctx.fd);
+      _close(ctx.fd);
+    }
+
+    // Free & Close write buffers
+    for (std::map<int, BufferedData>::iterator alphaIter = _writeBuffer.begin();
+         alphaIter != _writeBuffer.end(); ++alphaIter) {
+      BufferedData& buf = alphaIter->second;
+
+      if (buf.file != NULL) {
+        fclose(buf.file);
+        buf.file = NULL;
+      }
+    }
+
+    // Close epoll if linux
+    close(epoll_fd);
+    epoll_fd = -1;
+  }
+
   std::vector<Event> poll(int timeout);
   void write(const std::vector<char>& data, int fd);
   void write(mon_http::AHttpResponse& data, int fd);
@@ -97,6 +142,7 @@ class Listener {
     _close(fd);
     close(fd);
     _connections.erase(fd);
+    _writeBuffer.erase(fd);
   }
 
   Context& connContext(int fd) {

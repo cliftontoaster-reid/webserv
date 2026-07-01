@@ -98,8 +98,6 @@ FILES = \
  ../../assets/html/500.html \
  ../../assets/html/501.html \
  ../../assets/html/505.html \
- \
- ../../assets/html/hello.html \
 
 VARS = \
 STD_PAGE_400 \
@@ -126,6 +124,7 @@ SRCS = \
 	$(SRC_DIR)/Http10Request.cpp \
 	$(SRC_DIR)/Http10Response.cpp \
 	$(SRC_DIR)/Http10StreamParser.cpp \
+	$(SRC_DIR)/HttpException.cpp \
 	$(SRC_DIR)/HttpMethod.cpp \
 	$(SRC_DIR)/HttpVersion.cpp \
 
