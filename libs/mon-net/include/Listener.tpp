@@ -212,7 +212,8 @@ inline Event Event::fromEpoll(struct epoll_event event, int port) {
   return Event(event, port);
 }
 
-inline Event::Event(const struct epoll_event& EpollEvent, int port) : port(port) {
+inline Event::Event(const struct epoll_event& EpollEvent, int port)
+    : port(port) {
   if ((EpollEvent.events & EPOLLIN) != 0) {
     this->type = EVENT_TYPE_IN_OK;
   } else if ((EpollEvent.events & EPOLLOUT) != 0) {

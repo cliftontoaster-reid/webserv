@@ -94,6 +94,7 @@ template <int MaxEvents>
 class Listener {
  public:
   Listener();
+
  private:
   Listener(const Listener<MaxEvents>& other);
   Listener& operator=(const Listener<MaxEvents>& other);

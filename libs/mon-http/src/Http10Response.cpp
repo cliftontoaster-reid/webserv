@@ -131,8 +131,7 @@ void Http10Response::error500(const std::string& message) {
   _body = std::string(STD_PAGE_500_raw);
 
   size_t pos = _body.find("{{ERR_MSG}}");
-  if (pos != std::string::npos)
-    _body.replace(pos, 11, message);
+  if (pos != std::string::npos) _body.replace(pos, 11, message);
 
   _headers.clear();
   _headers.insert("Cache-Control", "no-store, no-cache, must-revalidate");
