@@ -91,7 +91,7 @@ Test(http10_request, parse_with_body) {
 }
 
 Test(http10_request, parse_wrong_version_throws) {
-  std::string data = "GET / HTTP/1.1\r\n\r\n";
+  std::string data = "GET / HTTP/2.0\r\n\r\n";
   std::vector<char> raw(data.begin(), data.end());
 
   mon_http::Http10Request req;
