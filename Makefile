@@ -96,6 +96,7 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
+	$(SRC_DIR)/Config.cpp \
 	$(SRC_DIR)/main.cpp \
 
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
@@ -154,7 +155,7 @@ MON_CGI_SRCS			:= $(shell find $(MON_CGI_DEPO)/src     -name '*.cpp' 2>/dev/null
 MON_CGI_HDRS			:= $(shell find $(MON_CGI_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
 MON_CGI_INC_DIR		= $(MON_CGI_DEPO)/include
 
-# LIBS_ARCHIVES += $(MON_CGI_ARCHIVE)
+LIBS_ARCHIVES += $(MON_CGI_ARCHIVE)
 INC += -I$(MON_CGI_INC_DIR)
 LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_CGI_BIN_DIR))'
 
@@ -246,8 +247,8 @@ mon-router: $(MON_ROUTER_ARCHIVE)
 $(MON_ROUTER_ARCHIVE): $(MON_ROUTER_SRCS) $(MON_ROUTER_HDRS) $(MON_ROUTER_DEPO)/Makefile
 	@printf "$(BOLD)Building mon-router library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" MODE="$(MODE)" VERSION="$(VERSION)" \
-	$(MAKE) -C $(MON_ROUTER_DEPO) all
+	MODE="$(MODE)" VERSION="$(VERSION)" \
+	$(MAKE) -C $(MON_ROUTER_DEPO) ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" all
 	@printf "$(BOLD)Built mon-router:$(RESET) $(GREEN)$(MON_ROUTER_ARCHIVE)$(RESET)\n"
 
 # -----
@@ -320,7 +321,7 @@ $(BIN_DIR)/$(NAME): $(OBJ) $(LIBS_ARCHIVES)
 	@mkdir -p $(@D)
 	@$(CCX) -o "$@" $(LDX_FLAGS) $(LDFLAGS) \
 		$(LIB_RPATH_FLAGS) \
-		$(OBJ) $(LIBS_ARCHIVES)
+		-Wl,--start-group $(OBJ) $(LIBS_ARCHIVES) -Wl,--end-group
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME)$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
 $(NAME): .linkflag_$(MODE) $(BIN_DIR)/$(NAME)

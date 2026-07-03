@@ -112,21 +112,36 @@ bool _validSchemaChar(char c) {
 
 namespace mon_router {
 
-Uri::Uri() {}
+Uri::Uri()
+    : _has_scheme(false),
+      _has_authority(false),
+      _has_path(false),
+      _has_query(false),
+      _has_fragment(false) {}
 Uri::Uri(const std::string& uri) { _parseURI(uri); }
 Uri::Uri(const Uri& other)
     : _scheme(other._scheme),
+      _has_scheme(other._has_scheme),
       _authority(other._authority),
+      _has_authority(other._has_authority),
       _path(other._path),
+      _has_path(other._has_path),
       _query(other._query),
-      _fragment(other._fragment) {}
+      _has_query(other._has_query),
+      _fragment(other._fragment),
+      _has_fragment(other._has_fragment) {}
 Uri& Uri::operator=(const Uri& other) {
   if (this != &other) {
     this->_scheme = other._scheme;
+    this->_has_scheme = other._has_scheme;
     this->_authority = other._authority;
+    this->_has_authority = other._has_authority;
     this->_path = other._path;
+    this->_has_path = other._has_path;
     this->_query = other._query;
+    this->_has_query = other._has_query;
     this->_fragment = other._fragment;
+    this->_has_fragment = other._has_fragment;
   }
   return *this;
 }
@@ -137,29 +152,63 @@ std::string& Uri::scheme() {
   }
   return _scheme;
 }
+const std::string& Uri::scheme() const {
+  if (!_has_scheme) {
+    throw std::runtime_error("URI does not have a scheme");
+  }
+  return _scheme;
+}
 bool Uri::hasScheme() const { return _has_scheme; }
+
 std::string& Uri::authority() {
   if (!_has_authority) {
     throw std::runtime_error("URI does not have an authority");
   }
   return _authority;
 }
+const std::string& Uri::authority() const {
+  if (!_has_authority) {
+    throw std::runtime_error("URI does not have an authority");
+  }
+  return _authority;
+}
 bool Uri::hasAuthority() const { return _has_authority; }
+
 std::string& Uri::path() {
   if (!_has_path) {
     throw std::runtime_error("URI does not have a path");
   }
   return _path;
 }
+const std::string& Uri::path() const {
+  if (!_has_path) {
+    throw std::runtime_error("URI does not have a path");
+  }
+  return _path;
+}
 bool Uri::hasPath() const { return _has_path; }
+
 mon_http::HashMap<std::string, std::string>& Uri::query() {
   if (!_has_query) {
     throw std::runtime_error("URI does not have queries");
   }
   return _query;
 }
+const mon_http::HashMap<std::string, std::string>& Uri::query() const {
+  if (!_has_query) {
+    throw std::runtime_error("URI does not have queries");
+  }
+  return _query;
+}
 bool Uri::hasQuery() const { return _has_query; }
+
 std::string& Uri::fragment() {
+  if (!_has_fragment) {
+    throw std::runtime_error("URI does not have a fragment");
+  }
+  return _fragment;
+}
+const std::string& Uri::fragment() const {
   if (!_has_fragment) {
     throw std::runtime_error("URI does not have a fragment");
   }
@@ -207,8 +256,9 @@ void Uri::_parseURI(const std::string& uri) {
           throw std::runtime_error("URI: Scheme: scheme is an empty string");
         }
 
-        authority = std::string(uri.begin() + itUri,
-                                uri.begin() + authority_end_pos - 1);
+        authority =
+            std::string(uri.begin() + itUri, uri.begin() + authority_end_pos);
+
       } else {
         if (uri.begin() + itUri == uri.end()) {
           throw std::runtime_error("URI: Scheme: scheme is an empty string");
@@ -285,7 +335,7 @@ void Uri::_parseURI(const std::string& uri) {
         throw std::runtime_error("URI: Fragment: cannot be empty and defined");
       }
 
-      this->_fragment = std::string(uri.begin() + itUri + 1, uri.end());
+      this->_fragment = std::string(uri.begin() + itUri, uri.end());
       this->_has_fragment = true;
     }
   }

@@ -16,13 +16,16 @@ class HeaderMap {
   ~HeaderMap();
 
   std::string& at(const std::string& key);
+  const std::string& at(const std::string& key) const;
   std::string& operator[](const std::string& key);
+  const std::string& operator[](const std::string& key) const;
 
-  bool contains(const std::string& key);
+  bool contains(const std::string& key) const;
 
   void clear();
 
   void insert(const std::string& key, const std::string& value);
+  void extend(const HeaderMap& other);
   void remove(const std::string& key);
 
   template <typename F>

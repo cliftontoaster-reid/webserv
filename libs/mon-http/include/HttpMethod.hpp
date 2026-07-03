@@ -33,6 +33,13 @@ class HttpMethod {
   static HttpMethod fromString(const std::string& data);
   std::string toString() const;
 
+  friend bool operator==(const HttpMethod& lhs, const HttpMethod& rhs);
+  friend bool operator!=(const HttpMethod& lhs, const HttpMethod& rhs);
+  friend bool operator==(const HttpMethod& lhs, Type rhs);
+  friend bool operator!=(const HttpMethod& lhs, Type rhs);
+  friend bool operator==(Type lhs, const HttpMethod& rhs);
+  friend bool operator!=(Type lhs, const HttpMethod& rhs);
+
  private:
   Type val_;
 };

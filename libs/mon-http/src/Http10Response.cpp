@@ -101,6 +101,10 @@ void Http10Response::setStatusCode(int code) {
   _code = code;
 }
 
+void Http10Response::setStatusPhrase(const std::string& message) {
+  statusMessage = message;
+}
+
 bool Http10Response::hasBody() const { return !_body.empty(); }
 
 const std::string& Http10Response::body() const { return _body; }
@@ -127,8 +131,67 @@ void Http10Response::error500(const std::string& message) {
   _body = std::string(STD_PAGE_500_raw);
 
   size_t pos = _body.find("{{ERR_MSG}}");
-  if (pos != std::string::npos)
-    _body.replace(pos, 11, message);
+  if (pos != std::string::npos) _body.replace(pos, 11, message);
+
+  _headers.clear();
+  _headers.insert("Cache-Control", "no-store, no-cache, must-revalidate");
+  _headers.insert("Content-Type", "text/html");
+  _headers.insert("Connection", "close");
+  _headers.insert("Retry-After", "60");
+}
+
+void Http10Response::error400() {
+  _code = STATUS_Bad_Request;
+  statusMessage = "Bad Request";
+  _body = std::string(STD_PAGE_400_raw);
+
+  _headers.clear();
+  _headers.insert("Cache-Control", "no-store, no-cache, must-revalidate");
+  _headers.insert("Content-Type", "text/html");
+  _headers.insert("Connection", "close");
+  _headers.insert("Retry-After", "60");
+}
+
+void Http10Response::error413() {
+  _code = STATUS_Request_Entity_Too_Large;
+  statusMessage = "Content Too Large";
+  _body = std::string(STD_PAGE_413_raw);
+
+  _headers.clear();
+  _headers.insert("Cache-Control", "no-store, no-cache, must-revalidate");
+  _headers.insert("Content-Type", "text/html");
+  _headers.insert("Connection", "close");
+  _headers.insert("Retry-After", "60");
+}
+
+void Http10Response::error414() {
+  _code = STATUS_Request_URI_Too_Long;
+  statusMessage = "URI Too Large";
+  _body = std::string(STD_PAGE_414_raw);
+
+  _headers.clear();
+  _headers.insert("Cache-Control", "no-store, no-cache, must-revalidate");
+  _headers.insert("Content-Type", "text/html");
+  _headers.insert("Connection", "close");
+  _headers.insert("Retry-After", "60");
+}
+
+void Http10Response::error501() {
+  _code = STATUS_Not_Implemented;
+  statusMessage = "Not Implemented";
+  _body = std::string(STD_PAGE_501_raw);
+
+  _headers.clear();
+  _headers.insert("Cache-Control", "no-store, no-cache, must-revalidate");
+  _headers.insert("Content-Type", "text/html");
+  _headers.insert("Connection", "close");
+  _headers.insert("Retry-After", "60");
+}
+
+void Http10Response::error505() {
+  _code = STATUS_Version_Not_Supported;
+  statusMessage = "HTTP Version Not Supported";
+  _body = std::string(STD_PAGE_505_raw);
 
   _headers.clear();
   _headers.insert("Cache-Control", "no-store, no-cache, must-revalidate");
@@ -158,6 +221,42 @@ void Http10Response::ok200() {
   _headers.insert("Content-Type", "text/html");
   _headers.insert("Connection", "close");
   _headers.insert("Retry-After", "60");
+}
+
+void Http10Response::setError(int code, const std::string& message) {
+  switch (code) {
+    case STATUS_Bad_Request:
+      error400();
+      break;
+    case STATUS_Not_Found:
+      error404();
+      break;
+    case STATUS_Request_Entity_Too_Large:
+      error413();
+      break;
+    case STATUS_Request_URI_Too_Long:
+      error414();
+      break;
+    case STATUS_Not_Implemented:
+      error501();
+      break;
+    case STATUS_Internal_Server_Error:
+      error500(message);
+      break;
+    case STATUS_Version_Not_Supported:
+      error505();
+      break;
+    default:
+      setStatusCode(code);
+      statusMessage = message;
+      _body = message;
+
+      _headers.clear();
+      _headers.insert("Cache-Control", "no-store, no-cache, must-revalidate");
+      _headers.insert("Content-Type", "text/plain");
+      _headers.insert("Connection", "close");
+      break;
+  }
 }
 
 }  // namespace mon_http

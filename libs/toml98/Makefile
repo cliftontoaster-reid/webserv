@@ -79,7 +79,7 @@ endif
 NAME = toml98
 all: lib$(NAME).a lib$(NAME).so
 
-LIBS_DIR	 =	./libs
+LIBS_DIR	 =	..
 ORIGIN_DIR ?=	./target
 OFFICE_DIR ?=	$(ORIGIN_DIR)/$(MODE)
 TARGET_DIR ?= $(OFFICE_DIR)/$(NAME)
@@ -96,6 +96,7 @@ TEST_DIR	= ./tests
 # Sources
 # -------
 SRCS = \
+       $(SRC_DIR)/toml98.cpp \
        $(SRC_DIR)/Value.cpp \
        $(SRC_DIR)/Lexer.cpp \
        $(SRC_DIR)/Lexer/handle_array_key.cpp \
@@ -190,7 +191,7 @@ test: lib$(NAME).a
 	@printf "$(BOLD)Building tests...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
 	ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" MODE="$(MODE)" VERSION="$(VERSION)" \
-	BOBJ="$(OBJ)" LIBS_ARCHIVES="../lib$(NAME).a $(LIBS_ARCHIVES)" \
+	BOBJ="$(OBJ)" LIBS_ARCHIVES="$(abspath ./lib$(NAME).a) $(abspath $(LIBS_ARCHIVES))" \
 	LIB_RPATH_FLAGS="$(LIB_RPATH_FLAGS)" \
 	$(MAKE) -C $(TEST_DIR) all --silent
 	@printf "$(BOLD)Built tests$(RESET)\n"

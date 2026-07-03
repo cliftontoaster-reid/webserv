@@ -79,7 +79,7 @@ endif
 NAME = webserv_test
 all: $(NAME)
 
-LIBS_DIR	 =	./libs
+LIBS_DIR	 =	..
 ORIGIN_DIR ?=	./target
 OFFICE_DIR =	$(ORIGIN_DIR)/$(MODE)
 TARGET_DIR ?= $(OFFICE_DIR)/$(NAME)
@@ -166,7 +166,7 @@ $(BIN_DIR)/$(NAME): $(LIBS_ARCHIVES) $(OBJ)
 	@$(CCX) -o "$@" $(LDX_FLAGS) $(LDFLAGS) \
 		$(LIB_RPATH_FLAGS) \
 		-Wl,-rpath,'$$ORIGIN/$(CRITERION_BIN_DIR)/lib' \
-		$(OBJ) $(LIBS_ARCHIVES)
+		-Wl,--start-group $(OBJ) $(LIBS_ARCHIVES) -Wl,--end-group
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME)$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
 $(NAME): .linkflag_$(MODE) $(BIN_DIR)/$(NAME)

@@ -1,0 +1,135 @@
+{
+  "$defs": {
+    "uploadData": {
+      "type": "object",
+      "properties": {
+        "path": { "type": "string" },
+        "random_len": { "type": "integer" }
+      },
+      "required": ["path", "random_len"]
+    },
+    "externalData": {
+      "properties": {
+        "external": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["external"]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "server": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ports": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "route": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "preffix": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "index": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "preffix",
+                "path"
+              ]
+            }
+          },
+          "api": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "uri": {
+                  "type": "string"
+                },
+                "external": {
+                  "type": "boolean"
+                },
+                "func": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "uri",
+                "external",
+                "func"
+              ],
+              "additionalProperties": true,
+              "allOf": [{
+                "if": {
+                  "properties": { "external": { "const": false } }
+                },
+                "then": {
+                  "properties": {
+                    "func": { "enum": ["echo", "upload"] }
+                  }
+                }
+              }, {
+                "if": {
+                  "properties": {
+                    "func": { "const": "upload" },
+                    "external": { "const": false }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "upload": { "$ref": "#/$defs/uploadData" }
+                  },
+                  "required": ["upload"]
+                }
+              }, {
+                "if": { "properties": { "external": { "const": true } } },
+                "then": { "$ref": "#/$defs/externalData" }
+              }]
+            }
+          },
+          "cgi": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "glob": {
+                  "type": "string"
+                },
+                "bin": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "glob",
+                "bin"
+              ]
+            }
+          }
+        },
+        "required": [
+          "ports",
+          "route",
+          "api",
+          "cgi"
+        ]
+      }
+    }
+  },
+  "required": [
+    "server"
+  ]
+}

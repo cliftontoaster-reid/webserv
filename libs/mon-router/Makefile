@@ -111,6 +111,62 @@ LIBRARIES :=
 LIBS_ARCHIVES :=
 LIB_RPATH_FLAGS :=
 
+# -------
+# TOML98
+# -------
+TOML98_DEPO			  = $(LIBS_DIR)/toml98
+TOML98_TARGET_DIR = $(OFFICE_DIR)/toml98
+TOML98_OBJ_DIR		= $(TOML98_TARGET_DIR)/obj
+TOML98_TOBJ_DIR	  = $(TOML98_TARGET_DIR)/tobj
+TOML98_DEP_DIR		= $(TOML98_TARGET_DIR)/dep
+TOML98_BIN_DIR		= $(TOML98_TARGET_DIR)/bin
+TOML98_DIRS			  = $(TOML98_OBJ_DIR) $(TOML98_TOBJ_DIR) \
+										$(TOML98_DEP_DIR) $(TOML98_BIN_DIR)
+TOML98_ARCHIVE		= $(TOML98_BIN_DIR)/toml98.so
+TOML98_SRCS			:= $(shell find $(TOML98_DEPO)/src     -name '*.cpp' 2>/dev/null)
+TOML98_HDRS			:= $(shell find $(TOML98_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
+TOML98_INC_DIR		= $(TOML98_DEPO)/include
+
+LIBS_ARCHIVES += $(TOML98_ARCHIVE)
+INC += -I$(TOML98_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(TOML98_BIN_DIR))'
+
+toml98: $(TOML98_ARCHIVE)
+$(TOML98_ARCHIVE): $(TOML98_SRCS) $(TOML98_HDRS) $(TOML98_DEPO)/Makefile
+	@printf "$(BOLD)Building toml98 library...$(RESET)\n"
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	MODE="$(MODE)" VERSION="$(VERSION)" \
+	$(MAKE) -C $(TOML98_DEPO) ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" TARGET_DIR="$(abspath $(TOML98_TARGET_DIR))" all
+	@printf "$(BOLD)Built toml98:$(RESET) $(GREEN)$(TOML98_ARCHIVE)$(RESET)\n"
+
+# --------
+# MON-CGI
+# --------
+MON_CGI_DEPO			 = $(LIBS_DIR)/mon-cgi
+MON_CGI_TARGET_DIR = $(OFFICE_DIR)/mon-cgi
+MON_CGI_OBJ_DIR		 = $(MON_CGI_TARGET_DIR)/obj
+MON_CGI_TOBJ_DIR	 = $(MON_CGI_TARGET_DIR)/tobj
+MON_CGI_DEP_DIR		 = $(MON_CGI_TARGET_DIR)/dep
+MON_CGI_BIN_DIR		 = $(MON_CGI_TARGET_DIR)/bin
+MON_CGI_DIRS			 = $(MON_CGI_OBJ_DIR) $(MON_CGI_TOBJ_DIR) \
+										 $(MON_CGI_DEP_DIR) $(MON_CGI_BIN_DIR)
+MON_CGI_ARCHIVE		= $(MON_CGI_BIN_DIR)/mon-cgi.so
+MON_CGI_SRCS			:= $(shell find $(MON_CGI_DEPO)/src     -name '*.cpp' 2>/dev/null)
+MON_CGI_HDRS			:= $(shell find $(MON_CGI_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
+MON_CGI_INC_DIR		= $(MON_CGI_DEPO)/include
+
+LIBS_ARCHIVES += $(MON_CGI_ARCHIVE)
+INC += -I$(MON_CGI_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(MON_CGI_BIN_DIR))'
+
+mon-cgi: $(MON_CGI_ARCHIVE)
+$(MON_CGI_ARCHIVE): $(MON_CGI_SRCS) $(MON_CGI_HDRS) $(MON_CGI_DEPO)/Makefile
+	@printf "$(BOLD)Building mon-cgi library...$(RESET)\n"
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	MODE="$(MODE)" VERSION="$(VERSION)" \
+	$(MAKE) -C $(MON_CGI_DEPO) ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" TARGET_DIR="$(abspath $(MON_CGI_TARGET_DIR))" all
+	@printf "$(BOLD)Built mon-cgi:$(RESET) $(GREEN)$(MON_CGI_ARCHIVE)$(RESET)\n"
+
 # ---------
 # MON-HTTP
 # ---------
@@ -217,7 +273,7 @@ test: lib$(NAME).a
 	@printf "$(BOLD)Building tests...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
 	ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" MODE="$(MODE)" VERSION="$(VERSION)" \
-	BOBJ="$(OBJ)" LIBS_ARCHIVES="../lib$(NAME).a $(LIBS_ARCHIVES)" \
+	BOBJ="$(OBJ)" LIBS_ARCHIVES="$(abspath ./lib$(NAME).a) $(abspath $(LIBS_ARCHIVES))" \
 	LIB_RPATH_FLAGS="$(LIB_RPATH_FLAGS)" \
 	$(MAKE) -C $(TEST_DIR) all --silent
 	@printf "$(BOLD)Built tests$(RESET)\n"

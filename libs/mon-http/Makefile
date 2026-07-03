@@ -79,7 +79,7 @@ endif
 NAME = mon-http
 all: lib$(NAME).a lib$(NAME).so
 
-LIBS_DIR	 =	./libs
+LIBS_DIR	 =	..
 ORIGIN_DIR ?=	./target
 OFFICE_DIR ?=	$(ORIGIN_DIR)/$(MODE)
 TARGET_DIR ?= $(OFFICE_DIR)/$(NAME)
@@ -98,8 +98,6 @@ FILES = \
  ../../assets/html/500.html \
  ../../assets/html/501.html \
  ../../assets/html/505.html \
- \
- ../../assets/html/hello.html \
 
 VARS = \
 STD_PAGE_400 \
@@ -109,7 +107,6 @@ STD_PAGE_414 \
 STD_PAGE_500 \
 STD_PAGE_501 \
 STD_PAGE_505 \
-STD_PAGE_HELLO \
 
 INC_DIR		= ./include
 SRC_DIR		= ./src
@@ -126,6 +123,7 @@ SRCS = \
 	$(SRC_DIR)/Http10Request.cpp \
 	$(SRC_DIR)/Http10Response.cpp \
 	$(SRC_DIR)/Http10StreamParser.cpp \
+	$(SRC_DIR)/HttpException.cpp \
 	$(SRC_DIR)/HttpMethod.cpp \
 	$(SRC_DIR)/HttpVersion.cpp \
 
@@ -196,7 +194,7 @@ test: lib$(NAME).a
 	@printf "$(BOLD)Building tests...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDX_FLAGS="$(LDX_FLAGS)" \
 	ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" MODE="$(MODE)" VERSION="$(VERSION)" \
-	BOBJ="$(OBJ)" LIBS_ARCHIVES="../lib$(NAME).a $(LIBS_ARCHIVES)" \
+	BOBJ="$(OBJ)" LIBS_ARCHIVES="$(abspath ./lib$(NAME).a) $(abspath $(LIBS_ARCHIVES))" \
 	LIB_RPATH_FLAGS="$(LIB_RPATH_FLAGS)" \
 	$(MAKE) -C $(TEST_DIR) all --silent
 	@printf "$(BOLD)Built tests$(RESET)\n"

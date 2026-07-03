@@ -38,6 +38,12 @@ class Form {
 
   void parse(const std::string& body);
 
+  std::vector<FormData>::iterator begin();
+  std::vector<FormData>::const_iterator begin() const;
+
+  std::vector<FormData>::iterator end();
+  std::vector<FormData>::const_iterator end() const;
+
  private:
   std::string _delimiter;
   std::vector<FormData> _data;

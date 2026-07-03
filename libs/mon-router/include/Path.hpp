@@ -1,3 +1,6 @@
+#ifndef MON_ROUTER_INCLUDE_PATH_HPP
+#define MON_ROUTER_INCLUDE_PATH_HPP
+
 #include <sys/stat.h>
 
 #include <cstddef>
@@ -60,16 +63,10 @@ class Path {
     }
 
     struct stat file_stat;
-    if (stat(resolved.c_str(), &file_stat) == -1) {
-      return false;
-    }
-
-    if (!S_ISREG(file_stat.st_mode)) {
-      throw std::runtime_error("Path: Target is not a regular file: " +
-                               resolved);
-    }
-    return true;
+    return stat(resolved.c_str(), &file_stat) != -1;
   }
 };
 
 }  // namespace mon_router
+
+#endif

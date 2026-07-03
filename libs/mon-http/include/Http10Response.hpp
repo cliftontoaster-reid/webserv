@@ -25,6 +25,7 @@ class Http10Response : public AHttpResponse {
   HttpVersion version() const;
   int statusCode() const;
   void setStatusCode(int code);
+  void setStatusPhrase(const std::string& message);
   bool hasBody() const;
   const std::string& body() const;
   void setBody(const std::string& body);
@@ -38,7 +39,13 @@ class Http10Response : public AHttpResponse {
 
   void error500(const std::string& message = "");
   void error404();
+  void error400();
+  void error413();
+  void error414();
+  void error501();
+  void error505();
   void ok200();
+  void setError(int code, const std::string& message = "");
 
  private:
   std::string _body;

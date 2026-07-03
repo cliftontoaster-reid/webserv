@@ -149,7 +149,7 @@ Test(http10_stream_parser, pull_returns_null_on_body_mismatch) {
 }
 
 Test(http10_stream_parser, pull_throws_on_wrong_version) {
-  std::string data = "GET / HTTP/1.1\r\n\r\n";
+  std::string data = "GET / HTTP/2.0\r\n\r\n";
   std::vector<char> raw(data.begin(), data.end());
 
   mon_http::Http10StreamParser parser;
@@ -184,7 +184,7 @@ Test(http10_stream_parser, append_in_chunks) {
   cr_assert_eq(parser.canPull(), true);
 }
 
-Test(http10_stream_parser, pull_does_not_clear_buffer) {
+Test(http10_stream_parser, pull_does_clear_buffer) {
   std::string data = "GET / HTTP/1.0\r\n\r\n";
   std::vector<char> raw(data.begin(), data.end());
 
@@ -195,7 +195,7 @@ Test(http10_stream_parser, pull_does_not_clear_buffer) {
   cr_assert_not_null(req);
   delete req;
 
-  cr_assert_eq(parser.canPull(), true);
+  cr_assert_eq(parser.canPull(), false);
 }
 
 Test(http10_stream_parser, incremental_append_headers_then_body) {

@@ -98,6 +98,9 @@ Lexer& Lexer::operator=(const Lexer& other) {
 Lexer::~Lexer() {}
 
 Token* Lexer::run() {
+  if (!canPeek()) {
+    return NULL;
+  }
   Token* ret = NULL;
   _buffer.clear();
 

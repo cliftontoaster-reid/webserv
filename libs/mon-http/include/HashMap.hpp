@@ -27,6 +27,7 @@ class HashMap {
   };
 
   T& at(const Key& key);
+  const T& at(const Key& key) const;
   T& operator[](const Key& key);
 
   bool contains(const Key& key) const;
@@ -38,6 +39,8 @@ class HashMap {
 
   template <typename F>
   void iter(F func);
+  template <typename F>
+  void iter(F func) const;
 
  private:
   std::vector<std::vector<Entry> > _store;

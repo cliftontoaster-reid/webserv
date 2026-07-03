@@ -74,4 +74,28 @@ std::string HttpMethod::toString() const {
   }
 }
 
+bool operator==(const HttpMethod& lhs, const HttpMethod& rhs) {
+  return lhs.val_ == rhs.val_;
+}
+
+bool operator!=(const HttpMethod& lhs, const HttpMethod& rhs) {
+  return lhs.val_ != rhs.val_;
+}
+
+bool operator==(const HttpMethod& lhs, HttpMethod::Type rhs) {
+  return lhs.val_ == rhs;
+}
+
+bool operator!=(const HttpMethod& lhs, HttpMethod::Type rhs) {
+  return lhs.val_ != rhs;
+}
+
+bool operator==(HttpMethod::Type lhs, const HttpMethod& rhs) {
+  return lhs == rhs.val_;
+}
+
+bool operator!=(HttpMethod::Type lhs, const HttpMethod& rhs) {
+  return lhs != rhs.val_;
+}
+
 }  // namespace mon_http
