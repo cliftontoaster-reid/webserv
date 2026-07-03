@@ -79,7 +79,7 @@ endif
 NAME = webserv_test
 all: $(NAME)
 
-LIBS_DIR	 =	./libs
+LIBS_DIR	 =	..
 ORIGIN_DIR ?=	./target
 OFFICE_DIR =	$(ORIGIN_DIR)/$(MODE)
 TARGET_DIR ?= $(OFFICE_DIR)/$(NAME)
