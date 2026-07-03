@@ -247,8 +247,8 @@ mon-router: $(MON_ROUTER_ARCHIVE)
 $(MON_ROUTER_ARCHIVE): $(MON_ROUTER_SRCS) $(MON_ROUTER_HDRS) $(MON_ROUTER_DEPO)/Makefile
 	@printf "$(BOLD)Building mon-router library...$(RESET)\n"
 	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
-	ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" MODE="$(MODE)" VERSION="$(VERSION)" \
-	$(MAKE) -C $(MON_ROUTER_DEPO) all
+	MODE="$(MODE)" VERSION="$(VERSION)" \
+	$(MAKE) -C $(MON_ROUTER_DEPO) ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" TARGET_DIR="$(abspath $(MON_ROUTER_TARGET_DIR))" all
 	@printf "$(BOLD)Built mon-router:$(RESET) $(GREEN)$(MON_ROUTER_ARCHIVE)$(RESET)\n"
 
 # -----
