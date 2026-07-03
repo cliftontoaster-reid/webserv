@@ -39,6 +39,8 @@ class HashMap {
 
   template <typename F>
   void iter(F func);
+  template <typename F>
+  void iter(F func) const;
 
  private:
   std::vector<std::vector<Entry> > _store;

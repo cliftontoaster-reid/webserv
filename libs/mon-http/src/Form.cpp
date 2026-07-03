@@ -249,4 +249,14 @@ void Form::parse(const std::string& body) {
   }
 }
 
+std::vector<FormData>::iterator Form::begin() { return _data.begin(); }
+
+std::vector<FormData>::const_iterator Form::begin() const {
+  return _data.begin();
+}
+
+std::vector<FormData>::iterator Form::end() { return _data.end(); }
+
+std::vector<FormData>::const_iterator Form::end() const { return _data.end(); }
+
 }  // namespace mon_http

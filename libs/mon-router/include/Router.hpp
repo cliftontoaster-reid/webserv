@@ -114,10 +114,11 @@ class Router {
                 u_int16_t port);
   void addRoute(const std::string& prefix, const std::string& path,
                 u_int16_t port, const std::string& index);
-  void addHandler(const std::string& path,
-                  HandlerResponse (*func)(mon_http::AHttpRequest&,
-                                          mon_http::Form&),
-                  u_int16_t port);
+  void addHandler(
+      const std::string& path,
+      HandlerResponse (*func)(mon_http::AHttpRequest&, mon_http::Form&,
+                              const std::map<std::string, toml98::Value>&),
+      u_int16_t port, std::map<std::string, toml98::Value> arguments);
   void addCgi(const std::string& glob, const std::string& cgiBin,
               u_int16_t port);
 

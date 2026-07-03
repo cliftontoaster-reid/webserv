@@ -2,6 +2,7 @@
 
 #include <exception>
 #include <iostream>
+#include <map>
 #include <string>
 
 #include "AHttpResponse.hpp"
@@ -16,6 +17,7 @@
 #include "Path.hpp"
 #include "Router.hpp"
 #include "Uri.hpp"
+#include "Value.hpp"
 
 static inline bool isFolder(const std::string& path) {
   struct stat buf;
@@ -67,7 +69,8 @@ void Router::handle(mon_http::AHttpRequest& request, u_int16_t port,
 
     const mon_cgi::Handle* cgiHandle = _cgiHandler.isCgi(uri, port);
     if (cgiHandle) {
-      Handler cgiH = {full_path, NULL, port};
+      Handler cgiH = {full_path, NULL, port,
+                      std::map<std::string, toml98::Value>()};
       _cgiHandler.handleCgi(cgiH, cgiHandle->cgiBin, request, client_fd,
                             listener);
       return;
@@ -132,11 +135,12 @@ void Router::invoke_handler(const Handler& handler,
     form_data.parse(request.body());
   }
 
-  HandlerResponse result = handler.func(request, form_data);
+  HandlerResponse result = handler.func(request, form_data, handler.arguments);
 
   mon_http::Http10Response res;
   res.setError(result.code, result.message);
   res.setBody(result.body);
+  res.headers().extend(result.headers);
 
   listener.write(res, client_fd);
   listener.markClose(client_fd);

@@ -4,6 +4,7 @@
 #include <sys/types.h>
 
 #include <cstddef>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -25,6 +26,8 @@ struct Api {
   std::string uri;
   bool external;
   std::string func;
+
+  std::map<std::string, toml98::Value> arguments;
 
   explicit Api(const toml98::Value&);
   size_t implement(mon_router::Router& router, u_int16_t port) const;

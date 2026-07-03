@@ -35,14 +35,16 @@ void Router::addRoute(const std::string& prefix, const std::string& path,
   _paths.push_back(route);
 }
 
-void Router::addHandler(const std::string& path,
-                        HandlerResponse (*func)(mon_http::AHttpRequest&,
-                                                mon_http::Form&),
-                        u_int16_t port) {
+void Router::addHandler(
+    const std::string& path,
+    HandlerResponse (*func)(mon_http::AHttpRequest&, mon_http::Form&,
+                            const std::map<std::string, toml98::Value>&),
+    u_int16_t port, std::map<std::string, toml98::Value> arguments) {
   Handler handler;
   handler.path = path;
   handler.func = func;
   handler.port = port;
+  handler.arguments = arguments;
   _handlers.push_back(handler);
 }
 

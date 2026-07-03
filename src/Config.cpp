@@ -9,6 +9,7 @@
 #include "Handler.hpp"
 #include "Listener.hpp"
 #include "Router.hpp"
+#include "Value.hpp"
 #include "funcs.hpp"
 
 namespace {
@@ -53,16 +54,44 @@ Api::Api(const toml98::Value& v) {
   uri = *t.find("uri")->second.getString();
   external = t.find("external")->second.getBoolean();
   func = *t.find("func")->second.getString();
+
+  if (!external && func == "upload") {
+    std::map<std::string, toml98::Value>::const_iterator it = t.find("upload");
+    if (it == t.end() || it->second.type() != toml98::ValueTable) {
+      throw std::invalid_argument("server[].api[].upload needs to be a table");
+    }
+    const std::map<std::string, toml98::Value>& upload_t =
+        *it->second.getTable();
+
+    it = upload_t.find("path");
+    if (it == upload_t.end() || it->second.type() != toml98::ValueString) {
+      throw std::invalid_argument(
+          "server[].api[].upload.path needs to be a string");
+    }
+    arguments.insert(
+        std::make_pair(std::string("path"), toml98::Value(it->second)));
+
+    it = upload_t.find("random_len");
+    if (it == upload_t.end() || it->second.type() != toml98::ValueInteger) {
+      throw std::invalid_argument(
+          "server[].api[].upload.random_len needs to be an integer");
+    }
+    arguments.insert(
+        std::make_pair(std::string("random_len"), toml98::Value(it->second)));
+  }
 }
 
-typedef mon_router::HandlerResponse (*HandlerFunc)(mon_http::AHttpRequest&,
-                                                   mon_http::Form&);
+typedef mon_router::HandlerResponse (*HandlerFunc)(
+    mon_http::AHttpRequest&, mon_http::Form&,
+    const std::map<std::string, toml98::Value>&);
 
 size_t Api::implement(mon_router::Router& router, u_int16_t port) const {
   HandlerFunc ptr = NULL;
 
   if (func == "echo" && !external) {
     ptr = echo;
+  } else if (func == "upload" && !external) {
+    ptr = upload;
   }
 
   if (ptr == NULL) {
@@ -70,7 +99,7 @@ size_t Api::implement(mon_router::Router& router, u_int16_t port) const {
                                 "' please check spelling or enable external.");
   }
 
-  router.addHandler(uri, ptr, port);
+  router.addHandler(uri, ptr, port, arguments);
   return 1;
 }
 

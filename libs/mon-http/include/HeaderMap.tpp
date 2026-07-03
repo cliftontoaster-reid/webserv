@@ -2,6 +2,20 @@
 #include <cctype>
 #include <string>
 
+#include "HeaderMap.hpp"
+
+namespace {
+
+struct _ExtendHelper {
+  mon_http::HeaderMap& self;
+  explicit _ExtendHelper(mon_http::HeaderMap& s) : self(s) {}
+  void operator()(const std::string& k, const std::string& v) {
+    self.insert(k, v);
+  }
+};
+
+}  // namespace
+
 namespace mon_http {
 
 inline HeaderMap::HeaderMap() {}
@@ -46,6 +60,10 @@ inline void HeaderMap::clear() { _store.clear(); }
 inline void HeaderMap::insert(const std::string& key,
                               const std::string& value) {
   _store.insert(_normalize(key), value);
+}
+
+inline void HeaderMap::extend(const HeaderMap& other) {
+  other._store.iter(_ExtendHelper(*this));
 }
 
 inline void HeaderMap::remove(const std::string& key) {

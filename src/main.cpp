@@ -6,6 +6,7 @@
 
 #include "AHttpResponse.hpp"
 #include "Config.hpp"
+#include "Handler.hpp"
 #include "Server.hpp"
 #include "Value.hpp"
 #include "toml98.hpp"
@@ -14,7 +15,8 @@ mon_router::HandlerResponse hello(mon_http::AHttpRequest& request,
                                   mon_http::Form& form_data) {
   (void)request;
   (void)form_data;
-  mon_router::HandlerResponse res = {STATUS_OK, "OK", "Hello from /api/hello!"};
+  mon_router::HandlerResponse res =
+      mon_router::HandlerResponse(STATUS_OK, "OK", "Hello from /api/hello!");
   return res;
 }
 

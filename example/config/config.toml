@@ -17,6 +17,12 @@ uri = "/api/hello"
 external = false
 func = "echo"
 
+[[server.api]]
+uri = "/api/upload"
+external = false
+func = "upload"
+upload = { path = "/var/tmp", random_len = 32 }
+
 [[server.cgi]]
 glob = "/*.php"
 bin = "/usr/bin/php-cgi"

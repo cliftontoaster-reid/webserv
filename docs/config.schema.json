@@ -1,4 +1,23 @@
 {
+  "$defs": {
+    "uploadData": {
+      "type": "object",
+      "properties": {
+        "path": { "type": "string" },
+        "random_len": { "type": "integer" }
+      },
+      "required": ["path", "random_len"]
+    },
+    "externalData": {
+      "properties": {
+        "external": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["external"]
+    }
+  },
   "type": "object",
   "properties": {
     "server": {
@@ -52,7 +71,34 @@
                 "uri",
                 "external",
                 "func"
-              ]
+              ],
+              "additionalProperties": true,
+              "allOf": [{
+                "if": {
+                  "properties": { "external": { "const": false } }
+                },
+                "then": {
+                  "properties": {
+                    "func": { "enum": ["echo", "upload"] }
+                  }
+                }
+              }, {
+                "if": {
+                  "properties": {
+                    "func": { "const": "upload" },
+                    "external": { "const": false }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "upload": { "$ref": "#/$defs/uploadData" }
+                  },
+                  "required": ["upload"]
+                }
+              }, {
+                "if": { "properties": { "external": { "const": true } } },
+                "then": { "$ref": "#/$defs/externalData" }
+              }]
             }
           },
           "cgi": {

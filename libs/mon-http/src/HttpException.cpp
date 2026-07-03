@@ -1,6 +1,11 @@
 #include "HttpException.hpp"
 
+#include <string>
+
 namespace mon_http {
+
+HttpException::HttpException(int statusCode, const std::string& message)
+    : _statusCode(statusCode), _message(message.c_str()) {}
 
 HttpException::HttpException(int statusCode, const char* message)
     : _statusCode(statusCode), _message(message) {}

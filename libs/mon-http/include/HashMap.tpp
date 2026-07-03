@@ -5,6 +5,9 @@
 #include <fstream>
 #include <ios>
 
+#include "HashMap.hpp"
+#include "HeaderMap.hpp"
+
 #define MURMUR_SCRAMBLE_A 0xcc9e2d51
 #define MURMUR_SCRAMBLE_B 0x1b873593
 #define MURMUR_SCRAMBLE_SHIFT_L 15
@@ -239,6 +242,17 @@ void HashMap<Key, T>::resize(u_int64_t newSize) {
 template <typename Key, typename T>
 template <typename F>
 void HashMap<Key, T>::iter(F func) {
+  for (size_t i = 0; i < _store.size(); ++i) {
+    for (size_t j = 0; j < _store[i].size(); ++j) {
+      if (_store[i][j].occupied) {
+        func(_store[i][j].key, _store[i][j].value);
+      }
+    }
+  }
+}
+template <typename Key, typename T>
+template <typename F>
+void HashMap<Key, T>::iter(F func) const {
   for (size_t i = 0; i < _store.size(); ++i) {
     for (size_t j = 0; j < _store[i].size(); ++j) {
       if (_store[i][j].occupied) {

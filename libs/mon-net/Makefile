@@ -108,7 +108,6 @@ STD_PAGE_414 \
 STD_PAGE_500 \
 STD_PAGE_501 \
 STD_PAGE_505 \
-STD_PAGE_HELLO \
 
 INC_DIR		= ./include
 SRC_DIR		= ./src
@@ -131,6 +130,34 @@ dirs:
 LIBRARIES :=
 LIBS_ARCHIVES :=
 LIB_RPATH_FLAGS :=
+
+# -------
+# TOML98
+# -------
+TOML98_DEPO			  = $(LIBS_DIR)/toml98
+TOML98_TARGET_DIR = $(OFFICE_DIR)/toml98
+TOML98_OBJ_DIR		= $(TOML98_TARGET_DIR)/obj
+TOML98_TOBJ_DIR	  = $(TOML98_TARGET_DIR)/tobj
+TOML98_DEP_DIR		= $(TOML98_TARGET_DIR)/dep
+TOML98_BIN_DIR		= $(TOML98_TARGET_DIR)/bin
+TOML98_DIRS			  = $(TOML98_OBJ_DIR) $(TOML98_TOBJ_DIR) \
+										$(TOML98_DEP_DIR) $(TOML98_BIN_DIR)
+TOML98_ARCHIVE		= $(TOML98_BIN_DIR)/toml98.so
+TOML98_SRCS			:= $(shell find $(TOML98_DEPO)/src     -name '*.cpp' 2>/dev/null)
+TOML98_HDRS			:= $(shell find $(TOML98_DEPO)/include -type f \( -name '*.hpp' -o -name '*.tpp' \) 2>/dev/null)
+TOML98_INC_DIR		= $(TOML98_DEPO)/include
+
+LIBS_ARCHIVES += $(TOML98_ARCHIVE)
+INC += -I$(TOML98_INC_DIR)
+LIB_RPATH_FLAGS += -Wl,-rpath,'$(abspath $(TOML98_BIN_DIR))'
+
+toml98: $(TOML98_ARCHIVE)
+$(TOML98_ARCHIVE): $(TOML98_SRCS) $(TOML98_HDRS) $(TOML98_DEPO)/Makefile
+	@printf "$(BOLD)Building toml98 library...$(RESET)\n"
+	@CCX="$(CCX)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
+	MODE="$(MODE)" VERSION="$(VERSION)" \
+	$(MAKE) -C $(TOML98_DEPO) ORIGIN_DIR="$(abspath $(ORIGIN_DIR))" TARGET_DIR="$(abspath $(TOML98_TARGET_DIR))" all
+	@printf "$(BOLD)Built toml98:$(RESET) $(GREEN)$(TOML98_ARCHIVE)$(RESET)\n"
 
 # ---------
 # MON-HTTP

@@ -2,11 +2,13 @@
 #define MON_HTTP_INCLUDE_HTTPEXCEPTION_HPP
 
 #include <exception>
+#include <string>
 
 namespace mon_http {
 
 class HttpException : public std::exception {
  public:
+  HttpException(int statusCode, const std::string& message);
   HttpException(int statusCode, const char* message);
   HttpException(const HttpException& other) throw();
   HttpException& operator=(const HttpException& other) throw();
