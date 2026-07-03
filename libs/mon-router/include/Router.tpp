@@ -80,13 +80,11 @@ void Router::handle(mon_http::AHttpRequest& request, u_int16_t port,
 
     serve_static_file(full_path, client_fd, listener);
   } catch (mon_http::HttpException& e) {
-    std::cerr << "DEBUG catch HttpException: " << e.what() << std::endl;
     mon_http::Http10Response res;
     res.setError(e.statusCode(), e.what());
     listener.markClose(client_fd);
     listener.write(res, client_fd);
   } catch (std::exception& err) {
-    std::cerr << "DEBUG catch std::exception: " << err.what() << std::endl;
     mon_http::Http10Response res;
     res.statusMessage = err.what();
     res.error500(err.what());
@@ -129,36 +127,25 @@ template <int MaxEvents>
 void Router::invoke_handler(const Handler& handler,
                             mon_http::AHttpRequest& request, int client_fd,
                             mon_net::Listener<MaxEvents>& listener) {
-  std::cerr << "DEBUG invoke_handler: method=POST" << std::endl;
   mon_http::Form form_data;
   if (request.method() == mon_http::HttpMethod::HttpMethodPost) {
     const mon_http::HeaderMap& headers = request.headers();
     if (!headers.contains("Content-Type")) {
-      std::cerr << "DEBUG invoke_handler: missing Content-Type" << std::endl;
       throw mon_http::HttpException(STATUS_Bad_Request, "Bad Request");
     }
-    std::cerr << "DEBUG invoke_handler: about to construct Form" << std::endl;
     form_data = mon_http::Form(request.header("Content-Type"));
-    std::cerr << "DEBUG invoke_handler: about to parse body" << std::endl;
     form_data.parse(request.body());
-    std::cerr << "DEBUG invoke_handler: parse done" << std::endl;
   }
 
-  std::cerr << "DEBUG invoke_handler: about to call handler.func" << std::endl;
   HandlerResponse result = handler.func(request, form_data, handler.arguments);
-  std::cerr << "DEBUG invoke_handler: handler.func returned" << std::endl;
 
-  std::cerr << "DEBUG invoke_handler: building response" << std::endl;
   mon_http::Http10Response res;
   res.setError(result.code, result.message);
   res.setBody(result.body);
   res.headers().extend(result.headers);
 
-  std::cerr << "DEBUG invoke_handler: writing response" << std::endl;
   listener.write(res, client_fd);
-  std::cerr << "DEBUG invoke_handler: marking close" << std::endl;
   listener.markClose(client_fd);
-  std::cerr << "DEBUG invoke_handler: done" << std::endl;
 }
 
 template void Router::handle<MAX_EVENTS>(
