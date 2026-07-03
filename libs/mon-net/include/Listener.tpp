@@ -163,6 +163,11 @@ void Listener<MaxEvents>::write(const std::vector<char>& data, int fd) {
     _writeBuffer.insert(std::make_pair(fd, buffer));
 
     ask_write(fd);
+  } else {
+    typename std::map<int, Context>::iterator connIter = _connections.find(fd);
+    if (connIter != _connections.end() && connIter->second.closeAfterWrite) {
+      closeFd(fd);
+    }
   }
 }
 

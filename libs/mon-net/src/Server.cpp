@@ -184,11 +184,7 @@ void Server::handleV2_0(Event& event, Context& ctx,
 
 void Server::handleGetV1_0(Context& ctx, mon_http::AHttpRequest& req) {
   try {
-    if (ctx.parser->canPull()) {
-      _router.handle(req, ctx.port, ctx.fd, _listener);
-    } else {
-      throw std::runtime_error("Bad Request");
-    }
+    _router.handle(req, ctx.port, ctx.fd, _listener);
   } catch (std::exception& err) {
     mon_http::Http10Response res;
     res.statusMessage = err.what();
@@ -200,11 +196,7 @@ void Server::handleGetV1_0(Context& ctx, mon_http::AHttpRequest& req) {
 
 void Server::handleGetV1_1(Context& ctx, mon_http::AHttpRequest& req) {
   try {
-    if (ctx.parser->canPull()) {
-      _router.handle(req, ctx.port, ctx.fd, _listener);
-    } else {
-      throw std::runtime_error("Bad Request");
-    }
+    _router.handle(req, ctx.port, ctx.fd, _listener);
   } catch (std::exception& err) {
     mon_http::Http10Response res;
     res.statusMessage = err.what();
@@ -231,13 +223,8 @@ void Server::handlePostV1_0(Context& ctx, mon_http::AHttpRequest& req) {
   }
 }
 void Server::handlePostV1_1(Context& ctx, mon_http::AHttpRequest& req) {
-  (void)ctx;
-  (void)req;
   try {
-    mon_http::Form form(req.header("Content-Type"));
-
-    form.parse(req.body());
-    // TODO(cliftontoaster-reod)
+    _router.handle(req, ctx.port, ctx.fd, _listener);
   } catch (std::exception& err) {
     mon_http::Http10Response res;
     res.statusMessage = err.what();

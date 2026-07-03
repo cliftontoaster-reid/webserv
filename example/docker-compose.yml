@@ -8,3 +8,4 @@ services:
     volumes:
       - ./public:/var/www/html:Z
       - ./config:/etc/webserv:Z
+      - ./public/upload:/srv/upload:Z

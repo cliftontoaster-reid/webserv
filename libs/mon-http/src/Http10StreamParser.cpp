@@ -37,6 +37,7 @@ AHttpRequest* Http10StreamParser::pull() {
 
   try {
     ret->parse(_buffer);
+    _buffer.clear();
     return ret;
   } catch (EndedTooEarly& err) {
     delete ret;

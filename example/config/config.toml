@@ -21,7 +21,7 @@ func = "echo"
 uri = "/api/upload"
 external = false
 func = "upload"
-upload = { path = "/var/tmp", random_len = 32 }
+upload = { path = "/srv/upload", random_len = 32 }
 
 [[server.cgi]]
 glob = "/*.php"
