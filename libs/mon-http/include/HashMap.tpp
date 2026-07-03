@@ -230,6 +230,7 @@ void HashMap<Key, T>::resize(u_int64_t newSize) {
   std::vector<std::vector<Entry> > oldStore;
   oldStore.swap(_store);
   _store.resize(newSize);
+  _size = 0;
   for (size_t i = 0; i < oldStore.size(); ++i) {
     for (size_t j = 0; j < oldStore[i].size(); ++j) {
       if (oldStore[i][j].occupied) {
