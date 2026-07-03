@@ -203,7 +203,7 @@ $(BIN_DIR)/$(NAME): $(LIBS_ARCHIVES) $(OBJ)
 	@mkdir -p "$(@D)"
 	$(CCX) -o "$@" $(LDX_FLAGS) $(LDFLAGS) \
 		$(CRITERION_RPATH) $(LIB_RPATH_FLAGS) \
-		$(OBJ) $(LIBS_ARCHIVES)
+		-Wl,--start-group $(OBJ) $(LIBS_ARCHIVES) -Wl,--end-group
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME)$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
 $(NAME): .linkflag_$(MODE) $(BIN_DIR)/$(NAME)

@@ -166,7 +166,7 @@ $(BIN_DIR)/$(NAME): $(LIBS_ARCHIVES) $(OBJ)
 	@$(CCX) -o "$@" $(LDX_FLAGS) $(LDFLAGS) \
 		$(LIB_RPATH_FLAGS) \
 		-Wl,-rpath,'$$ORIGIN/$(CRITERION_BIN_DIR)/lib' \
-		$(OBJ) $(LIBS_ARCHIVES)
+		-Wl,--start-group $(OBJ) $(LIBS_ARCHIVES) -Wl,--end-group
 	@printf "$(BOLD)Linked$(RESET) $(GREEN)$(NAME)$(RESET)$(BOLD)" at "$(RESET)$(GREEN)$@$(RESET)\n"
 
 $(NAME): .linkflag_$(MODE) $(BIN_DIR)/$(NAME)
