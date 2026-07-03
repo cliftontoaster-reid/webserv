@@ -5,8 +5,6 @@
 #include <map>
 #include <string>
 
-#include <iostream>
-
 #include "AHttpResponse.hpp"
 #include "Detect.hpp"
 #include "Form.hpp"

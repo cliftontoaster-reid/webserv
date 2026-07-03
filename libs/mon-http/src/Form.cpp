@@ -238,12 +238,14 @@ void Form::parse(const std::string& body) {
 
   while (end != std::string::npos) {
     std::string part = body.substr(start, end - start);
-    std::cerr << "DEBUG Form::parse: part raw size=" << part.size() << std::endl;
+    std::cerr << "DEBUG Form::parse: part raw size=" << part.size()
+              << std::endl;
     size_t trim = part.find_first_not_of("\r\n");
     if (trim != std::string::npos) {
       part = part.substr(trim);
     }
-    std::cerr << "DEBUG Form::parse: part trimmed size=" << part.size() << std::endl;
+    std::cerr << "DEBUG Form::parse: part trimmed size=" << part.size()
+              << std::endl;
     if (!part.empty()) {
       _data.push_back(FormData(part));
     }
@@ -252,7 +254,8 @@ void Form::parse(const std::string& body) {
     end = body.find(search_delim, start);
     std::cerr << "DEBUG Form::parse: next end=" << end << std::endl;
   }
-  std::cerr << "DEBUG Form::parse: done, _data.size=" << _data.size() << std::endl;
+  std::cerr << "DEBUG Form::parse: done, _data.size=" << _data.size()
+            << std::endl;
 }
 
 std::vector<FormData>::iterator Form::begin() { return _data.begin(); }
