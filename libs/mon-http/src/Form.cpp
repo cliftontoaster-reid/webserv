@@ -115,7 +115,6 @@ static inline std::vector<std::pair<size_t, size_t> > _findSegments(
 }
 
 FormData::FormData(const std::string& data) {
-  std::cerr << "DEBUG FormData ctor: data.size=" << data.size() << std::endl;
   size_t endHeader = data.find(DIVIDER_LINES);
   if (endHeader == std::string::npos) {
     throw std::invalid_argument("Form data needs a body");
@@ -229,33 +228,23 @@ Form& Form::operator=(const Form& other) {
 }
 
 void Form::parse(const std::string& body) {
-  std::cerr << "DEBUG Form::parse entry: body.size=" << body.size()
-            << " delim='" << _delimiter << "'" << std::endl;
   size_t start = _delimiter.length();
   std::string search_delim = "\r\n" + _delimiter;
   size_t end = body.find(search_delim, start);
-  std::cerr << "DEBUG Form::parse: first end=" << end << std::endl;
 
   while (end != std::string::npos) {
     std::string part = body.substr(start, end - start);
-    std::cerr << "DEBUG Form::parse: part raw size=" << part.size()
-              << std::endl;
     size_t trim = part.find_first_not_of("\r\n");
     if (trim != std::string::npos) {
       part = part.substr(trim);
     }
-    std::cerr << "DEBUG Form::parse: part trimmed size=" << part.size()
-              << std::endl;
     if (!part.empty()) {
       _data.push_back(FormData(part));
     }
 
     start = end + search_delim.length();
     end = body.find(search_delim, start);
-    std::cerr << "DEBUG Form::parse: next end=" << end << std::endl;
   }
-  std::cerr << "DEBUG Form::parse: done, _data.size=" << _data.size()
-            << std::endl;
 }
 
 std::vector<FormData>::iterator Form::begin() { return _data.begin(); }

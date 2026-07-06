@@ -32,18 +32,12 @@ void Server::handleRequest(Event& event) {
       case mon_http::HttpVersion::HttpVersion1_0:
         if (ctx.parser == NULL) {
           ctx.parser = new mon_http::Http10StreamParser();
-          ctx.parser->append(ctx.buffer);
-          ctx.buffer.clear();
         }
-        req = ctx.parser->pull();
-        if (req == NULL) {
-          mon_http::Http10Response res;
-          res.error500("Could not parse request");
+        ctx.parser->append(ctx.buffer);
+        ctx.buffer.clear();
 
-          _listener.markClose(ctx.fd);
-          _listener.write(res, event.fd);
-          close(ctx.fd);
-        } else {
+        req = ctx.parser->pull();
+        if (req != NULL) {
           handleV1_0(event, ctx, *req);
         }
         break;
@@ -51,18 +45,12 @@ void Server::handleRequest(Event& event) {
       case mon_http::HttpVersion::HttpVersion1_1:
         if (ctx.parser == NULL) {
           ctx.parser = new mon_http::Http10StreamParser();
-          ctx.parser->append(ctx.buffer);
-          ctx.buffer.clear();
         }
-        req = ctx.parser->pull();
-        if (req == NULL) {
-          mon_http::Http10Response res;
-          res.error500("Could not parse request");
+        ctx.parser->append(ctx.buffer);
+        ctx.buffer.clear();
 
-          _listener.markClose(ctx.fd);
-          _listener.write(res, event.fd);
-          close(ctx.fd);
-        } else {
+        req = ctx.parser->pull();
+        if (req != NULL) {
           handleV1_1(event, ctx, *req);
         }
         break;
