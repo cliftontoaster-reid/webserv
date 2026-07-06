@@ -45,8 +45,8 @@ std::string scramble_name(const std::string& name, size_t len) {
     return name + "_" + random(len);
   }
 
-  return name.substr(0, dot) + random(len) + "_" +
-         name.substr(dot + 1, name.size());
+  return name.substr(0, dot) + "_" + random(len) +
+         name.substr(dot, name.size());
 }
 
 void randomFile(const std::string& root, const std::string& filename,
@@ -71,6 +71,16 @@ void randomFile(const std::string& root, const std::string& filename,
     if (!file_write.is_open()) {
       continue;
     }
+
+    std::ofstream file_name_write;
+    file_name_write.open((file_path + "._txt").c_str());
+    if (!file_write.is_open()) {
+      file_write.close();
+      continue;
+    }
+
+    file_name_write << filename << std::endl;
+    file_name_write.close();
     return;
   }
 

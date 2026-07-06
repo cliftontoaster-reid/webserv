@@ -9,6 +9,11 @@ path = "/var/www/html"
 index = "index.php"
 
 [[server.route]]
+preffix = "/upload"
+path = "/srv/upload"
+index = "index.noway"
+
+[[server.route]]
 preffix = "/imgs"
 path = "/usr"
 
@@ -21,7 +26,7 @@ func = "echo"
 uri = "/api/upload"
 external = false
 func = "upload"
-upload = { path = "/srv/upload", random_len = 32 }
+upload = { path = "/srv/upload", random_len = 4 }
 
 [[server.cgi]]
 glob = "/*.php"
