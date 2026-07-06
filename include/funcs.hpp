@@ -40,13 +40,12 @@ std::string random(size_t len) {
 }
 
 std::string scramble_name(const std::string& name, size_t len) {
-  size_t dot = name.find('.');
+  size_t dot = name.rfind('.');
   if (dot == std::string::npos) {
     return name + "_" + random(len);
   }
 
-  return name.substr(0, dot) + "_" + random(len) +
-         name.substr(dot, name.size());
+  return random(len) + name.substr(dot, name.size());
 }
 
 void randomFile(const std::string& root, const std::string& filename,
