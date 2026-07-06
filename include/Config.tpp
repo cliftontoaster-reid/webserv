@@ -61,6 +61,8 @@ size_t Config::implement(mon_router::Router& router,
     nbrRules += serv.implement(router, ports, listener);
   }
 
+  router.ready();
+
   return nbrRules;
 }
 
