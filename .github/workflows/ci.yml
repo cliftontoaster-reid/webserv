@@ -98,7 +98,7 @@ jobs:
 
       - name: Upload coverage reports to Codecov
         if: matrix.mode == 'coverage'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.info
@@ -109,7 +109,7 @@ jobs:
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: target/test-results/toml98.xml,target/test-results/mon-cgi.xml,target/test-results/mon-http.xml,target/test-results/mon-net.xml,target/test-results/mon-router.xml,target/test-results/webserv.xml
