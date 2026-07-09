@@ -1,6 +1,7 @@
 #include <sys/types.h>
 
 #include <exception>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
@@ -75,7 +76,7 @@ void Router::handle(mon_http::AHttpRequest& request, u_int16_t port,
       throw mon_http::HttpException(STATUS_Not_Found, "Not Found");
     }
 
-    const mon_cgi::Handle* cgiHandle = _cgiHandler.isCgi(uri, port);
+    const mon_cgi::Handle* cgiHandle = _cgiHandler.isCgi(uri, port, hostname);
     if (cgiHandle) {
       Handler cgiH = {full_path, NULL, hostname, port,
                       std::map<std::string, toml98::Value>()};
@@ -88,6 +89,39 @@ void Router::handle(mon_http::AHttpRequest& request, u_int16_t port,
   } catch (mon_http::HttpException& e) {
     mon_http::Http10Response res;
     res.setError(e.statusCode(), e.what());
+
+    std::map<std::pair<std::string, int>, ErrorMap>::const_iterator iter;
+    for (iter = _errors.begin(); iter != _errors.end(); ++iter) {
+      const std::string& ruleHost = iter->first.first;
+      int rulePort = iter->first.second;
+
+      if (rulePort != port) {
+        continue;
+      }
+      if (request.hasHost()) {
+        if (!ruleHost.empty() && request.host() != ruleHost) {
+          continue;
+        }
+      }
+
+      std::map<uint, std::string>::const_iterator fileEntry =
+          iter->second.files.find(e.statusCode());
+      if (fileEntry == iter->second.files.end()) {
+        break;
+      }
+
+      std::ifstream file;
+      file.open(fileEntry->second.c_str());
+      if (!file.is_open()) {
+        break;
+      }
+      std::ostringstream sstr;
+      sstr << file.rdbuf();
+      file.close();
+      res.setBody(sstr.str());
+      break;
+    }
+
     listener.markClose(client_fd);
     listener.write(res, client_fd);
   } catch (std::exception& err) {

@@ -29,103 +29,104 @@
             "type": "number"
           },
           "host": {
-            "type": "object",
+            "type": "array",
             "items": {
               "type": "object",
               "properties": {
                 "hostname": {
                   "type": "string"
                 },
+                "error": {
+                  "type": "object",
+                  "propertyNames": {
+                    "pattern": "^[0-9]{3}$"
+                  },
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "route": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "route": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "preffix": {
-                              "type": "string"
-                            },
-                            "path": {
-                              "type": "string"
-                            },
-                            "index": {
-                              "type": "string"
-                            }
-                          },
-                          "required": ["preffix", "path"]
-                        }
+                      "preffix": {
+                        "type": "string"
                       },
-                      "api": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "uri": {
-                              "type": "string"
-                            },
-                            "external": {
-                              "type": "boolean"
-                            },
-                            "func": {
-                              "type": "string"
-                            }
-                          },
-                          "required": ["uri", "external", "func"],
-                          "additionalProperties": true,
-                          "allOf": [
-                            {
-                              "if": {
-                                "properties": { "external": { "const": false } }
-                              },
-                              "then": {
-                                "properties": {
-                                  "func": { "enum": ["echo", "upload"] }
-                                }
-                              }
-                            },
-                            {
-                              "if": {
-                                "properties": {
-                                  "func": { "const": "upload" },
-                                  "external": { "const": false }
-                                }
-                              },
-                              "then": {
-                                "properties": {
-                                  "upload": { "$ref": "#/$defs/uploadData" }
-                                },
-                                "required": ["upload"]
-                              }
-                            },
-                            {
-                              "if": {
-                                "properties": { "external": { "const": true } }
-                              },
-                              "then": { "$ref": "#/$defs/externalData" }
-                            }
-                          ]
-                        }
+                      "path": {
+                        "type": "string"
                       },
-                      "cgi": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "glob": {
-                              "type": "string"
-                            },
-                            "bin": {
-                              "type": "string"
-                            }
-                          },
-                          "required": ["glob", "bin"]
-                        }
+                      "index": {
+                        "type": "string"
                       }
-                    }
+                    },
+                    "required": ["preffix", "path"]
+                  }
+                },
+                "api": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "uri": {
+                        "type": "string"
+                      },
+                      "external": {
+                        "type": "boolean"
+                      },
+                      "func": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["uri", "external", "func"],
+                    "additionalProperties": true,
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": { "external": { "const": false } }
+                        },
+                        "then": {
+                          "properties": {
+                            "func": { "enum": ["echo", "upload"] }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "func": { "const": "upload" },
+                            "external": { "const": false }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "upload": { "$ref": "#/$defs/uploadData" }
+                          },
+                          "required": ["upload"]
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": { "external": { "const": true } }
+                        },
+                        "then": { "$ref": "#/$defs/externalData" }
+                      }
+                    ]
+                  }
+                },
+                "cgi": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "glob": {
+                        "type": "string"
+                      },
+                      "bin": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["glob", "bin"]
                   }
                 }
               }

@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 - Weird & Lost</title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <style>
+    /* ── weird base ── */
+    * {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="none" stroke="%23ff6b9d" stroke-width="2"/><circle cx="16" cy="16" r="4" fill="%23ff6b9d" /><animateTransform attributeName="transform" type="rotate" from="0 16 16" to="360 16 16" dur="3s" repeatCount="indefinite"/></svg>') 16 16, auto;
+    }
+
+    body {
+      background: #0b0a0e;
+      overflow: hidden;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+    }
+
+    .glitch-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+      background: repeating-linear-gradient(0deg,
+          rgba(255, 255, 255, 0.02) 0px,
+          rgba(255, 255, 255, 0.02) 2px,
+          transparent 2px,
+          transparent 6px);
+      animation: scan 0.8s linear infinite;
+    }
+
+    @keyframes scan {
+      0% {
+        transform: translateY(0);
+      }
+
+      100% {
+        transform: translateY(6px);
+      }
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.25;
+      animation: floatOrb 12s ease-in-out infinite alternate;
+      z-index: 0;
+    }
+
+    .orb-1 {
+      width: 400px;
+      height: 400px;
+      background: #ff6b9d;
+      top: -100px;
+      left: -100px;
+      animation-duration: 14s;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: #6b9dff;
+      bottom: -200px;
+      right: -150px;
+      animation-duration: 18s;
+      animation-delay: -4s;
+    }
+
+    .orb-3 {
+      width: 300px;
+      height: 300px;
+      background: #b36bff;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-duration: 10s;
+      animation-delay: -8s;
+      opacity: 0.12;
+    }
+
+    @keyframes floatOrb {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      33% {
+        transform: translate(60px, -40px) scale(1.1);
+      }
+
+      66% {
+        transform: translate(-40px, 60px) scale(0.9);
+      }
+
+      100% {
+        transform: translate(30px, -20px) scale(1.05);
+      }
+    }
+
+    .weird-card {
+      position: relative;
+      z-index: 10;
+      background: rgba(11, 10, 14, 0.72);
+      backdrop-filter: blur(24px) saturate(1.4);
+      border: 1px solid rgba(255, 107, 157, 0.25);
+      box-shadow: 0 0 80px rgba(255, 107, 157, 0.08),
+        0 0 160px rgba(107, 157, 255, 0.05),
+        inset 0 0 80px rgba(255, 107, 157, 0.03);
+      border-radius: 3rem;
+      padding: 3.5rem 4rem;
+      max-width: 640px;
+      width: 90%;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .weird-card:hover {
+      transform: scale(1.02) rotate(-0.5deg);
+    }
+
+    .glitch-text {
+      font-size: 8rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.06em;
+      position: relative;
+      display: inline-block;
+      color: #f0eef5;
+      text-shadow:
+        0 0 10px rgba(255, 107, 157, 0.3),
+        0 0 40px rgba(255, 107, 157, 0.1);
+      animation: glitchPulse 2.4s ease-in-out infinite;
+    }
+
+    .glitch-text::before,
+    .glitch-text::after {
+      content: '404';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .glitch-text::before {
+      color: #ff6b9d;
+      animation: glitchOffset 0.6s infinite linear alternate-reverse;
+      transform: translate(-4px, 2px);
+      opacity: 0.7;
+    }
+
+    .glitch-text::after {
+      color: #6b9dff;
+      animation: glitchOffset 0.5s infinite linear alternate;
+      transform: translate(4px, -2px);
+      opacity: 0.7;
+    }
+
+    @keyframes glitchOffset {
+      0% {
+        transform: translate(-4px, 2px) skewX(2deg);
+      }
+
+      20% {
+        transform: translate(3px, -1px) skewX(-3deg);
+      }
+
+      40% {
+        transform: translate(-2px, 4px) skewX(1deg);
+      }
+
+      60% {
+        transform: translate(5px, -3px) skewX(-2deg);
+      }
+
+      80% {
+        transform: translate(-5px, 0px) skewX(3deg);
+      }
+
+      100% {
+        transform: translate(2px, 3px) skewX(-1deg);
+      }
+    }
+
+    @keyframes glitchPulse {
+
+      0%,
+      100% {
+        filter: brightness(1) contrast(1);
+      }
+
+      50% {
+        filter: brightness(1.2) contrast(1.1);
+      }
+    }
+
+    .creature {
+      display: flex;
+      justify-content: center;
+      gap: 0.4rem;
+      margin: 0.5rem 0 1rem;
+      font-size: 3.2rem;
+      filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.2));
+      animation: creatureFloat 3.6s ease-in-out infinite;
+      user-select: none;
+    }
+
+    .creature span {
+      display: inline-block;
+      animation: creatureWiggle 1.2s ease-in-out infinite alternate;
+      transform-origin: bottom;
+    }
+
+    .creature span:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .creature span:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .creature span:nth-child(4) {
+      animation-delay: 0.45s;
+    }
+
+    .creature span:nth-child(5) {
+      animation-delay: 0.6s;
+    }
+
+    .creature span:nth-child(6) {
+      animation-delay: 0.75s;
+    }
+
+    .creature span:nth-child(7) {
+      animation-delay: 0.9s;
+    }
+
+    .creature span:nth-child(8) {
+      animation-delay: 1.05s;
+    }
+
+    @keyframes creatureFloat {
+
+      0%,
+      100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-10px) rotate(1deg);
+      }
+    }
+
+    @keyframes creatureWiggle {
+      0% {
+        transform: rotate(-6deg) scale(1);
+      }
+
+      100% {
+        transform: rotate(6deg) scale(1.1);
+      }
+    }
+
+    .eye-track {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 0.5rem 0 1.5rem;
+    }
+
+    .eye {
+      width: 52px;
+      height: 52px;
+      background: #1a1722;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 107, 157, 0.3);
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(255, 107, 157, 0.05);
+      transition: border-color 0.3s;
+    }
+
+    .eye:hover {
+      border-color: rgba(255, 107, 157, 0.7);
+    }
+
+    .pupil {
+      width: 20px;
+      height: 20px;
+      background: radial-gradient(circle at 35% 35%, #ff6b9d, #b36bff);
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 0.08s linear;
+      box-shadow: 0 0 20px rgba(255, 107, 157, 0.3);
+    }
+
+    .pupil::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #0b0a0e;
+      border-radius: 50%;
+      position: absolute;
+      top: 4px;
+      left: 4px;
+    }
+
+    .weird-btn {
+      display: inline-block;
+      padding: 0.9rem 2.8rem;
+      background: transparent;
+      color: #f0eef5;
+      border: 2px solid rgba(255, 107, 157, 0.4);
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+    }
+
+    .weird-btn:hover {
+      border-color: #ff6b9d;
+      transform: scale(1.05) rotate(-1deg);
+      box-shadow: 0 0 40px rgba(255, 107, 157, 0.2);
+      color: #fff;
+    }
+
+    .weird-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 107, 157, 0.15), rgba(107, 157, 255, 0.15));
+      opacity: 0;
+      transition: opacity 0.4s;
+      border-radius: 60px;
+    }
+
+    .weird-btn:hover::before {
+      opacity: 1;
+    }
+
+    .weird-btn span {
+      position: relative;
+      z-index: 2;
+    }
+
+    .weird-btn .arrow {
+      display: inline-block;
+      transition: transform 0.3s;
+    }
+
+    .weird-btn:hover .arrow {
+      transform: translateX(8px) rotate(-10deg);
+    }
+
+    .symbols {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .symbol {
+      position: absolute;
+      font-size: 1.8rem;
+      opacity: 0.06;
+      animation: symbolDrift 28s linear infinite;
+      color: #f0eef5;
+    }
+
+    @keyframes symbolDrift {
+      0% {
+        transform: translateY(110vh) rotate(0deg) scale(0.8);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 0.06;
+      }
+
+      90% {
+        opacity: 0.06;
+      }
+
+      100% {
+        transform: translateY(-10vh) rotate(720deg) scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    /* ── JUMPSCARE ── */
+    #jumpscare {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.05s;
+      background: #0b0a0e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #jumpscare.active {
+      opacity: 1;
+      animation: flashBg 0.7s forwards;
+    }
+
+    #jumpscare .scary-image,
+    #jumpscare canvas.scary-image {
+      max-width: 80vw;
+      max-height: 80vh;
+      object-fit: contain;
+      transform: scale(0);
+      opacity: 0;
+      animation: none;
+      border-radius: 8px;
+      box-shadow: 0 0 100px rgba(255, 0, 0, 0.6);
+      position: relative;
+      /* for main image we keep relative, extras will be absolute */
+      ;
+    }
+
+    #jumpscare.active .scary-image,
+    #jumpscare.active canvas.scary-image {
+      animation: scare 0.7s forwards;
+    }
+
+    /* extra images (absolute) also get the animation */
+    #jumpscare .extra-scary {
+      position: absolute;
+      max-width: 40vw;
+      max-height: 40vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
+      transform: scale(0);
+      opacity: 0;
+      animation: none;
+    }
+
+    #jumpscare.active .extra-scary {
+      animation: scare 0.7s forwards;
+    }
+
+    /* stagger extra images */
+    #jumpscare.active .extra-scary:nth-child(2) {
+      animation-delay: 0.05s;
+    }
+
+    #jumpscare.active .extra-scary:nth-child(3) {
+      animation-delay: 0.1s;
+    }
+
+    #jumpscare.active .extra-scary:nth-child(4) {
+      animation-delay: 0.15s;
+    }
+
+    #jumpscare.active .extra-scary:nth-child(5) {
+      animation-delay: 0.2s;
+    }
+
+    #jumpscare.active .extra-scary:nth-child(6) {
+      animation-delay: 0.25s;
+    }
+
+    /* fallback emoji if image fails */
+    #jumpscare .scary-fallback {
+      display: none;
+      font-size: 18rem;
+      line-height: 1;
+      user-select: none;
+    }
+
+    #jumpscare.active .scary-fallback {
+      animation: scare 0.7s forwards;
+    }
+
+    @keyframes flashBg {
+      0% {
+        background: white;
+      }
+
+      15% {
+        background: red;
+      }
+
+      35% {
+        background: black;
+      }
+
+      100% {
+        background: black;
+      }
+    }
+
+    @keyframes scare {
+      0% {
+        transform: scale(0) rotate(-10deg);
+        opacity: 0;
+      }
+
+      30% {
+        transform: scale(1.8) rotate(4deg);
+        opacity: 1;
+      }
+
+      60% {
+        transform: scale(2.6) rotate(-6deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(2.2) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .weird-card {
+        padding: 2.5rem 1.8rem;
+        border-radius: 2rem;
+      }
+
+      .glitch-text {
+        font-size: 5rem;
+      }
+
+      .creature {
+        font-size: 2.4rem;
+        gap: 0.2rem;
+      }
+
+      .eye {
+        width: 40px;
+        height: 40px;
+      }
+
+      .pupil {
+        width: 16px;
+        height: 16px;
+      }
+
+      .weird-btn {
+        padding: 0.7rem 2rem;
+        font-size: 0.9rem;
+      }
+
+      #jumpscare .scary-image,
+      #jumpscare canvas.scary-image {
+        max-width: 90vw;
+        max-height: 70vh;
+      }
+
+      #jumpscare .extra-scary {
+        max-width: 50vw;
+        max-height: 30vh;
+      }
+    }
+
+    .spin-egg {
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .spin-egg:active {
+      transform: rotate(180deg) scale(0.9);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- floating orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="glitch-overlay"></div>
+
+  <div class="symbols" id="symbols"></div>
+
+  <!-- JUMPSCARE OVERLAY -->
+  <div id="jumpscare">
+    <!-- main image element (will be replaced by canvas if animated WebP) -->
+    <img id="scaryImage" class="scary-image" src="" alt="BOO!" />
+    <span class="scary-fallback">👹</span>
+    <!-- extra images will be appended here dynamically -->
+  </div>
+
+  <div class="weird-card">
+    <div class="text-center">
+      <div class="glitch-text">404</div>
+    </div>
+    <div class="creature">
+      <span>👁️</span><span>👄</span><span>🦷</span><span>👁️</span>
+      <span>🦷</span><span>👄</span><span>👁️</span><span>🌀</span>
+    </div>
+    <div class="eye-track" id="eyeTrack">
+      <div class="eye" id="eyeL">
+        <div class="pupil" id="pupilL"></div>
+      </div>
+      <div class="eye" id="eyeR">
+        <div class="pupil" id="pupilR"></div>
+      </div>
+    </div>
+    <p class="text-center text-[#a8a4b5] text-sm tracking-widest uppercase mt-2 mb-6 font-light">
+      ⚡ this page has <span class="text-[#ff6b9d]">ascended</span> to a higher plane ⚡
+    </p>
+    <div class="text-center">
+      <button id="goBackBtn" class="weird-btn spin-egg">
+        <span><span class="arrow">↘</span>  go back  <span class="arrow">↗</span></span>
+      </button>
+    </div>
+    <p class="text-center text-[#5a5668] text-[0.6rem] tracking-widest uppercase mt-6 opacity-40 select-none">
+      ✦ you were never meant to find this ✦
+    </p>
+  </div>
+
+  <script>
+    // ════════════════════════════════════════════════════════════
+    //  🎛️  CONFIGURATION – tweak these to customize the jumpscare
+    // ════════════════════════════════════════════════════════════
+    const CONFIG = {
+      // ── image URLs (will pick one randomly) ──
+      IMAGE_URLS: [
+        'https://images.rawpixel.com/image_png_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvcm00ODMtZWxlbWVudC0yNi1renA4eWdkbS5wbmc.png',
+        'https://w7.pngwing.com/pngs/442/408/png-transparent-black-cat-cat-fear-halloween-scary-spooky-halloween-icon-thumbnail.png',
+        'https://static.wikia.nocookie.net/rooms-starstruck/images/8/8c/A15.png/revision/latest?cb=20250922060128',
+        'https://toppng.com/uploads/preview/animalcat-funny-cat-transparent-background-11563067046f373xyimoy.png',
+        'https://w7.pngwing.com/pngs/744/187/png-transparent-pet-pet-dog-cute-animals.png',
+        'https://cdn3.emoji.gg/emojis/69200-job-application.png'
+      ],
+      // ── sound URL (optional) ──
+      SCARY_SOUND_URL: 'https://quicksounds.com/uploads/tracks/1243152978_602300235_1922192320.mp3',
+
+      // ── timing ──
+      JUMPSCARE_DURATION_MS: 1200,
+
+      // ── multiple images chance (0.0 to 1.0) ──
+      MULTIPLE_IMAGES_CHANCE: 0.1, // 10% chance
+      MAX_EXTRA_IMAGES: 5, // max number of extra images to spawn
+
+      // ── click threshold ──
+      MIN_CLICKS: 5,
+      MAX_CLICKS: 15,
+    };
+    // ════════════════════════════════════════════════════════════
+
+    // ── floating symbols (unchanged) ──
+    (function () {
+      const container = document.getElementById('symbols');
+      const chars = ['✧', '✦', '◈', '◇', '⌘', '⍟', '✶', '⁂', '⬡', '⎔', '⏣', '♢', '⟡', '⚝'];
+      for (let i = 0; i < 24; i++) {
+        const el = document.createElement('span');
+        el.className = 'symbol';
+        el.textContent = chars[i % chars.length];
+        el.style.left = (Math.random() * 95) + '%';
+        el.style.animationDuration = (20 + Math.random() * 30) + 's';
+        el.style.animationDelay = (Math.random() * 25) + 's';
+        el.style.fontSize = (1.2 + Math.random() * 2.4) + 'rem';
+        el.style.opacity = 0.03 + Math.random() * 0.05;
+        container.appendChild(el);
+      }
+    })();
+
+    // ── eye tracking ──
+    (function () {
+      const pupilL = document.getElementById('pupilL');
+      const pupilR = document.getElementById('pupilR');
+      const eyeL = document.getElementById('eyeL');
+      const eyeR = document.getElementById('eyeR');
+
+      function movePupils(e) {
+        const x = e.clientX || window.innerWidth / 2;
+        const y = e.clientY || window.innerHeight / 2;
+        [eyeL, eyeR].forEach((eye, idx) => {
+          const rect = eye.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const dx = x - cx;
+          const dy = y - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const maxMove = 14;
+          const angle = Math.atan2(dy, dx);
+          let move = Math.min(dist / 6, maxMove);
+          if (dist > 200) move = maxMove;
+          const px = Math.cos(angle) * move;
+          const py = Math.sin(angle) * move;
+          const pupil = idx === 0 ? pupilL : pupilR;
+          pupil.style.transform = `translate(calc(-50% + ${px}px), calc(-50% + ${py}px))`;
+        });
+      }
+      document.addEventListener('mousemove', movePupils);
+      document.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        if (touch) movePupils({ clientX: touch.clientX, clientY: touch.clientY });
+      }, { passive: true });
+      document.addEventListener('mouseleave', () => {
+        [pupilL, pupilR].forEach(p => p.style.transform = 'translate(-50%, -50%)');
+      });
+    })();
+
+    // ── glitch text random flicker ──
+    (function () {
+      const glitchEl = document.querySelector('.glitch-text');
+      setInterval(() => {
+        if (Math.random() > 0.85) {
+          glitchEl.style.transform = `skew(${(Math.random() - 0.5) * 4}deg) scale(${1 + (Math.random() - 0.5) * 0.04})`;
+          setTimeout(() => { glitchEl.style.transform = ''; }, 80);
+        }
+      }, 300);
+    })();
+
+    // ── JUMPSCARE LOGIC ──
+    const btn = document.getElementById('goBackBtn');
+    const jumpscare = document.getElementById('jumpscare');
+    const mainImg = document.getElementById('scaryImage');
+    const fallbackEmoji = document.querySelector('.scary-fallback');
+
+    // ── sound ──
+    let soundPlayer = null;
+
+    function playScarySound() {
+      if (CONFIG.SCARY_SOUND_URL) {
+        try {
+          soundPlayer = new Audio(CONFIG.SCARY_SOUND_URL);
+          soundPlayer.volume = 0.6;
+          soundPlayer.play().catch(() => playFallbackScreech());
+        } catch (_) { playFallbackScreech(); }
+      } else {
+        playFallbackScreech();
+      }
+    }
+
+    function playFallbackScreech() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(900, audioCtx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.4);
+        gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        oscillator.start(audioCtx.currentTime);
+        oscillator.stop(audioCtx.currentTime + 0.4);
+      } catch (_) { /* silent */ }
+    }
+
+    // ── helper: pick random element from array ──
+    function randomFrom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    // ── trigger jumpscare ──
+    function triggerJumpscare() {
+      // 1. pick a random image for main
+      const mainUrl = randomFrom(CONFIG.IMAGE_URLS);
+      mainImg.src = mainUrl;
+      mainImg.style.display = 'block';
+      fallbackEmoji.style.display = 'none';
+      mainImg.onerror = function () {
+        mainImg.style.display = 'none';
+        fallbackEmoji.style.display = 'block';
+      };
+      mainImg.onload = function () {
+        mainImg.style.display = 'block';
+        fallbackEmoji.style.display = 'none';
+      };
+
+      // 2. maybe spawn extra images
+      const extraCount = (Math.random() < CONFIG.MULTIPLE_IMAGES_CHANCE) ?
+        Math.floor(Math.random() * CONFIG.MAX_EXTRA_IMAGES) + 1 :
+        0;
+      // remove previous extras
+      document.querySelectorAll('.extra-scary').forEach(el => el.remove());
+
+      for (let i = 0; i < extraCount; i++) {
+        const extra = document.createElement('img');
+        extra.className = 'extra-scary';
+        // pick random URL (could be same as main or different)
+        extra.src = randomFrom(CONFIG.IMAGE_URLS);
+        // random position (percentage)
+        const left = Math.random() * 80 + 5; // 5-85%
+        const top = Math.random() * 80 + 5;
+        extra.style.left = left + '%';
+        extra.style.top = top + '%';
+        // random rotation start (will be animated)
+        extra.style.transform = 'scale(0) rotate(' + (Math.random() * 60 - 30) + 'deg)';
+        // random size
+        const size = 20 + Math.random() * 30; // 20-50vw
+        extra.style.maxWidth = size + 'vw';
+        extra.style.maxHeight = (size * 0.7) + 'vh';
+        // append
+        jumpscare.appendChild(extra);
+      }
+
+      // 3. activate jumpscare
+      jumpscare.classList.add('active');
+
+      // 4. play sound
+      playScarySound();
+
+      // 5. redirect after duration
+      setTimeout(() => {
+        window.location.href = '/';
+      }, CONFIG.JUMPSCARE_DURATION_MS);
+    }
+
+    // ── click counter ──
+    let clickCount = 0;
+    const targetClicks = Math.floor(Math.random() * (CONFIG.MAX_CLICKS - CONFIG.MIN_CLICKS + 1)) + CONFIG.MIN_CLICKS;
+    console.log(`🔮 Jumpscare will trigger after ${targetClicks} clicks.`);
+
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      const card = document.querySelector('.weird-card');
+      card.style.transform = 'rotate(3deg) scale(0.98)';
+      setTimeout(() => { card.style.transform = ''; }, 400);
+
+      clickCount++;
+      if (clickCount >= targetClicks) {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.pointerEvents = 'none';
+        triggerJumpscare();
+      } else {
+        console.log(`💀 ${clickCount}/${targetClicks} clicks until jumpscare.`);
+      }
+    });
+
+    // ── console ──
+    console.log('%c ⚡ 404 — you found the weird zone ⚡ ', 'font-size:20px; font-weight:bold; background:#0b0a0e; color:#ff6b9d; padding:12px 20px; border-radius:8px; border:2px solid #ff6b9d;');
+    console.log('%c 👁️👄👁️  nothing to see here, move along  👁️👄👁️ ', 'font-size:14px; color:#6b9dff;');
+    console.log(`%c 🎯 Jumpscare after ${targetClicks} clicks. Duration: ${CONFIG.JUMPSCARE_DURATION_MS}ms.`, 'color:#a8a4b5;');
+  </script>
+
+</body>
+
+</html>

@@ -1,14 +1,17 @@
 #:schema ../../docs/config.schema.json
 
 [[server]]
-port = 6969
+port = 1998
 
 [[server.host]]
-hostname = "example.com"
+hostname = ""
+
+[server.host.error]
+404 = "/var/www/html/errors/404.html"
 
 [[server.host.route]]
 preffix = "/"
-path = "/var/www/html"
+path = "/var/www/html/cgi"
 index = "index.php"
 
 [[server.host.route]]

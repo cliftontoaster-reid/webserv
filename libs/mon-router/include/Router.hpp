@@ -8,8 +8,10 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <map>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "AHttpRequest.hpp"
@@ -104,6 +106,10 @@ struct Route {
   }
 };
 
+struct ErrorMap {
+  std::map<uint, std::string> files;
+};
+
 class Router {
  public:
   Router();
@@ -115,13 +121,26 @@ class Router {
                 u_int16_t port);
   void addRoute(const std::string& prefix, const std::string& path,
                 u_int16_t port, const std::string& index);
+  void addRoute(const std::string& prefix, const std::string& path,
+                u_int16_t port, const std::string& index,
+                const std::string& hostname);
   void addHandler(
       const std::string& path,
       HandlerResponse (*func)(mon_http::AHttpRequest&, mon_http::Form&,
                               const std::map<std::string, toml98::Value>&),
       u_int16_t port, std::map<std::string, toml98::Value> arguments);
+  void addHandler(
+      const std::string& path,
+      HandlerResponse (*func)(mon_http::AHttpRequest&, mon_http::Form&,
+                              const std::map<std::string, toml98::Value>&),
+      u_int16_t port, std::map<std::string, toml98::Value> arguments,
+      const std::string& hostname);
   void addCgi(const std::string& glob, const std::string& cgiBin,
               u_int16_t port);
+  void addCgi(const std::string& glob, const std::string& cgiBin,
+              u_int16_t port, const std::string& hostname);
+  void addErrorPage(const std::string& hostname, u_int16_t port, uint code,
+                    const std::string& file);
 
   void ready() { std::sort(_paths.begin(), _paths.end()); }
 
@@ -133,6 +152,7 @@ class Router {
   std::vector<Route> _paths;
   std::vector<Handler> _handlers;
   mon_cgi::CgiHandler _cgiHandler;
+  std::map<std::pair<std::string, int>, ErrorMap> _errors;
 
   Route find_match(const std::string& request_path, const std::string& hostname,
                    u_int16_t port) const;

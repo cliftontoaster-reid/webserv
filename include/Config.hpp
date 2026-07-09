@@ -19,7 +19,8 @@ struct Route {
   std::string index;
 
   explicit Route(const toml98::Value&);
-  size_t implement(mon_router::Router& router, u_int16_t port) const;
+  size_t implement(mon_router::Router& router, u_int16_t port,
+                   const std::string& hostname) const;
 };
 
 struct Api {
@@ -30,7 +31,8 @@ struct Api {
   std::map<std::string, toml98::Value> arguments;
 
   explicit Api(const toml98::Value&);
-  size_t implement(mon_router::Router& router, u_int16_t port) const;
+  size_t implement(mon_router::Router& router, u_int16_t port,
+                   const std::string& hostname) const;
 };
 
 struct Cgi {
@@ -38,11 +40,13 @@ struct Cgi {
   std::string bin;
 
   explicit Cgi(const toml98::Value&);
-  size_t implement(mon_router::Router& router, u_int16_t port) const;
+  size_t implement(mon_router::Router& router, u_int16_t port,
+                   const std::string& hostname) const;
 };
 
 struct Host {
   std::string hostname;
+  std::map<std::string, std::string> error;
   std::vector<Route> route;
   std::vector<Api> api;
   std::vector<Cgi> cgi;
