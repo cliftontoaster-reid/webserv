@@ -26,7 +26,9 @@ class Http10Request : public AHttpRequest {
   const std::string& body() const;
   const std::string& mediaType();
   bool hasHeader(const std::string& key);
+  bool hasHeader(const std::string& key) const;
   const std::string& header(const std::string& key);
+  const std::string& header(const std::string& key) const;
   HeaderMap& headers();
 
   static bool isFullRequest(std::vector<char> data);

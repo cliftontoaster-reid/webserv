@@ -39,8 +39,13 @@ class AHttpRequest {
   virtual const std::string& body() const = 0;
   virtual const std::string& mediaType() = 0;
   virtual bool hasHeader(const std::string& key) = 0;
+  virtual bool hasHeader(const std::string& key) const = 0;
   virtual const std::string& header(const std::string& key) = 0;
+  virtual const std::string& header(const std::string& key) const = 0;
   virtual HeaderMap& headers() = 0;
+
+  bool hasHost() const;
+  const std::string& host() const;
 
   static bool isFullRequest(std::vector<char> data);
 

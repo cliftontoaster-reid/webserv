@@ -214,8 +214,20 @@ bool Http10Request::hasHeader(const std::string& key) {
     return false;
   }
 }
+bool Http10Request::hasHeader(const std::string& key) const {
+  try {
+    _headers.at(key);
+    return true;
+  } catch (std::out_of_range& err) {
+    (void)err;
+    return false;
+  }
+}
 
 const std::string& Http10Request::header(const std::string& key) {
+  return _headers.at(key);
+}
+const std::string& Http10Request::header(const std::string& key) const {
   return _headers.at(key);
 }
 

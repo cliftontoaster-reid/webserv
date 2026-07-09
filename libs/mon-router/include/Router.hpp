@@ -126,8 +126,7 @@ class Router {
   void ready() { std::sort(_paths.begin(), _paths.end()); }
 
   template <int MaxEvents>
-  void handle(mon_http::AHttpRequest& request, const std::string& hostname,
-              u_int16_t port, int client_fd,
+  void handle(mon_http::AHttpRequest& request, u_int16_t port, int client_fd,
               mon_net::Listener<MaxEvents>& listener);
 
  private:

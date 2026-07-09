@@ -32,13 +32,20 @@ static inline bool isFile(const std::string& path) {
 namespace mon_router {
 
 template <int MaxEvents>
-void Router::handle(mon_http::AHttpRequest& request,
-                    const std::string& hostname, u_int16_t port, int client_fd,
-                    mon_net::Listener<MaxEvents>& listener) {
+void Router::handle(mon_http::AHttpRequest& request, u_int16_t port,
+                    int client_fd, mon_net::Listener<MaxEvents>& listener) {
   try {
     Uri uri(request.path());
 
+    std::string hostname;
+    if (request.hasHost()) {
+      hostname = request.host();
+    }
+
     for (size_t i = 0; i < _handlers.size(); ++i) {
+      if (!_handlers[i].hostname.empty() && _handlers[i].hostname != hostname) {
+        continue;
+      }
       if (_handlers[i].port == port && _handlers[i].path == uri.path()) {
         invoke_handler(_handlers[i], request, client_fd, listener);
         return;
@@ -169,8 +176,8 @@ void Router::invoke_handler(const Handler& handler,
 }
 
 template void Router::handle<MAX_EVENTS>(
-    mon_http::AHttpRequest& request, const std::string& hostname,
-    u_int16_t port, int client_fd, mon_net::Listener<MAX_EVENTS>& listener);
+    mon_http::AHttpRequest& request, u_int16_t port, int client_fd,
+    mon_net::Listener<MAX_EVENTS>& listener);
 
 template void Router::serve_static_file<MAX_EVENTS>(
     const std::string& full_path, int client_fd,
