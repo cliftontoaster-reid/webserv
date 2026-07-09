@@ -40,7 +40,15 @@ void Router::handle(mon_http::AHttpRequest& request, u_int16_t port,
 
     std::string hostname;
     if (request.hasHost()) {
-      hostname = request.host();
+      const std::string& host = request.host();
+      size_t bracket = host.rfind(']');
+      size_t colon = host.rfind(':');
+      if (colon != std::string::npos &&
+          (bracket == std::string::npos || colon > bracket)) {
+        hostname = host.substr(0, colon);
+      } else {
+        hostname = host;
+      }
     }
 
     for (size_t i = 0; i < _handlers.size(); ++i) {
