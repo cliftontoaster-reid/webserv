@@ -107,6 +107,11 @@ std::vector<Event> Listener<MaxEvents>::poll(int timeout) {
   for (size_t i = 0; i < events.size(); ++i) {
     const Event& event = events[i];
 
+    if (event.type == Event::EVENT_TYPE_ERROR) {
+      closeFd(event.fd);
+      continue;
+    }
+
     if (_ports.has_a(event.fd)) {
       accept_new_connection(event.fd);
 

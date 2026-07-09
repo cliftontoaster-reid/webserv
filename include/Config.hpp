@@ -41,11 +41,19 @@ struct Cgi {
   size_t implement(mon_router::Router& router, u_int16_t port) const;
 };
 
-struct Server {
-  std::vector<u_int16_t> ports;
+struct Host {
+  std::string hostname;
   std::vector<Route> route;
   std::vector<Api> api;
   std::vector<Cgi> cgi;
+
+  explicit Host(const toml98::Value&);
+  size_t implement(mon_router::Router& router, u_int16_t port) const;
+};
+
+struct Server {
+  u_int16_t port;
+  std::vector<Host> host;
 
   explicit Server(const toml98::Value&);
   template <int MaxEvents>

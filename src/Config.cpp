@@ -123,40 +123,57 @@ size_t Cgi::implement(mon_router::Router& router, u_int16_t port) const {
   return 1;
 }
 
+size_t Host::implement(mon_router::Router& router, u_int16_t port) const {
+  size_t nbrRules = 0;
+
+  for (std::vector<Route>::const_iterator it = route.begin(); it != route.end(); ++it) {
+    nbrRules += it->implement(router, port);
+  }
+  for (std::vector<Api>::const_iterator it = api.begin(); it != api.end(); ++it) {
+    nbrRules += it->implement(router, port);
+  }
+  for (std::vector<Cgi>::const_iterator it = cgi.begin(); it != cgi.end(); ++it) {
+    nbrRules += it->implement(router, port);
+  }
+
+  return nbrRules;
+}
+
+Host::Host(const toml98::Value& v) {
+  const std::map<std::string, toml98::Value>& t = *v.getTable();
+  hostname = *t.find("hostname")->second.getString();
+
+  const std::vector<toml98::Value>& groups =
+      *t.find("route")->second.getArray();
+
+  for (std::size_t i = 0; i < groups.size(); ++i) {
+    const std::map<std::string, toml98::Value>& g = *groups[i].getTable();
+
+    const std::vector<toml98::Value>& r = *g.find("route")->second.getArray();
+    for (std::size_t j = 0; j < r.size(); ++j) {
+      route.push_back(Route(r[j]));
+    }
+
+    const std::vector<toml98::Value>& a = *g.find("api")->second.getArray();
+    for (std::size_t j = 0; j < a.size(); ++j) {
+      api.push_back(Api(a[j]));
+    }
+
+    const std::vector<toml98::Value>& c = *g.find("cgi")->second.getArray();
+    for (std::size_t j = 0; j < c.size(); ++j) {
+      cgi.push_back(Cgi(c[j]));
+    }
+  }
+}
+
 Server::Server(const toml98::Value& v) {
   const std::map<std::string, toml98::Value>& t = *v.getTable();
-  const std::vector<toml98::Value>& arr = *t.find("ports")->second.getArray();
+  port = static_cast<u_int16_t>(t.find("port")->second.getInteger());
 
-  ports.reserve(arr.size());
+  const std::vector<toml98::Value>& arr = *t.find("host")->second.getArray();
+  host.reserve(arr.size());
   for (std::size_t i = 0; i < arr.size(); ++i) {
-    ports.push_back(static_cast<u_int16_t>(arr[i].getInteger()));
-  }
-
-  {
-    const std::vector<toml98::Value>& arr = *t.find("route")->second.getArray();
-
-    route.reserve(arr.size());
-    for (std::size_t i = 0; i < arr.size(); ++i) {
-      route.push_back(Route(arr[i]));
-    }
-  }
-
-  {
-    const std::vector<toml98::Value>& arr = *t.find("api")->second.getArray();
-
-    api.reserve(arr.size());
-    for (std::size_t i = 0; i < arr.size(); ++i) {
-      api.push_back(Api(arr[i]));
-    }
-  }
-
-  {
-    const std::vector<toml98::Value>& arr = *t.find("cgi")->second.getArray();
-
-    cgi.reserve(arr.size());
-    for (std::size_t i = 0; i < arr.size(); ++i) {
-      cgi.push_back(Cgi(arr[i]));
-    }
+    host.push_back(Host(arr[i]));
   }
 }
 

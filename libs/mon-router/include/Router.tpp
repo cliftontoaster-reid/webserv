@@ -32,8 +32,9 @@ static inline bool isFile(const std::string& path) {
 namespace mon_router {
 
 template <int MaxEvents>
-void Router::handle(mon_http::AHttpRequest& request, u_int16_t port,
-                    int client_fd, mon_net::Listener<MaxEvents>& listener) {
+void Router::handle(mon_http::AHttpRequest& request,
+                    const std::string& hostname, u_int16_t port, int client_fd,
+                    mon_net::Listener<MaxEvents>& listener) {
   try {
     Uri uri(request.path());
 
@@ -44,7 +45,7 @@ void Router::handle(mon_http::AHttpRequest& request, u_int16_t port,
       }
     }
 
-    Route route = find_match(uri.path(), port);
+    Route route = find_match(uri.path(), hostname, port);
     Path path(route.path);
     path.append(uri.path().substr(route.preffix.length()));
     std::string full_path;
@@ -69,7 +70,7 @@ void Router::handle(mon_http::AHttpRequest& request, u_int16_t port,
 
     const mon_cgi::Handle* cgiHandle = _cgiHandler.isCgi(uri, port);
     if (cgiHandle) {
-      Handler cgiH = {full_path, NULL, port,
+      Handler cgiH = {full_path, NULL, hostname, port,
                       std::map<std::string, toml98::Value>()};
       _cgiHandler.handleCgi(cgiH, cgiHandle->cgiBin, request, client_fd,
                             listener);
@@ -98,6 +99,27 @@ void Router::serve_static_file(const std::string& full_path, int client_fd,
   mon_http::Http10Response res;
   res.ok200();
   res.headers().insert("Content-Type", get_mime_type(full_path));
+
+  std::string disp_path = full_path + "._txt";
+  if (isFile(disp_path)) {
+    FILE* disp_file = std::fopen(disp_path.c_str(), "rb");
+    if (disp_file) {
+      std::fseek(disp_file, 0, SEEK_END);
+      long disp_size = std::ftell(disp_file);
+      std::fseek(disp_file, 0, SEEK_SET);
+      if (disp_size > 0) {
+        std::string filename(disp_size, '\0');
+        if (std::fread(&filename[0], 1, disp_size, disp_file) > 0) {
+          filename.erase(filename.find_last_not_of(" \t\r\n") + 1);
+          if (!filename.empty()) {
+            res.headers().insert("Content-Disposition",
+                                 "attachment; filename=\"" + filename + "\"");
+          }
+        }
+      }
+      std::fclose(disp_file);
+    }
+  }
 
   FILE* file = std::fopen(full_path.c_str(), "rb");
   if (file == NULL) {
@@ -147,8 +169,8 @@ void Router::invoke_handler(const Handler& handler,
 }
 
 template void Router::handle<MAX_EVENTS>(
-    mon_http::AHttpRequest& request, u_int16_t port, int client_fd,
-    mon_net::Listener<MAX_EVENTS>& listener);
+    mon_http::AHttpRequest& request, const std::string& hostname,
+    u_int16_t port, int client_fd, mon_net::Listener<MAX_EVENTS>& listener);
 
 template void Router::serve_static_file<MAX_EVENTS>(
     const std::string& full_path, int client_fd,

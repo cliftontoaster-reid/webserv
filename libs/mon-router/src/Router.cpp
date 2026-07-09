@@ -54,9 +54,9 @@ void Router::addCgi(const std::string& glob, const std::string& cgiBin,
 }
 
 Route Router::find_match(const std::string& request_path,
-                         u_int16_t port) const {
+                         const std::string& hostname, u_int16_t port) const {
   for (size_t i = 0; i < _paths.size(); ++i) {
-    if (_paths[i].port == port && _paths[i].is_match(request_path)) {
+    if (_paths[i].port == port && _paths[i].hostname == hostname && _paths[i].is_match(request_path)) {
       return _paths[i];
     }
   }

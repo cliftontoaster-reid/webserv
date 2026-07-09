@@ -1,33 +1,31 @@
 #:schema ../../docs/config.schema.json
 
 [[server]]
-ports = [1998]
+port = 6969
 
-[[server.route]]
+[[server.host]]
+hostname = "example.com"
+
+[[server.host.route]]
 preffix = "/"
 path = "/var/www/html"
 index = "index.php"
 
-[[server.route]]
+[[server.host.route]]
 preffix = "/upload"
 path = "/srv/upload"
 index = "index.noway"
 
-[[server.route]]
+[[server.host.route]]
 preffix = "/imgs"
 path = "/usr"
 
-[[server.api]]
-uri = "/api/hello"
-external = false
-func = "echo"
-
-[[server.api]]
+[[server.host.api]]
 uri = "/api/upload"
 external = false
 func = "upload"
 upload = { path = "/srv/upload", random_len = 4 }
 
-[[server.cgi]]
+[[server.host.cgi]]
 glob = "/*.php"
 bin = "/usr/bin/php-cgi"

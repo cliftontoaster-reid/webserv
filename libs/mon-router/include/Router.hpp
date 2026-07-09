@@ -68,6 +68,7 @@ inline std::string getNewFileName(const std::string& file_name) {
 
 struct Route {
   std::string path;
+  std::string hostname;
   u_int16_t port;
   std::string preffix;
   std::string index;
@@ -125,7 +126,8 @@ class Router {
   void ready() { std::sort(_paths.begin(), _paths.end()); }
 
   template <int MaxEvents>
-  void handle(mon_http::AHttpRequest& request, u_int16_t port, int client_fd,
+  void handle(mon_http::AHttpRequest& request, const std::string& hostname,
+              u_int16_t port, int client_fd,
               mon_net::Listener<MaxEvents>& listener);
 
  private:
@@ -133,7 +135,8 @@ class Router {
   std::vector<Handler> _handlers;
   mon_cgi::CgiHandler _cgiHandler;
 
-  Route find_match(const std::string& request_path, u_int16_t port) const;
+  Route find_match(const std::string& request_path, const std::string& hostname,
+                   u_int16_t port) const;
 
   template <int MaxEvents>
   void serve_static_file(const std::string& full_path, int client_fd,
