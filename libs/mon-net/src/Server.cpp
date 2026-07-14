@@ -28,43 +28,51 @@ void Server::handleRequest(Event& event) {
   if (readVersion(ctx)) {
     mon_http::AHttpRequest* req = NULL;
 
-    switch (ctx.version.value) {
-      case mon_http::HttpVersion::HttpVersion1_0:
-        if (ctx.parser == NULL) {
-          ctx.parser = new mon_http::Http10StreamParser();
-        }
-        ctx.parser->append(ctx.buffer);
-        ctx.buffer.clear();
+    try {
+      switch (ctx.version.value) {
+        case mon_http::HttpVersion::HttpVersion1_0:
+          if (ctx.parser == NULL) {
+            ctx.parser = new mon_http::Http10StreamParser();
+          }
+          ctx.parser->append(ctx.buffer);
+          ctx.buffer.clear();
 
-        req = ctx.parser->pull();
-        if (req != NULL) {
-          handleV1_0(event, ctx, *req);
-        }
-        break;
+          req = ctx.parser->pull(ctx.maxBody);
+          if (req != NULL) {
+            handleV1_0(event, ctx, *req);
+          }
+          break;
 
-      case mon_http::HttpVersion::HttpVersion1_1:
-        if (ctx.parser == NULL) {
-          ctx.parser = new mon_http::Http10StreamParser();
-        }
-        ctx.parser->append(ctx.buffer);
-        ctx.buffer.clear();
+        case mon_http::HttpVersion::HttpVersion1_1:
+          if (ctx.parser == NULL) {
+            ctx.parser = new mon_http::Http10StreamParser();
+          }
+          ctx.parser->append(ctx.buffer);
+          ctx.buffer.clear();
 
-        req = ctx.parser->pull();
-        if (req != NULL) {
-          handleV1_1(event, ctx, *req);
-        }
-        break;
+          req = ctx.parser->pull(ctx.maxBody);
+          if (req != NULL) {
+            handleV1_1(event, ctx, *req);
+          }
+          break;
 
-      case mon_http::HttpVersion::HttpVersionUnknown:
-      case mon_http::HttpVersion::HttpVersion0_9:
-      case mon_http::HttpVersion::HttpVersion2_0:
-        mon_http::Http10Response res = mon_http::Http10Response();
-        res.setStatusCode(STATUS_Version_Not_Supported);
-        res.statusMessage = "HTTP Version Not Supported";
-        _listener.markClose(ctx.fd);
-        _listener.write(res, event.fd);
-        close(ctx.fd);
-        break;
+        case mon_http::HttpVersion::HttpVersionUnknown:
+        case mon_http::HttpVersion::HttpVersion0_9:
+        case mon_http::HttpVersion::HttpVersion2_0:
+          mon_http::Http10Response res = mon_http::Http10Response();
+          res.setStatusCode(STATUS_Version_Not_Supported);
+          res.statusMessage = "HTTP Version Not Supported";
+          _listener.markClose(ctx.fd);
+          _listener.write(res, event.fd);
+          close(ctx.fd);
+          break;
+      }
+    } catch (mon_http::ContentLengthExceeded& e) {
+      mon_http::Http10Response res;
+      res.setStatusCode(STATUS_Request_Entity_Too_Large);
+      res.statusMessage = "Request Entity Too Large";
+      _listener.markClose(ctx.fd);
+      _listener.write(res, ctx.fd);
     }
 
     if (req != NULL) {
@@ -104,10 +112,12 @@ void Server::handleV1_0(Event& event, Context& ctx,
     case mon_http::HttpMethod::HttpMethodPost:
       handlePostV1_0(ctx, req);
       break;
+    case mon_http::HttpMethod::HttpMethodDelete:
+      handleDeleteV1_0(ctx, req);
+      break;
     case mon_http::HttpMethod::HttpMethodUnknown:
     case mon_http::HttpMethod::HttpMethodHead:
     case mon_http::HttpMethod::HttpMethodPut:
-    case mon_http::HttpMethod::HttpMethodDelete:
     case mon_http::HttpMethod::HttpMethodConnect:
     case mon_http::HttpMethod::HttpMethodOptions:
     case mon_http::HttpMethod::HttpMethodTrace:
@@ -130,10 +140,12 @@ void Server::handleV1_1(Event& event, Context& ctx,
     case mon_http::HttpMethod::HttpMethodPost:
       handlePostV1_1(ctx, req);
       break;
+    case mon_http::HttpMethod::HttpMethodDelete:
+      handleDeleteV1_1(ctx, req);
+      break;
     case mon_http::HttpMethod::HttpMethodUnknown:
     case mon_http::HttpMethod::HttpMethodHead:
     case mon_http::HttpMethod::HttpMethodPut:
-    case mon_http::HttpMethod::HttpMethodDelete:
     case mon_http::HttpMethod::HttpMethodConnect:
     case mon_http::HttpMethod::HttpMethodOptions:
     case mon_http::HttpMethod::HttpMethodTrace:
@@ -195,13 +207,8 @@ void Server::handleGetV1_1(Context& ctx, mon_http::AHttpRequest& req) {
 }
 
 void Server::handlePostV1_0(Context& ctx, mon_http::AHttpRequest& req) {
-  (void)ctx;
-  (void)req;
   try {
-    mon_http::Form form(req.header("Content-Type"));
-
-    form.parse(req.body());
-    // TODO(cliftontoaster-reod)
+    _router.handle(req, ctx.port, ctx.fd, _listener);
   } catch (std::exception& err) {
     mon_http::Http10Response res;
     res.statusMessage = err.what();
@@ -213,6 +220,29 @@ void Server::handlePostV1_0(Context& ctx, mon_http::AHttpRequest& req) {
 void Server::handlePostV1_1(Context& ctx, mon_http::AHttpRequest& req) {
   try {
     _router.handle(req, ctx.port, ctx.fd, _listener);
+  } catch (std::exception& err) {
+    mon_http::Http10Response res;
+    res.statusMessage = err.what();
+    res.setStatusCode(STATUS_Bad_Request);
+    _listener.markClose(ctx.fd);
+    _listener.write(res, ctx.fd);
+  }
+}
+
+void Server::handleDeleteV1_0(Context& ctx, mon_http::AHttpRequest& req) {
+  try {
+    _router.handle_delete(req, ctx.port, ctx.fd, _listener);
+  } catch (std::exception& err) {
+    mon_http::Http10Response res;
+    res.statusMessage = err.what();
+    res.setStatusCode(STATUS_Bad_Request);
+    _listener.markClose(ctx.fd);
+    _listener.write(res, ctx.fd);
+  }
+}
+void Server::handleDeleteV1_1(Context& ctx, mon_http::AHttpRequest& req) {
+  try {
+    _router.handle_delete(req, ctx.port, ctx.fd, _listener);
   } catch (std::exception& err) {
     mon_http::Http10Response res;
     res.statusMessage = err.what();

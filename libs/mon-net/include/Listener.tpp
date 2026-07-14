@@ -213,6 +213,11 @@ void Listener<MaxEvents>::registerPort(u_int16_t port) {
 }
 
 template <int MaxEvents>
+void Listener<MaxEvents>::setPortMaxBody(u_int16_t port, long maxBody) {
+  _portMaxBody[port] = maxBody;
+}
+
+template <int MaxEvents>
 void Listener<MaxEvents>::markClose(int fd) {
   _connections[fd].closeAfterWrite = true;
 }
@@ -260,6 +265,11 @@ void Listener<MaxEvents>::accept_new_connection(int listening_fd) {
     ctx.parser = NULL;
     ctx.version =
         mon_http::HttpVersion(mon_http::HttpVersion::HttpVersionUnknown);
+
+    std::map<u_int16_t, long>::const_iterator maxBodyIt =
+        _portMaxBody.find(ctx.port);
+    ctx.maxBody = (maxBodyIt != _portMaxBody.end()) ? maxBodyIt->second : -1;
+
     _connections[client_fd] = ctx;
   }
 }

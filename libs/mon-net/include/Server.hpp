@@ -47,6 +47,9 @@ class Server {
 
   void handlePostV1_0(Context& ctx, mon_http::AHttpRequest& req);
   void handlePostV1_1(Context& ctx, mon_http::AHttpRequest& req);
+
+  void handleDeleteV1_0(Context& ctx, mon_http::AHttpRequest& req);
+  void handleDeleteV1_1(Context& ctx, mon_http::AHttpRequest& req);
 };
 
 }  // namespace mon_net

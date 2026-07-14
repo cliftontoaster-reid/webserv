@@ -56,11 +56,12 @@ struct Context {
   int fd;
   int port;
   bool closeAfterWrite;
+  long maxBody;
   mon_http::HttpVersion version;
   mon_http::AHttpStreamParser* parser;
   std::string buffer;
 
-  Context() : fd(-1), port(0), closeAfterWrite(false), parser(NULL) {}
+  Context() : fd(-1), port(0), closeAfterWrite(false), maxBody(-1), parser(NULL) {}
 
   bool canSniffVersion();
 };
@@ -132,6 +133,7 @@ class Listener {
   void write(FILE* file, int fd);
 
   void registerPort(u_int16_t port);
+  void setPortMaxBody(u_int16_t port, long maxBody);
   void markClose(int fd);
   void closeFd(int fd) {
     std::map<int, Context>::iterator iter = _connections.find(fd);
@@ -155,6 +157,7 @@ class Listener {
 
  private:
   DualMap<int, u_int16_t> _ports;
+  std::map<u_int16_t, long> _portMaxBody;
   std::map<int, Context> _connections;
   std::map<int, BufferedData> _writeBuffer;
 
