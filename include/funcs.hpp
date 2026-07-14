@@ -73,7 +73,7 @@ void randomFile(const std::string& root, const std::string& filename,
 
     std::ofstream file_name_write;
     file_name_write.open((file_path + "._txt").c_str());
-    if (!file_write.is_open()) {
+    if (!file_name_write.is_open()) {
       file_write.close();
       continue;
     }

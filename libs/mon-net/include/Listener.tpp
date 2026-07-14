@@ -203,6 +203,7 @@ void Listener<MaxEvents>::write(FILE* file, int fd) {
   newBuffer.attach_file(file);
 
   _writeBuffer.insert(std::make_pair(fd, newBuffer));
+  newBuffer.file = NULL;
   ask_write(fd);
 }
 

@@ -15,11 +15,15 @@ Router::Router() {}
 Router::Router(const Router& other)
     : _paths(other._paths),
       _handlers(other._handlers),
+      _cgiHandler(other._cgiHandler),
+      _errors(other._errors),
       _redirects(other._redirects) {}
 Router& Router::operator=(const Router& other) {
   if (this != &other) {
     _paths = other._paths;
     _handlers = other._handlers;
+    _cgiHandler = other._cgiHandler;
+    _errors = other._errors;
     _redirects = other._redirects;
   }
   return *this;

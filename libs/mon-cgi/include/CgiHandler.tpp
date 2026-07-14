@@ -253,7 +253,7 @@ inline bool executeCgi(const std::string& scriptPath, const std::string& cgiBin,
   pid_t pid = fork();
   if (pid < 0) {
     freeCStrArray(envp, envSize);
-    freeCStrArray(argv, 1);
+    freeCStrArray(argv, argc);
     outResponse.error500("Internal Server Error: Fork failed.");
     return false;
   }
