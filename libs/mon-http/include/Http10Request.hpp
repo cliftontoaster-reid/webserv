@@ -17,11 +17,12 @@ class Http10Request : public AHttpRequest {
   Http10Request& operator=(const Http10Request& other);
   ~Http10Request();
 
-  void parse(const std::vector<char>& data);
+  void parse(const std::vector<char>& data, long maxSize = -1);
 
   HttpVersion version() const;
   HttpMethod method() const;
   const std::string& path() const;
+  std::string& path();
   bool hasBody() const;
   const std::string& body() const;
   const std::string& mediaType();

@@ -23,7 +23,7 @@ Http10StreamParser& Http10StreamParser::operator=(
 }
 Http10StreamParser::~Http10StreamParser() {}
 
-AHttpRequest* Http10StreamParser::pull() {
+AHttpRequest* Http10StreamParser::pull(long maxSize) {
   if (!canPull()) {
     return NULL;
   }
@@ -36,7 +36,7 @@ AHttpRequest* Http10StreamParser::pull() {
   Http10Request* ret = new Http10Request();
 
   try {
-    ret->parse(_buffer);
+    ret->parse(_buffer, maxSize);
     _buffer.clear();
     return ret;
   } catch (EndedTooEarly& err) {

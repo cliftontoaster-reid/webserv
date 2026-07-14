@@ -26,15 +26,26 @@ class EndedTooEarly : public std::exception {
   }
 };
 
+class ContentLengthExceeded : public std::exception {
+ public:
+  ContentLengthExceeded() {}
+
+ private:
+  virtual const char* what() const _GLIBCXX_TXN_SAFE_DYN _GLIBCXX_NOTHROW {
+    return "Request body exceeds maximum allowed size";
+  }
+};
+
 class AHttpRequest {
  public:
   virtual ~AHttpRequest() {}
 
-  virtual void parse(const std::vector<char>& data) = 0;
+  virtual void parse(const std::vector<char>& data, long maxSize = -1) = 0;
 
   virtual HttpVersion version() const;
   virtual HttpMethod method() const = 0;
   virtual const std::string& path() const = 0;
+  virtual std::string& path() = 0;
   virtual bool hasBody() const = 0;
   virtual const std::string& body() const = 0;
   virtual const std::string& mediaType() = 0;

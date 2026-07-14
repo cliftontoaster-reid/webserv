@@ -14,7 +14,10 @@ AHttpStreamParser& AHttpStreamParser::operator=(
 }
 AHttpStreamParser::~AHttpStreamParser() {}
 
-AHttpRequest* AHttpStreamParser::pull() { return NULL; }
+AHttpRequest* AHttpStreamParser::pull(long maxSize) {
+  (void)maxSize;
+  return NULL;
+}
 bool AHttpStreamParser::canPull() { return false; }
 
 }  // namespace mon_http

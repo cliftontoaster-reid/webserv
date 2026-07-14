@@ -16,7 +16,7 @@ class Http10StreamParser : public AHttpStreamParser {
   Http10StreamParser& operator=(const Http10StreamParser& other);
   virtual ~Http10StreamParser();
 
-  AHttpRequest* pull();
+  AHttpRequest* pull(long maxSize = -1);
   bool canPull();
 };
 

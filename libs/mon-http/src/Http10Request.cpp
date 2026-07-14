@@ -130,7 +130,7 @@ Http10Request& Http10Request::operator=(const Http10Request& other) {
 }
 Http10Request::~Http10Request() {}
 
-void Http10Request::parse(const std::vector<char>& data) {
+void Http10Request::parse(const std::vector<char>& data, long maxSize) {
   HttpVersion::Type ver = HttpVersion::sniffHttpVersion(data).value;
   if (ver != HttpVersion::HttpVersion1_0 &&
       ver != HttpVersion::HttpVersion1_1) {
@@ -173,6 +173,10 @@ void Http10Request::parse(const std::vector<char>& data) {
           "Malformed HTTP request: malformed Content-Length header");
     }
 
+    if (maxSize != -1 && static_cast<long>(claimedLength) > maxSize) {
+      throw ContentLengthExceeded();
+    }
+
     if (this->_body.size() != claimedLength) {
       throw EndedTooEarly();
     }
@@ -191,6 +195,8 @@ HttpVersion Http10Request::version() const {
 HttpMethod Http10Request::method() const { return _method; }
 
 const std::string& Http10Request::path() const { return _path; }
+
+std::string& Http10Request::path() { return _path; }
 
 bool Http10Request::hasBody() const { return !_body.empty(); }
 
