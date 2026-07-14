@@ -28,6 +28,11 @@
           "port": {
             "type": "number"
           },
+          "max_body": {
+            "type": "integer",
+            "default": -1,
+            "minimum": -1
+          },
           "host": {
             "type": "array",
             "items": {
@@ -58,9 +63,41 @@
                       },
                       "index": {
                         "type": "string"
+                      },
+                      "methods": {
+                        "type": "object",
+                        "properties": {
+                          "GET": { "type": "boolean", "default": true },
+                          "POST": { "type": "boolean", "default": false },
+                          "DELETE": { "type": "boolean", "default": false }
+                        }
+                      },
+                      "options": {
+                        "type": "object",
+                        "properties": {
+                          "dir_listing": {
+                            "type": "boolean",
+                            "default": false
+                          }
+                        }
                       }
                     },
                     "required": ["preffix", "path"]
+                  }
+                },
+                "redirect": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "preffix": {
+                        "type": "string"
+                      },
+                      "location": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["preffix", "location"]
                   }
                 },
                 "api": {
