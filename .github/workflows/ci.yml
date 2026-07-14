@@ -150,7 +150,7 @@ jobs:
         run: siege -c 10 -r 1 -f http://localhost:1998/upload/test.html
 
       - name: Siege - benchmark (c10, 30s)
-        run: siege -c 10 -b http://localhost:1998/upload/test.html
+        run: siege -c 10 -b -t 30S http://localhost:1998/upload/test.html
 
       - name: Siege - heavy stress (c50 r5)
         run: siege -c 50 -r 5 -f http://localhost:1998/upload/test.html
