@@ -17,6 +17,10 @@ struct Route {
   std::string preffix;
   std::string path;
   std::string index;
+  bool allowGet;
+  bool allowPost;
+  bool allowDelete;
+  bool dirListing;
 
   explicit Route(const toml98::Value&);
   size_t implement(mon_router::Router& router, u_int16_t port,
@@ -50,6 +54,7 @@ struct Host {
   std::vector<Route> route;
   std::vector<Api> api;
   std::vector<Cgi> cgi;
+  std::vector<std::pair<std::string, std::string> > redirects;
 
   explicit Host(const toml98::Value&);
   size_t implement(mon_router::Router& router, u_int16_t port) const;
@@ -57,6 +62,7 @@ struct Host {
 
 struct Server {
   u_int16_t port;
+  long maxBody;
   std::vector<Host> host;
 
   explicit Server(const toml98::Value&);

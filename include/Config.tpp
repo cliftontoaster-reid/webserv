@@ -20,6 +20,7 @@ size_t Server::implement(mon_router::Router& router,
     throw std::invalid_argument("Already used port");
   }
   listener.registerPort(port);
+  listener.setPortMaxBody(port, maxBody);
   knownPorts.push_back(port);
 
   for (std::vector<Host>::const_iterator it = host.begin(); it != host.end(); ++it) {
