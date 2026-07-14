@@ -116,6 +116,49 @@ jobs:
           report_type: test_results
           fail_ci_if_error: true
 
+  stress:
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install siege
+        run: sudo apt-get update && sudo apt-get install -y siege
+
+      - name: Create test file
+        run: echo '<html><body><h1>test</h1></body></html>' > example/public/upload/test.html
+
+      - name: Build and start Docker Compose
+        run: docker compose -f example/docker-compose.yml up -d --build
+
+      - name: Wait for server readiness
+        run: |
+          echo "Waiting for server on port 1998..."
+          for i in $(seq 1 30); do
+            if curl -s -o /dev/null -w "%{http_code}" http://localhost:1998/ | grep -q "200"; then
+              echo "Server is up!"
+              exit 0
+            fi
+            echo "Attempt $i/30 failed, retrying in 2s..."
+            sleep 2
+          done
+          echo "Server failed to start within 60s"
+          docker compose -f example/docker-compose.yml logs
+          exit 1
+
+      - name: Siege - quick sanity check (c10 r1)
+        run: siege -c 10 -r 1 -f http://localhost:1998/upload/test.html
+
+      - name: Siege - benchmark (c10, 30s)
+        run: siege -c 10 -b http://localhost:1998/upload/test.html
+
+      - name: Siege - heavy stress (c50 r5)
+        run: siege -c 50 -r 5 -f http://localhost:1998/upload/test.html
+
+      - name: Tear down Docker Compose
+        if: always()
+        run: docker compose -f example/docker-compose.yml down
+
   format:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
     concurrency:
