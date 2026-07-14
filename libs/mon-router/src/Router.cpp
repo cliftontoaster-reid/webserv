@@ -7,41 +7,25 @@
 #include <string>
 #include <utility>
 
+#include "emb.hpp"
+
 namespace mon_router {
 
 Router::Router() {}
 Router::Router(const Router& other)
-    : _paths(other._paths), _handlers(other._handlers) {}
+    : _paths(other._paths), _handlers(other._handlers),
+      _redirects(other._redirects) {}
 Router& Router::operator=(const Router& other) {
   if (this != &other) {
     _paths = other._paths;
     _handlers = other._handlers;
+    _redirects = other._redirects;
   }
   return *this;
 }
 Router::~Router() {}
 
-void Router::addRoute(const std::string& prefix, const std::string& path,
-                      u_int16_t port) {
-  addRoute(prefix, path, port, std::string("index.html"));
-}
-
-void Router::addRoute(const std::string& prefix, const std::string& path,
-                      u_int16_t port, const std::string& index) {
-  addRoute(prefix, path, port, index, std::string(""));
-}
-
-void Router::addRoute(const std::string& prefix, const std::string& path,
-                      u_int16_t port, const std::string& index,
-                      const std::string& hostname) {
-  Route route;
-  route.preffix = prefix;
-  route.path = path;
-  route.port = port;
-  route.index = index;
-  route.hostname = hostname;
-  _paths.push_back(route);
-}
+void Router::addRoute(const Route& route) { _paths.push_back(route); }
 
 void Router::addHandler(
     const std::string& path,
@@ -81,6 +65,10 @@ void Router::addErrorPage(const std::string& hostname, u_int16_t port,
   _errors[std::make_pair(hostname, static_cast<int>(port))].files[code] = file;
 }
 
+void Router::addRedirect(const Redirect& redirect) {
+  _redirects.push_back(redirect);
+}
+
 Route Router::find_match(const std::string& request_path,
                          const std::string& hostname, u_int16_t port) const {
   for (size_t i = 0; i < _paths.size(); ++i) {
@@ -92,6 +80,10 @@ Route Router::find_match(const std::string& request_path,
     }
   }
   throw mon_http::HttpException(STATUS_Not_Found, "Not Found");
+}
+
+std::string Router::getFolderTemplate() {
+  return std::string(STD_PAGE_FOLDER_raw);
 }
 
 }  // namespace mon_router

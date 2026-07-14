@@ -74,6 +74,10 @@ struct Route {
   u_int16_t port;
   std::string preffix;
   std::string index;
+  bool allowGet;
+  bool allowPost;
+  bool allowDelete;
+  bool dirListing;
 
   bool operator<(const Route& other) const {
     // 1. Sort by length descending (longer prefixes first)
@@ -110,6 +114,13 @@ struct ErrorMap {
   std::map<uint, std::string> files;
 };
 
+struct Redirect {
+  std::string preffix;
+  std::string location;
+  std::string hostname;
+  u_int16_t port;
+};
+
 class Router {
  public:
   Router();
@@ -117,13 +128,7 @@ class Router {
   Router& operator=(const Router& other);
   ~Router();
 
-  void addRoute(const std::string& prefix, const std::string& path,
-                u_int16_t port);
-  void addRoute(const std::string& prefix, const std::string& path,
-                u_int16_t port, const std::string& index);
-  void addRoute(const std::string& prefix, const std::string& path,
-                u_int16_t port, const std::string& index,
-                const std::string& hostname);
+  void addRoute(const Route& route);
   void addHandler(
       const std::string& path,
       HandlerResponse (*func)(mon_http::AHttpRequest&, mon_http::Form&,
@@ -141,18 +146,25 @@ class Router {
               u_int16_t port, const std::string& hostname);
   void addErrorPage(const std::string& hostname, u_int16_t port, uint code,
                     const std::string& file);
+  void addRedirect(const Redirect& redirect);
 
   void ready() { std::sort(_paths.begin(), _paths.end()); }
 
   template <int MaxEvents>
   void handle(mon_http::AHttpRequest& request, u_int16_t port, int client_fd,
-              mon_net::Listener<MaxEvents>& listener);
+              mon_net::Listener<MaxEvents>& listener, int depth = 0);
+
+  template <int MaxEvents>
+  void handle_delete(mon_http::AHttpRequest& request, u_int16_t port,
+                     int client_fd, mon_net::Listener<MaxEvents>& listener,
+                     int depth = 0);
 
  private:
   std::vector<Route> _paths;
   std::vector<Handler> _handlers;
   mon_cgi::CgiHandler _cgiHandler;
   std::map<std::pair<std::string, int>, ErrorMap> _errors;
+  std::vector<Redirect> _redirects;
 
   Route find_match(const std::string& request_path, const std::string& hostname,
                    u_int16_t port) const;
@@ -162,8 +174,14 @@ class Router {
                          mon_net::Listener<MaxEvents>& listener);
 
   template <int MaxEvents>
+  void serve_directory_listing(const std::string& dir_path, int client_fd,
+                               mon_net::Listener<MaxEvents>& listener);
+
+  template <int MaxEvents>
   void invoke_handler(const Handler& handler, mon_http::AHttpRequest& request,
                       int client_fd, mon_net::Listener<MaxEvents>& listener);
+
+  std::string getFolderTemplate();
 };
 
 }  // namespace mon_router
