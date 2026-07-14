@@ -27,8 +27,7 @@ const Handle* CgiHandler::isCgi(mon_router::Uri uri, u_int16_t port,
       throw mon_http::HttpException(STATUS_Bad_Request, "No Path");
     }
     if (_handles[i].port == port && _handles[i].glob.matches(uri.path())) {
-      if (!_handles[i].hostname.empty() &&
-          _handles[i].hostname != hostname) {
+      if (!_handles[i].hostname.empty() && _handles[i].hostname != hostname) {
         continue;
       }
       return &_handles[i];

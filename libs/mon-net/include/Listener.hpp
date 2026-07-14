@@ -61,7 +61,8 @@ struct Context {
   mon_http::AHttpStreamParser* parser;
   std::string buffer;
 
-  Context() : fd(-1), port(0), closeAfterWrite(false), maxBody(-1), parser(NULL) {}
+  Context()
+      : fd(-1), port(0), closeAfterWrite(false), maxBody(-1), parser(NULL) {}
 
   bool canSniffVersion();
 };

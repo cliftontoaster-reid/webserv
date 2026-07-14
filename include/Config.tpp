@@ -23,7 +23,8 @@ size_t Server::implement(mon_router::Router& router,
   listener.setPortMaxBody(port, maxBody);
   knownPorts.push_back(port);
 
-  for (std::vector<Host>::const_iterator it = host.begin(); it != host.end(); ++it) {
+  for (std::vector<Host>::const_iterator it = host.begin(); it != host.end();
+       ++it) {
     nbrRules += it->implement(router, port);
   }
 

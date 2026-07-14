@@ -240,14 +240,12 @@ Host::Host(const toml98::Value& v) {
     route.push_back(Route(routeArr[i]));
   }
 
-  const std::vector<toml98::Value>& apiArr =
-      *t.find("api")->second.getArray();
+  const std::vector<toml98::Value>& apiArr = *t.find("api")->second.getArray();
   for (std::size_t i = 0; i < apiArr.size(); ++i) {
     api.push_back(Api(apiArr[i]));
   }
 
-  const std::vector<toml98::Value>& cgiArr =
-      *t.find("cgi")->second.getArray();
+  const std::vector<toml98::Value>& cgiArr = *t.find("cgi")->second.getArray();
   for (std::size_t i = 0; i < cgiArr.size(); ++i) {
     cgi.push_back(Cgi(cgiArr[i]));
   }
@@ -256,8 +254,7 @@ Host::Host(const toml98::Value& v) {
       t.find("redirect");
   if (redirectIt != t.end() &&
       redirectIt->second.type() == toml98::ValueArray) {
-    const std::vector<toml98::Value>& redirArr =
-        *redirectIt->second.getArray();
+    const std::vector<toml98::Value>& redirArr = *redirectIt->second.getArray();
     for (std::size_t i = 0; i < redirArr.size(); ++i) {
       const std::map<std::string, toml98::Value>& rt = *redirArr[i].getTable();
       std::string preffix = *rt.find("preffix")->second.getString();
@@ -272,8 +269,7 @@ Server::Server(const toml98::Value& v) {
   port = static_cast<u_int16_t>(t.find("port")->second.getInteger());
 
   maxBody = -1;
-  std::map<std::string, toml98::Value>::const_iterator it =
-      t.find("max_body");
+  std::map<std::string, toml98::Value>::const_iterator it = t.find("max_body");
   if (it != t.end() && it->second.type() == toml98::ValueInteger) {
     maxBody = static_cast<long>(it->second.getInteger());
   }

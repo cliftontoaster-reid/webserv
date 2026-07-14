@@ -34,8 +34,8 @@ struct Handler {
   HandlerResponse (*func)(
       mon_http::AHttpRequest& request, mon_http::Form& form_data,
       const std::map<std::string, toml98::Value>& arguments);
-	std::string hostname;
-	u_int16_t port;
+  std::string hostname;
+  u_int16_t port;
   std::map<std::string, toml98::Value> arguments;
 };
 

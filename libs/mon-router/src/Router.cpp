@@ -13,7 +13,8 @@ namespace mon_router {
 
 Router::Router() {}
 Router::Router(const Router& other)
-    : _paths(other._paths), _handlers(other._handlers),
+    : _paths(other._paths),
+      _handlers(other._handlers),
       _redirects(other._redirects) {}
 Router& Router::operator=(const Router& other) {
   if (this != &other) {
