@@ -13,6 +13,7 @@ hostname = ""
 preffix = "/"
 path = "/var/www/html/cgi"
 index = "index.php"
+methods.POST = true
 
 [[server.host.route]]
 preffix = "/upload"
