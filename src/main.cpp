@@ -30,11 +30,7 @@ void printPorts(const webserv::Config& cfg) {
   for (iterServ = cfg.server.begin(); iterServ != cfg.server.end();
        iterServ++) {
     const webserv::Server& serv = *iterServ;
-    std::vector<u_int16_t>::const_iterator iterPorts;
-    for (iterPorts = serv.ports.begin(); iterPorts != serv.ports.end();
-         iterPorts++) {
-      std::cerr << " - http://0.0.0.0:" << *iterPorts << '\n';
-    }
+    std::cerr << " - http://0.0.0.0:" << serv.port << '\n';
   }
 }
 

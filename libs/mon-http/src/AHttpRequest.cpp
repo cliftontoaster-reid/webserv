@@ -6,6 +6,9 @@
 
 namespace mon_http {
 
+bool AHttpRequest::hasHost() const { return hasHeader("Host"); }
+const std::string& AHttpRequest::host() const { return header("Host"); }
+
 HttpVersion AHttpRequest::version() const {
   return HttpVersion(HttpVersion::HttpVersionUnknown);
 }

@@ -25,111 +25,154 @@
       "items": {
         "type": "object",
         "properties": {
-          "ports": {
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
+          "port": {
+            "type": "number"
           },
-          "route": {
+          "max_body": {
+            "type": "integer",
+            "default": -1,
+            "minimum": -1
+          },
+          "host": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "preffix": {
+                "hostname": {
                   "type": "string"
                 },
-                "path": {
-                  "type": "string"
-                },
-                "index": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "preffix",
-                "path"
-              ]
-            }
-          },
-          "api": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "uri": {
-                  "type": "string"
-                },
-                "external": {
-                  "type": "boolean"
-                },
-                "func": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "uri",
-                "external",
-                "func"
-              ],
-              "additionalProperties": true,
-              "allOf": [{
-                "if": {
-                  "properties": { "external": { "const": false } }
-                },
-                "then": {
-                  "properties": {
-                    "func": { "enum": ["echo", "upload"] }
-                  }
-                }
-              }, {
-                "if": {
-                  "properties": {
-                    "func": { "const": "upload" },
-                    "external": { "const": false }
-                  }
-                },
-                "then": {
-                  "properties": {
-                    "upload": { "$ref": "#/$defs/uploadData" }
+                "error": {
+                  "type": "object",
+                  "propertyNames": {
+                    "pattern": "^[0-9]{3}$"
                   },
-                  "required": ["upload"]
-                }
-              }, {
-                "if": { "properties": { "external": { "const": true } } },
-                "then": { "$ref": "#/$defs/externalData" }
-              }]
-            }
-          },
-          "cgi": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "glob": {
-                  "type": "string"
+                  "additionalProperties": {
+                    "type": "string"
+                  }
                 },
-                "bin": {
-                  "type": "string"
+                "route": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "preffix": {
+                        "type": "string"
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "index": {
+                        "type": "string"
+                      },
+                      "methods": {
+                        "type": "object",
+                        "properties": {
+                          "GET": { "type": "boolean", "default": true },
+                          "POST": { "type": "boolean", "default": false },
+                          "DELETE": { "type": "boolean", "default": false }
+                        }
+                      },
+                      "options": {
+                        "type": "object",
+                        "properties": {
+                          "dir_listing": {
+                            "type": "boolean",
+                            "default": false
+                          }
+                        }
+                      }
+                    },
+                    "required": ["preffix", "path"]
+                  }
+                },
+                "redirect": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "preffix": {
+                        "type": "string"
+                      },
+                      "location": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["preffix", "location"]
+                  }
+                },
+                "api": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "uri": {
+                        "type": "string"
+                      },
+                      "external": {
+                        "type": "boolean"
+                      },
+                      "func": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["uri", "external", "func"],
+                    "additionalProperties": true,
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": { "external": { "const": false } }
+                        },
+                        "then": {
+                          "properties": {
+                            "func": { "enum": ["echo", "upload"] }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "func": { "const": "upload" },
+                            "external": { "const": false }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "upload": { "$ref": "#/$defs/uploadData" }
+                          },
+                          "required": ["upload"]
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": { "external": { "const": true } }
+                        },
+                        "then": { "$ref": "#/$defs/externalData" }
+                      }
+                    ]
+                  }
+                },
+                "cgi": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "glob": {
+                        "type": "string"
+                      },
+                      "bin": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["glob", "bin"]
+                  }
                 }
-              },
-              "required": [
-                "glob",
-                "bin"
-              ]
+              }
             }
           }
         },
-        "required": [
-          "ports",
-          "route",
-          "api",
-          "cgi"
-        ]
+        "required": ["port"]
       }
     }
   },
-  "required": [
-    "server"
-  ]
+  "required": ["server"]
 }

@@ -37,15 +37,64 @@ Route::Route(const toml98::Value& v) {
   } else {
     index = "index.html";
   }
+
+  allowGet = true;
+  allowPost = false;
+  allowDelete = false;
+  std::map<std::string, toml98::Value>::const_iterator iterMethods =
+      t.find("methods");
+  if (iterMethods != t.end() &&
+      iterMethods->second.type() == toml98::ValueTable) {
+    const std::map<std::string, toml98::Value>& m =
+        *iterMethods->second.getTable();
+    std::map<std::string, toml98::Value>::const_iterator it;
+    it = m.find("GET");
+    if (it != m.end() && it->second.type() == toml98::ValueBoolean) {
+      allowGet = it->second.getBoolean();
+    }
+    it = m.find("POST");
+    if (it != m.end() && it->second.type() == toml98::ValueBoolean) {
+      allowPost = it->second.getBoolean();
+    }
+    it = m.find("DELETE");
+    if (it != m.end() && it->second.type() == toml98::ValueBoolean) {
+      allowDelete = it->second.getBoolean();
+    }
+  }
+
+  dirListing = false;
+  std::map<std::string, toml98::Value>::const_iterator iterOptions =
+      t.find("options");
+  if (iterOptions != t.end() &&
+      iterOptions->second.type() == toml98::ValueTable) {
+    const std::map<std::string, toml98::Value>& o =
+        *iterOptions->second.getTable();
+    std::map<std::string, toml98::Value>::const_iterator it;
+    it = o.find("dir_listing");
+    if (it != o.end() && it->second.type() == toml98::ValueBoolean) {
+      dirListing = it->second.getBoolean();
+    }
+  }
 }
 
-size_t Route::implement(mon_router::Router& router, u_int16_t port) const {
+size_t Route::implement(mon_router::Router& router, u_int16_t port,
+                        const std::string& hostname) const {
   if (!isFolder(path)) {
     throw std::invalid_argument("Invalid path '" + path +
                                 "' is not a folder or does not exist.");
   }
 
-  router.addRoute(preffix, path, port, index);
+  mon_router::Route r;
+  r.preffix = preffix;
+  r.path = path;
+  r.port = port;
+  r.index = index;
+  r.hostname = hostname;
+  r.allowGet = allowGet;
+  r.allowPost = allowPost;
+  r.allowDelete = allowDelete;
+  r.dirListing = dirListing;
+  router.addRoute(r);
   return 1;
 }
 
@@ -85,7 +134,8 @@ typedef mon_router::HandlerResponse (*HandlerFunc)(
     mon_http::AHttpRequest&, mon_http::Form&,
     const std::map<std::string, toml98::Value>&);
 
-size_t Api::implement(mon_router::Router& router, u_int16_t port) const {
+size_t Api::implement(mon_router::Router& router, u_int16_t port,
+                      const std::string& hostname) const {
   HandlerFunc ptr = NULL;
 
   if (func == "echo" && !external) {
@@ -99,7 +149,7 @@ size_t Api::implement(mon_router::Router& router, u_int16_t port) const {
                                 "' please check spelling or enable external.");
   }
 
-  router.addHandler(uri, ptr, port, arguments);
+  router.addHandler(uri, ptr, port, arguments, hostname);
   return 1;
 }
 
@@ -109,7 +159,8 @@ Cgi::Cgi(const toml98::Value& v) {
   bin = *t.find("bin")->second.getString();
 }
 
-size_t Cgi::implement(mon_router::Router& router, u_int16_t port) const {
+size_t Cgi::implement(mon_router::Router& router, u_int16_t port,
+                      const std::string& hostname) const {
   if (!isFile(bin)) {
     throw std::invalid_argument("Cgi '" + bin +
                                 "' is not a file or does not exist.");
@@ -119,44 +170,114 @@ size_t Cgi::implement(mon_router::Router& router, u_int16_t port) const {
                                 "' cannot be ran due to permission errors.");
   }
 
-  router.addCgi(glob, bin, port);
+  router.addCgi(glob, bin, port, hostname);
   return 1;
+}
+
+size_t Host::implement(mon_router::Router& router, u_int16_t port) const {
+  size_t nbrRules = 0;
+
+  for (std::map<std::string, std::string>::const_iterator it = error.begin();
+       it != error.end(); ++it) {
+    uint code = static_cast<uint>(std::strtol(it->first.c_str(), NULL, 10));
+    if (!isFile(it->second)) {
+      throw std::invalid_argument("Error page '" + it->second +
+                                  "' is not a file or does not exist.");
+    }
+    if (access(it->second.c_str(), R_OK) != 0) {
+      throw std::invalid_argument("Error page '" + it->second +
+                                  "' is not readable.");
+    }
+    router.addErrorPage(hostname, port, code, it->second);
+    nbrRules++;
+  }
+
+  for (std::vector<Route>::const_iterator it = route.begin(); it != route.end();
+       ++it) {
+    nbrRules += it->implement(router, port, hostname);
+  }
+  for (std::vector<Api>::const_iterator it = api.begin(); it != api.end();
+       ++it) {
+    nbrRules += it->implement(router, port, hostname);
+  }
+  for (std::vector<Cgi>::const_iterator it = cgi.begin(); it != cgi.end();
+       ++it) {
+    nbrRules += it->implement(router, port, hostname);
+  }
+  for (std::vector<std::pair<std::string, std::string> >::const_iterator it =
+           redirects.begin();
+       it != redirects.end(); ++it) {
+    mon_router::Redirect redir;
+    redir.preffix = it->first;
+    redir.location = it->second;
+    redir.port = port;
+    redir.hostname = hostname;
+    router.addRedirect(redir);
+    nbrRules++;
+  }
+
+  return nbrRules;
+}
+
+Host::Host(const toml98::Value& v) {
+  const std::map<std::string, toml98::Value>& t = *v.getTable();
+  hostname = *t.find("hostname")->second.getString();
+
+  std::map<std::string, toml98::Value>::const_iterator errIt = t.find("error");
+  if (errIt != t.end()) {
+    const std::map<std::string, toml98::Value>& errMap =
+        *errIt->second.getTable();
+    for (std::map<std::string, toml98::Value>::const_iterator it =
+             errMap.begin();
+         it != errMap.end(); ++it) {
+      error.insert(std::make_pair(it->first, *it->second.getString()));
+    }
+  }
+
+  const std::vector<toml98::Value>& routeArr =
+      *t.find("route")->second.getArray();
+  for (std::size_t i = 0; i < routeArr.size(); ++i) {
+    route.push_back(Route(routeArr[i]));
+  }
+
+  const std::vector<toml98::Value>& apiArr = *t.find("api")->second.getArray();
+  for (std::size_t i = 0; i < apiArr.size(); ++i) {
+    api.push_back(Api(apiArr[i]));
+  }
+
+  const std::vector<toml98::Value>& cgiArr = *t.find("cgi")->second.getArray();
+  for (std::size_t i = 0; i < cgiArr.size(); ++i) {
+    cgi.push_back(Cgi(cgiArr[i]));
+  }
+
+  std::map<std::string, toml98::Value>::const_iterator redirectIt =
+      t.find("redirect");
+  if (redirectIt != t.end() &&
+      redirectIt->second.type() == toml98::ValueArray) {
+    const std::vector<toml98::Value>& redirArr = *redirectIt->second.getArray();
+    for (std::size_t i = 0; i < redirArr.size(); ++i) {
+      const std::map<std::string, toml98::Value>& rt = *redirArr[i].getTable();
+      std::string preffix = *rt.find("preffix")->second.getString();
+      std::string location = *rt.find("location")->second.getString();
+      redirects.push_back(std::make_pair(preffix, location));
+    }
+  }
 }
 
 Server::Server(const toml98::Value& v) {
   const std::map<std::string, toml98::Value>& t = *v.getTable();
-  const std::vector<toml98::Value>& arr = *t.find("ports")->second.getArray();
+  port = static_cast<u_int16_t>(t.find("port")->second.getInteger());
 
-  ports.reserve(arr.size());
+  maxBody = -1;
+  std::map<std::string, toml98::Value>::const_iterator it = t.find("max_body");
+  if (it != t.end() && it->second.type() == toml98::ValueInteger) {
+    maxBody = static_cast<long>(it->second.getInteger());
+  }
+
+  const std::vector<toml98::Value>& arr = *t.find("host")->second.getArray();
+  host.reserve(arr.size());
   for (std::size_t i = 0; i < arr.size(); ++i) {
-    ports.push_back(static_cast<u_int16_t>(arr[i].getInteger()));
-  }
-
-  {
-    const std::vector<toml98::Value>& arr = *t.find("route")->second.getArray();
-
-    route.reserve(arr.size());
-    for (std::size_t i = 0; i < arr.size(); ++i) {
-      route.push_back(Route(arr[i]));
-    }
-  }
-
-  {
-    const std::vector<toml98::Value>& arr = *t.find("api")->second.getArray();
-
-    api.reserve(arr.size());
-    for (std::size_t i = 0; i < arr.size(); ++i) {
-      api.push_back(Api(arr[i]));
-    }
-  }
-
-  {
-    const std::vector<toml98::Value>& arr = *t.find("cgi")->second.getArray();
-
-    cgi.reserve(arr.size());
-    for (std::size_t i = 0; i < arr.size(); ++i) {
-      cgi.push_back(Cgi(arr[i]));
-    }
+    host.push_back(Host(arr[i]));
   }
 }
 

@@ -6,6 +6,6 @@ services:
     ports:
       - "1998:1998"
     volumes:
-      - ./public/cgi:/var/www/html:Z
+      - ./public:/var/www/html:Z
       - ./config:/etc/webserv:Z
       - ./public/upload:/srv/upload:Z

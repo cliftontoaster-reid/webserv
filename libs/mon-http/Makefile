@@ -98,6 +98,7 @@ FILES = \
  ../../assets/html/500.html \
  ../../assets/html/501.html \
  ../../assets/html/505.html \
+ ../../assets/html/folder.html \
 
 VARS = \
 STD_PAGE_400 \
@@ -107,6 +108,7 @@ STD_PAGE_414 \
 STD_PAGE_500 \
 STD_PAGE_501 \
 STD_PAGE_505 \
+STD_PAGE_FOLDER \
 
 INC_DIR		= ./include
 SRC_DIR		= ./src

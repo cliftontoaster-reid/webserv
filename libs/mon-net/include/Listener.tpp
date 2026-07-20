@@ -107,6 +107,11 @@ std::vector<Event> Listener<MaxEvents>::poll(int timeout) {
   for (size_t i = 0; i < events.size(); ++i) {
     const Event& event = events[i];
 
+    if (event.type == Event::EVENT_TYPE_ERROR) {
+      closeFd(event.fd);
+      continue;
+    }
+
     if (_ports.has_a(event.fd)) {
       accept_new_connection(event.fd);
 
@@ -198,6 +203,7 @@ void Listener<MaxEvents>::write(FILE* file, int fd) {
   newBuffer.attach_file(file);
 
   _writeBuffer.insert(std::make_pair(fd, newBuffer));
+  newBuffer.file = NULL;
   ask_write(fd);
 }
 
@@ -205,6 +211,11 @@ template <int MaxEvents>
 void Listener<MaxEvents>::registerPort(u_int16_t port) {
   int fd = _register_port(port);
   _ports.insert(fd, port);
+}
+
+template <int MaxEvents>
+void Listener<MaxEvents>::setPortMaxBody(u_int16_t port, long maxBody) {
+  _portMaxBody[port] = maxBody;
 }
 
 template <int MaxEvents>
@@ -255,6 +266,11 @@ void Listener<MaxEvents>::accept_new_connection(int listening_fd) {
     ctx.parser = NULL;
     ctx.version =
         mon_http::HttpVersion(mon_http::HttpVersion::HttpVersionUnknown);
+
+    std::map<u_int16_t, long>::const_iterator maxBodyIt =
+        _portMaxBody.find(ctx.port);
+    ctx.maxBody = (maxBodyIt != _portMaxBody.end()) ? maxBodyIt->second : -1;
+
     _connections[client_fd] = ctx;
   }
 }

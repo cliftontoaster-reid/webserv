@@ -20,12 +20,16 @@ CgiHandler& CgiHandler::operator=(const CgiHandler& other) {
   return *this;
 }
 
-const Handle* CgiHandler::isCgi(mon_router::Uri uri, u_int16_t port) const {
+const Handle* CgiHandler::isCgi(mon_router::Uri uri, u_int16_t port,
+                                const std::string& hostname) const {
   for (size_t i = 0; i < _handles.size(); i++) {
     if (!uri.hasPath()) {
       throw mon_http::HttpException(STATUS_Bad_Request, "No Path");
     }
     if (_handles[i].port == port && _handles[i].glob.matches(uri.path())) {
+      if (!_handles[i].hostname.empty() && _handles[i].hostname != hostname) {
+        continue;
+      }
       return &_handles[i];
     }
   }
@@ -33,17 +37,17 @@ const Handle* CgiHandler::isCgi(mon_router::Uri uri, u_int16_t port) const {
 }
 
 void CgiHandler::addGlober(const Glob& glob, const std::string& cgiBin,
-                           u_int16_t port) {
-  Handle res = {glob, cgiBin, port};
+                           u_int16_t port, const std::string& hostname) {
+  Handle res = {glob, cgiBin, port, hostname};
   _handles.push_back(res);
 }
 
 void CgiHandler::addGlober(const std::string& glob, const std::string& cgiBin,
-                           u_int16_t port) {
+                           u_int16_t port, const std::string& hostname) {
   Glob glob_parsed;
   glob_parsed.compile(glob);
 
-  addGlober(glob_parsed, cgiBin, port);
+  addGlober(glob_parsed, cgiBin, port, hostname);
 }
 
 }  // namespace mon_cgi

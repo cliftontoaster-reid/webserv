@@ -24,7 +24,7 @@ class AHttpStreamParser {
     _buffer.insert(_buffer.end(), source.begin(), source.end());
   }
 
-  virtual AHttpRequest* pull();
+  virtual AHttpRequest* pull(long maxSize = -1);
   virtual bool canPull();
 
  protected:
