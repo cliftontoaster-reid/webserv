@@ -5,6 +5,7 @@ services:
       dockerfile: example/Dockerfile
     ports:
       - "1998:1998"
+      - "9999:9999"
     volumes:
       - ./public:/var/www/html:Z
       - ./config:/etc/webserv:Z
