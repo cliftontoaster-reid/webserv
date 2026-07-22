@@ -24,7 +24,8 @@ void Parser::readSuperKey(bool isArray) {
         for (std::size_t i = 0; isSubPath && i < ret.size(); ++i) {
           const PathPart& a = dit->first[i];
           const PathPart& b = ret[i];
-          if (a.type != b.type || (a.type == PathPart::PathPartKey && a.key != b.key) ||
+          if (a.type != b.type ||
+              (a.type == PathPart::PathPartKey && a.key != b.key) ||
               (a.type == PathPart::PathPartIndex && a.index != b.index)) {
             isSubPath = false;
           }
